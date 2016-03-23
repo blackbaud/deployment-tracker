@@ -1,0 +1,17 @@
+# Gradle
+.gradle/
+build/
+logs/
+out/
+
+# IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# OS
+.DS_Store
+
+# Swagger
+client/src/main/java
