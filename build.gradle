@@ -5,11 +5,13 @@ buildscript {
     dependencies {
         classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
         classpath "com.blackbaud:gradle-internal:3.+"
+        classpath "com.blackbaud:gradle-docker:1.+"
         classpath "com.blackbaud:gradle-templates:2.+"
     }
 }
 
 apply plugin: "blackbaud-internal-rest"
+apply plugin: "docker"
 apply plugin: "blackbaud-templates"
 apply plugin: "spring-boot"
 
@@ -29,6 +31,9 @@ sourceSets {
 
 dependencies {
     compile "com.blackbaud:common-spring-boot-rest:${springBootVersion}-2.+"
+    compile "com.blackbaud:common-spring-boot-persistence:${springBootVersion}-2.+"
+    compile "postgresql:postgresql:9.0-801.jdbc4"
+    compile "org.liquibase:liquibase-core"
 
     clientCompile "com.blackbaud:common-spring-boot-rest:${springBootVersion}-2.+"
 
@@ -55,3 +60,14 @@ jar {
 publishing_ext {
     publication('client')
 }
+
+docker {
+    container {
+        imageName "postgres:9.4"
+        publish "5432:5432"
+        env "POSTGRES_USER=postgres"
+        env "POSTGRES_PASSWORD=postgres"
+    }
+}
+
+componentTest.dependsOn System.getenv("BUILD_NUMBER") ? refreshPostgres : startPostgres
