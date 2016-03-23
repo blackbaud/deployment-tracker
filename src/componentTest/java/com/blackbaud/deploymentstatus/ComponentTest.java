@@ -15,7 +15,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @Inherited
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-@SpringApplicationConfiguration(classes = {DeploymentStatus.class, DeploymentStatusTestConfig.class})
+@SpringApplicationConfiguration(classes = {DeploymentStatusApp.class, TestConfig.class})
 @WebAppConfiguration
 @IntegrationTest({"server.port=10000", "management.port=10001"})
 @Sql(scripts = "classpath:/db/test_cleanup.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
