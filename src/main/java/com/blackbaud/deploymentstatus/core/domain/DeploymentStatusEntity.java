@@ -9,28 +9,26 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.SequenceGenerator;
+import javax.persistence.IdClass;
 import javax.persistence.Table;
 
 @Entity(name = "deployment_status")
 @Table(name = "deployment_status")
+@IdClass(DeploymentStatusPrimaryKey.class)
 @Data
-@EqualsAndHashCode(of = "id")
+@EqualsAndHashCode(of = {"appName", "space", "foundation"})
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class DeploymentStatusEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "deployment_status_seq_gen")
-    @SequenceGenerator(name = "deployment_status_seq_gen", sequenceName = "deployment_status_seq")
-    private Long id;
     @Column(name = "app_name")
     private String appName;
+    @Id
     private String space;
+    @Id
     private String foundation;
     @Column(name = "build_version")
     private String buildVersion;

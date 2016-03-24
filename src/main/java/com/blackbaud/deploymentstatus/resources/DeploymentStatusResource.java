@@ -1,25 +1,24 @@
 package com.blackbaud.deploymentstatus.resources;
 
 import com.blackbaud.deploymentstatus.DeploymentStatusConverter;
-import com.blackbaud.deploymentstatus.api.ResourcePaths;
 import com.blackbaud.deploymentstatus.api.DeploymentStatus;
+import com.blackbaud.deploymentstatus.api.ResourcePaths;
+import com.blackbaud.deploymentstatus.core.domain.DeploymentStatusEntity;
+import com.blackbaud.deploymentstatus.core.domain.DeploymentStatusRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-import java.util.List;
 import javax.validation.Valid;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
-import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
-
-import com.blackbaud.deploymentstatus.core.domain.DeploymentStatusEntity;
-import com.blackbaud.deploymentstatus.core.domain.DeploymentStatusRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import java.util.List;
 
 @Component
 @Path(ResourcePaths.DEPLOYMENT_STATUS_PATH + "/{foundation}/{space}")
@@ -35,9 +34,9 @@ public class DeploymentStatusResource {
     @Autowired
     private DeploymentStatusRepository repository;
 
-    @POST
-    public DeploymentStatus addDeploymentStatus(@PathParam("foundation") String foundation, @PathParam("space") String space,
-                                                @Valid DeploymentStatus status) {
+    @PUT
+    public DeploymentStatus update(@PathParam("foundation") String foundation, @PathParam("space") String space,
+                                   @Valid DeploymentStatus status) {
         DeploymentStatusEntity entity = converter.toEntity(status);
         entity.setFoundation(foundation);
         entity.setSpace(space);
@@ -46,9 +45,9 @@ public class DeploymentStatusResource {
     }
 
     @GET
-    @Path("{appName}" + ResourcePaths.ACTIVE_PATH)
-    public DeploymentStatus findActiveAppForSpace(@PathParam("foundation") String foundation, @PathParam("space") String space,
-                                                  @PathParam("appName") String appName) {
+    @Path("{appName}")
+    public DeploymentStatus find(@PathParam("foundation") String foundation, @PathParam("space") String space,
+                                 @PathParam("appName") String appName) {
         DeploymentStatusEntity statusEntity = repository.findOneByFoundationAndSpaceAndAppName(foundation, space, appName);
         if (statusEntity == null) {
             throw new NotFoundException();
@@ -57,8 +56,7 @@ public class DeploymentStatusResource {
     }
 
     @GET
-    @Path(ResourcePaths.ACTIVE_PATH)
-    public List<DeploymentStatus> findAllActiveForSpace(@PathParam("foundation") String foundation, @PathParam("space") String space) {
+    public List<DeploymentStatus> findAllInSpace(@PathParam("foundation") String foundation, @PathParam("space") String space) {
         List<DeploymentStatusEntity> statusEntities = repository.findManyByFoundationAndSpace(foundation, space);
         return converter.toApiList(statusEntities);
     }

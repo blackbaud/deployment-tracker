@@ -14,20 +14,19 @@ public class DeploymentStatusClient extends CrudClient<DeploymentStatus, Deploym
         super(baseUrl, ResourcePaths.DEPLOYMENT_STATUS_PATH, DeploymentStatus.class);
     }
 
-    public DeploymentStatus createDeploymentStatus(String foundation, String space, DeploymentStatus status) {
+    public DeploymentStatus update(String foundation, String space, DeploymentStatus status) {
         return crudClientRequest.path(foundation).path(space)
-                .createWithPost(status);
+                .updateWithPut(status);
     }
 
-    public DeploymentStatus findActiveApp(String foundation, String space, String appName) {
-        return crudClientRequest.path(foundation).path(space)
-                .path(appName).path(ResourcePaths.ACTIVE_PATH)
+    public DeploymentStatus find(String foundation, String space, String appName) {
+        return crudClientRequest.path(foundation).path(space).path(appName)
                 .find();
     }
 
-//    public List<DeploymentStatus> findManyActiveForSpace(String foundation, String space) {
-//        return crudClientRequest.path(foundation).path(space)
-//                .findMany();
-//    }
+    public List<DeploymentStatus> findAllInSpace(String foundation, String space) {
+        return crudClientRequest.path(foundation).path(space)
+                .findMany();
+    }
 
 }

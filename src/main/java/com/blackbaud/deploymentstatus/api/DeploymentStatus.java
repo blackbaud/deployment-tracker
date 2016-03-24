@@ -7,7 +7,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Data
-@EqualsAndHashCode(of = {"appName", "buildVersion", "releaseVersion", "gitSha"})
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
