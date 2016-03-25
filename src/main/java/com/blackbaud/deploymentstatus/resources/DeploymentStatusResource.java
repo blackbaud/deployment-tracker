@@ -48,7 +48,7 @@ public class DeploymentStatusResource {
     @Path("{appName}")
     public DeploymentStatus find(@PathParam("foundation") String foundation, @PathParam("space") String space,
                                  @PathParam("appName") String appName) {
-        DeploymentStatusEntity statusEntity = repository.findOneByFoundationAndSpaceAndAppName(foundation, space, appName);
+        DeploymentStatusEntity statusEntity = repository.findOneByFoundationAndSpaceAndArtifactId(foundation, space, appName);
         if (statusEntity == null) {
             throw new NotFoundException();
         }

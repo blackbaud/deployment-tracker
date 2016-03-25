@@ -17,15 +17,15 @@ import javax.persistence.Table;
 @Table(name = "deployment_status")
 @IdClass(DeploymentStatusPrimaryKey.class)
 @Data
-@EqualsAndHashCode(of = {"appName", "space", "foundation"})
+@EqualsAndHashCode(of = {"artifactId", "space", "foundation"})
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class DeploymentStatusEntity {
 
     @Id
-    @Column(name = "app_name")
-    private String appName;
+    @Column(name = "artifact_id")
+    private String artifactId;
     @Id
     private String space;
     @Id

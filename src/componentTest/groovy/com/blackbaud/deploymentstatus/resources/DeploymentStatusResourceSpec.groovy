@@ -23,7 +23,7 @@ class DeploymentStatusResourceSpec extends Specification {
         DeploymentStatus status = aRandom.deploymentStatus().build()
 
         when:
-        deploymentStatusClient.find(foundation, space, status.appName)
+        deploymentStatusClient.find(foundation, space, status.artifactId)
 
         then:
         thrown(NotFoundException)
@@ -32,7 +32,7 @@ class DeploymentStatusResourceSpec extends Specification {
         deploymentStatusClient.update(foundation, space, status)
 
         then:
-        assert status == deploymentStatusClient.find(foundation, space, status.appName)
+        assert status == deploymentStatusClient.find(foundation, space, status.artifactId)
     }
 
     def "should replace status on update"() {
@@ -46,16 +46,16 @@ class DeploymentStatusResourceSpec extends Specification {
         deploymentStatusClient.update(foundation, space, updatedStatus)
 
         then:
-        DeploymentStatus activeStatus = deploymentStatusClient.find(foundation, space, updatedStatus.appName)
+        DeploymentStatus activeStatus = deploymentStatusClient.find(foundation, space, updatedStatus.artifactId)
         assert initialStatus != activeStatus
         assert updatedStatus == activeStatus
     }
 
     def "should track distinct status by foundation and space"() {
         given:
-        DeploymentStatus status1 = aRandom.deploymentStatus().appName("app").build()
-        DeploymentStatus status2 = aRandom.deploymentStatus().appName("app").build()
-        DeploymentStatus status3 = aRandom.deploymentStatus().appName("app").build()
+        DeploymentStatus status1 = aRandom.deploymentStatus().artifactId("app").build()
+        DeploymentStatus status2 = aRandom.deploymentStatus().artifactId("app").build()
+        DeploymentStatus status3 = aRandom.deploymentStatus().artifactId("app").build()
 
         when:
         deploymentStatusClient.update(foundation, space, status1)
@@ -70,9 +70,9 @@ class DeploymentStatusResourceSpec extends Specification {
 
     def "should retrieve all app status objects for a space"() {
         given:
-        DeploymentStatus app1Status = aRandom.deploymentStatus().appName("app1").build()
-        DeploymentStatus app2Status = aRandom.deploymentStatus().appName("app2").build()
-        DeploymentStatus otherSpaceApp = aRandom.deploymentStatus().appName("other-space").build()
+        DeploymentStatus app1Status = aRandom.deploymentStatus().artifactId("app1").build()
+        DeploymentStatus app2Status = aRandom.deploymentStatus().artifactId("app2").build()
+        DeploymentStatus otherSpaceApp = aRandom.deploymentStatus().artifactId("other-space").build()
 
         when:
         deploymentStatusClient.update(foundation, space, app1Status)

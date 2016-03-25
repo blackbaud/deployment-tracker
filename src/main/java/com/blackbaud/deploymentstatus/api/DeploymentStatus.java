@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class DeploymentStatus {
 
-    private String appName;
+    private String artifactId;
     private String buildVersion;
     private String releaseVersion;
     private String gitSha;

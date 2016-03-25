@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface DeploymentStatusRepository extends CrudRepository<DeploymentStatusEntity, Long> {
 
-    DeploymentStatusEntity findOneByFoundationAndSpaceAndAppName(String foundation, String space, String appName);
+    DeploymentStatusEntity findOneByFoundationAndSpaceAndArtifactId(String foundation, String space, String artifactId);
 
     List<DeploymentStatusEntity> findManyByFoundationAndSpace(String foundation, String space);
 

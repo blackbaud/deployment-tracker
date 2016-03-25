@@ -7,7 +7,7 @@ import java.io.Serializable;
 @Data
 public class DeploymentStatusPrimaryKey implements Serializable {
 
-    private String appName;
+    private String artifactId;
     private String space;
     private String foundation;
 

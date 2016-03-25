@@ -19,8 +19,8 @@ public class DeploymentStatusClient extends CrudClient<DeploymentStatus, Deploym
                 .updateWithPut(status);
     }
 
-    public DeploymentStatus find(String foundation, String space, String appName) {
-        return crudClientRequest.path(foundation).path(space).path(appName)
+    public DeploymentStatus find(String foundation, String space, String artifactId) {
+        return crudClientRequest.path(foundation).path(space).path(artifactId)
                 .find();
     }
 
