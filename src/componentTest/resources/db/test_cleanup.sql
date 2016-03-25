@@ -1,1 +1,1 @@
-truncate table deployment_status cascade;
+truncate table deployment_info cascade;

@@ -23,8 +23,8 @@ sourceSets {
     client {
         java {
             srcDir "src/main/java"
-            include "com/blackbaud/deploymentstatus/api/**"
-            include "com/blackbaud/deploymentstatus/client/**"
+            include "com/blackbaud/deployment/api/**"
+            include "com/blackbaud/deployment/client/**"
         }
     }
 }

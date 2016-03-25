@@ -1,4 +1,4 @@
 databaseChangeLog:
 
   - include:
-      file: db/create_deployment_status.sql
+      file: db/create_deployment_info.sql
