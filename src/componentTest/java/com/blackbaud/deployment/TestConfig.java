@@ -1,5 +1,6 @@
 package com.blackbaud.deployment;
 
+import com.blackbaud.deployment.client.ArtifactDiffClient;
 import com.blackbaud.deployment.client.ArtifactInfoClient;
 import com.blackbaud.deployment.client.DeploymentTrackerClient;
 import com.blackbaud.testsupport.BaseTestConfig;
@@ -23,6 +24,11 @@ public class TestConfig extends BaseTestConfig {
     @Bean
     public ArtifactInfoClient artifactInfoClient() {
         return new ArtifactInfoClient(hostUri)
+                .header(testTokenSupport.createTestTokenHeader());
+    }
+    @Bean
+    public ArtifactDiffClient artifactDiffClient() {
+        return new ArtifactDiffClient(hostUri)
                 .header(testTokenSupport.createTestTokenHeader());
     }
 
