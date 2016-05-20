@@ -1,5 +1,6 @@
 package com.blackbaud.deployment;
 
+import com.blackbaud.deployment.client.ArtifactInfoClient;
 import com.blackbaud.deployment.client.DeploymentTrackerClient;
 import com.blackbaud.testsupport.BaseTestConfig;
 import com.blackbaud.testsupport.TestTokenSupport;
@@ -14,8 +15,14 @@ public class TestConfig extends BaseTestConfig {
     TestTokenSupport testTokenSupport;
 
     @Bean
-    public DeploymentTrackerClient roleClient() {
+    public DeploymentTrackerClient deploymentTrackerClient() {
         return new DeploymentTrackerClient(hostUri)
+                .header(testTokenSupport.createTestTokenHeader());
+    }
+
+    @Bean
+    public ArtifactInfoClient artifactInfoClient() {
+        return new ArtifactInfoClient(hostUri)
                 .header(testTokenSupport.createTestTokenHeader());
     }
 

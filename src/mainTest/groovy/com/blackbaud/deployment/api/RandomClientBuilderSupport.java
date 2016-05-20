@@ -6,4 +6,8 @@ public class RandomClientBuilderSupport {
         return new RandomDeploymentInfoBuilder();
     }
 
+    public RandomArtifactInfoBuilder artifactInfo() {
+        return new RandomArtifactInfoBuilder();
+    }
+
 }
