@@ -4,7 +4,7 @@ import com.blackbaud.deployment.DeploymentInfoConverter;
 import com.blackbaud.deployment.api.DeploymentInfo;
 import com.blackbaud.deployment.api.ResourcePaths;
 import com.blackbaud.deployment.core.domain.DeploymentInfoEntity;
-import com.blackbaud.deployment.core.domain.DeploymentInfoRepository;
+import com.blackbaud.deployment.core.domain.DeploymentInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -33,7 +33,7 @@ public class DeploymentTrackerResource {
     private DeploymentInfoConverter converter;
 
     @Autowired
-    private DeploymentInfoRepository repository;
+    private DeploymentInfoService deploymentInfoService;
 
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
@@ -43,14 +43,14 @@ public class DeploymentTrackerResource {
         entity.setFoundation(foundation);
         entity.setSpace(space);
 
-        return converter.toApi(repository.save(entity));
+        return converter.toApi(deploymentInfoService.save(entity));
     }
 
     @GET
-    @Path("{appName}")
+    @Path("{artifactId}")
     public DeploymentInfo find(@PathParam("foundation") String foundation, @PathParam("space") String space,
-                               @PathParam("appName") String appName) {
-        DeploymentInfoEntity statusEntity = repository.findOneByFoundationAndSpaceAndArtifactId(foundation, space, appName);
+                               @PathParam("artifactId") String artifactId) {
+        DeploymentInfoEntity statusEntity = deploymentInfoService.findOneByFoundationAndSpaceAndArtifactId(foundation, space, artifactId);
         if (statusEntity == null) {
             throw new NotFoundException();
         }
@@ -59,7 +59,7 @@ public class DeploymentTrackerResource {
 
     @GET
     public List<DeploymentInfo> findAllInSpace(@PathParam("foundation") String foundation, @PathParam("space") String space) {
-        List<DeploymentInfoEntity> statusEntities = repository.findManyByFoundationAndSpace(foundation, space);
+        List<DeploymentInfoEntity> statusEntities = deploymentInfoService.findManyByFoundationAndSpace(foundation, space);
         return converter.toApiList(statusEntities);
     }
 

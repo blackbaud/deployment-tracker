@@ -2,8 +2,10 @@ package com.blackbaud.deployment.resources
 
 import com.blackbaud.boot.exception.NotFoundException
 import com.blackbaud.deployment.ComponentTest
+import com.blackbaud.deployment.api.ArtifactInfo
 import com.blackbaud.deployment.api.DeploymentInfo
 import com.blackbaud.deployment.api.RandomDeploymentInfoBuilder
+import com.blackbaud.deployment.client.ArtifactInfoClient
 import com.blackbaud.deployment.client.DeploymentTrackerClient
 import org.springframework.beans.factory.annotation.Autowired
 import spock.lang.Specification
@@ -15,27 +17,30 @@ class DeploymentTrackerResourceSpec extends Specification {
 
     @Autowired
     private DeploymentTrackerClient deploymentInfoClient
+    @Autowired
+    private ArtifactInfoClient artifactInfoClient
+
     private String foundation = "pivotal"
     private String space = "dev"
 
-    def "should add new status"() {
+    def "should add new deployment info"() {
         given:
-        DeploymentInfo status = aRandom.deploymentInfo().build()
+        DeploymentInfo deploymentInfo = aRandom.deploymentInfo().build()
 
         when:
-        deploymentInfoClient.find(foundation, space, status.artifactId)
+        deploymentInfoClient.find(foundation, space, deploymentInfo.artifactId)
 
         then:
         thrown(NotFoundException)
 
         when:
-        deploymentInfoClient.update(foundation, space, status)
+        deploymentInfoClient.update(foundation, space, deploymentInfo)
 
         then:
-        assert status == deploymentInfoClient.find(foundation, space, status.artifactId)
+        assert deploymentInfo == deploymentInfoClient.find(foundation, space, deploymentInfo.artifactId)
     }
 
-    def "should replace status on update"() {
+    def "should replace deployment info on update"() {
         given:
         RandomDeploymentInfoBuilder deploymentStatusBuilder = aRandom.deploymentInfo()
         DeploymentInfo initialStatus = deploymentStatusBuilder.build()
@@ -51,24 +56,24 @@ class DeploymentTrackerResourceSpec extends Specification {
         assert updatedStatus == activeStatus
     }
 
-    def "should track distinct status by foundation and space"() {
+    def "should track distinct deployment info by foundation and space"() {
         given:
-        DeploymentInfo status1 = aRandom.deploymentInfo().artifactId("app").build()
-        DeploymentInfo status2 = aRandom.deploymentInfo().artifactId("app").build()
-        DeploymentInfo status3 = aRandom.deploymentInfo().artifactId("app").build()
+        DeploymentInfo deploymentInfo1 = aRandom.deploymentInfo().artifactId("app").build()
+        DeploymentInfo deploymentInfo2 = aRandom.deploymentInfo().artifactId("app").build()
+        DeploymentInfo deploymentInfo3 = aRandom.deploymentInfo().artifactId("app").build()
 
         when:
-        deploymentInfoClient.update(foundation, space, status1)
-        deploymentInfoClient.update(foundation, "space-two", status2)
-        deploymentInfoClient.update("foundation-three", space, status3)
+        deploymentInfoClient.update(foundation, space, deploymentInfo1)
+        deploymentInfoClient.update(foundation, "space-two", deploymentInfo2)
+        deploymentInfoClient.update("foundation-three", space, deploymentInfo3)
 
         then:
-        assert status1 == deploymentInfoClient.find(foundation, space, "app")
-        assert status2 == deploymentInfoClient.find(foundation, "space-two", "app")
-        assert status3 == deploymentInfoClient.find("foundation-three", space, "app")
+        assert deploymentInfo1 == deploymentInfoClient.find(foundation, space, "app")
+        assert deploymentInfo2 == deploymentInfoClient.find(foundation, "space-two", "app")
+        assert deploymentInfo3 == deploymentInfoClient.find("foundation-three", space, "app")
     }
 
-    def "should retrieve all app status objects for a space"() {
+    def "should retrieve all app deployment info objects for a space"() {
         given:
         DeploymentInfo app1Status = aRandom.deploymentInfo().artifactId("app1").build()
         DeploymentInfo app2Status = aRandom.deploymentInfo().artifactId("app2").build()
@@ -81,6 +86,22 @@ class DeploymentTrackerResourceSpec extends Specification {
 
         then:
         assert [app1Status, app2Status] == deploymentInfoClient.findAllInSpace(foundation, space)
+    }
+
+    def "should populate artifact info resource" (){
+        given:
+        DeploymentInfo deploymentInfo = aRandom.deploymentInfo().build()
+        ArtifactInfo matchingArtifactInfo = ArtifactInfo.builder()
+                .artifactId(deploymentInfo.artifactId)
+                .buildVersion(deploymentInfo.buildVersion)
+                .gitSha(deploymentInfo.gitSha)
+                .build()
+
+        when:
+        deploymentInfoClient.update(foundation, space, deploymentInfo)
+
+        then:
+        assert artifactInfoClient.find(deploymentInfo.artifactId, deploymentInfo.buildVersion) == matchingArtifactInfo
     }
 
 }
