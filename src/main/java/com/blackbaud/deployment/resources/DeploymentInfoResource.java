@@ -22,9 +22,9 @@ import javax.ws.rs.core.UriInfo;
 import java.util.List;
 
 @Component
-@Path(ResourcePaths.DEPLOYMENT_TRACKER_PATH + "/{foundation}/{space}")
+@Path(ResourcePaths.DEPLOYMENT_INFO_PATH + "/{foundation}/{space}")
 @Produces(MediaType.APPLICATION_JSON)
-public class DeploymentTrackerResource {
+public class DeploymentInfoResource {
 
     @Context
     private UriInfo uriInfo;
@@ -38,29 +38,24 @@ public class DeploymentTrackerResource {
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     public DeploymentInfo update(@PathParam("foundation") String foundation, @PathParam("space") String space,
-                                 @Valid DeploymentInfo status) {
-        DeploymentInfoEntity entity = converter.toEntity(status);
-        entity.setFoundation(foundation);
-        entity.setSpace(space);
-
-        return converter.toApi(deploymentInfoService.save(entity));
+                                 @Valid DeploymentInfo deploymentInfo) {
+        return deploymentInfoService.save(deploymentInfo, foundation, space);
     }
 
     @GET
     @Path("{artifactId}")
     public DeploymentInfo find(@PathParam("foundation") String foundation, @PathParam("space") String space,
                                @PathParam("artifactId") String artifactId) {
-        DeploymentInfoEntity statusEntity = deploymentInfoService.findOneByFoundationAndSpaceAndArtifactId(foundation, space, artifactId);
-        if (statusEntity == null) {
+        DeploymentInfo deploymentInfo = deploymentInfoService.findOneByFoundationAndSpaceAndArtifactId(foundation, space, artifactId);
+        if (deploymentInfo == null) {
             throw new NotFoundException();
         }
-        return converter.toApi(statusEntity);
+        return deploymentInfo;
     }
 
     @GET
     public List<DeploymentInfo> findAllInSpace(@PathParam("foundation") String foundation, @PathParam("space") String space) {
-        List<DeploymentInfoEntity> statusEntities = deploymentInfoService.findManyByFoundationAndSpace(foundation, space);
-        return converter.toApiList(statusEntities);
+        return deploymentInfoService.findManyByFoundationAndSpace(foundation, space);
     }
 
 }
