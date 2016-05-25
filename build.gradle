@@ -45,6 +45,7 @@ dependencies {
 
     componentTestCompile "org.springframework.boot:spring-boot-starter-test"
     componentTestCompile "com.blackbaud:common-spring-boot-rest-test:${springBootVersion}-2.+"
+    componentTestCompile "cglib:cglib-nodep:2.2"
 }
 
 swagger {

@@ -6,17 +6,17 @@ import com.blackbaud.deployment.api.ArtifactInfo
 import com.blackbaud.deployment.api.DeploymentInfo
 import com.blackbaud.deployment.api.RandomDeploymentInfoBuilder
 import com.blackbaud.deployment.client.ArtifactInfoClient
-import com.blackbaud.deployment.client.DeploymentTrackerClient
+import com.blackbaud.deployment.client.DeploymentInfoClient
 import org.springframework.beans.factory.annotation.Autowired
 import spock.lang.Specification
 
 import static com.blackbaud.deployment.core.CoreARandom.aRandom
 
 @ComponentTest
-class DeploymentTrackerResourceSpec extends Specification {
+class DeploymentInfoResourceSpec extends Specification {
 
     @Autowired
-    private DeploymentTrackerClient deploymentInfoClient
+    private DeploymentInfoClient deploymentInfoClient
     @Autowired
     private ArtifactInfoClient artifactInfoClient
 

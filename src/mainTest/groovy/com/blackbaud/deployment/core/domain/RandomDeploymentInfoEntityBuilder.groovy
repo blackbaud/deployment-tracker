@@ -4,5 +4,4 @@ class RandomDeploymentInfoEntityBuilder extends DeploymentInfoEntity.DeploymentI
 
     public RandomDeploymentInfoEntityBuilder() {
     }
-
 }

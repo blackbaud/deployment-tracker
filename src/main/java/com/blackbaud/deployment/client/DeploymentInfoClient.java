@@ -6,10 +6,10 @@ import com.blackbaud.deployment.api.DeploymentInfo;
 
 import java.util.List;
 
-public class DeploymentTrackerClient extends CrudClient<DeploymentInfo, DeploymentTrackerClient> {
+public class DeploymentInfoClient extends CrudClient<DeploymentInfo, DeploymentInfoClient> {
 
-    public DeploymentTrackerClient(String baseUrl) {
-        super(baseUrl, ResourcePaths.DEPLOYMENT_TRACKER_PATH, DeploymentInfo.class);
+    public DeploymentInfoClient(String baseUrl) {
+        super(baseUrl, ResourcePaths.DEPLOYMENT_INFO_PATH, DeploymentInfo.class);
     }
 
     public DeploymentInfo update(String foundation, String space, DeploymentInfo info) {
