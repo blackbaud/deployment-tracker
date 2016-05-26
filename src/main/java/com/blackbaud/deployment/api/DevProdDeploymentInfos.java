@@ -12,7 +12,6 @@ import lombok.NoArgsConstructor;
 public class DevProdDeploymentInfos {
     private DeploymentInfo dev;
     private DeploymentInfo prod;
-
     public Boolean sameVersion() {
         if (dev == null || prod == null){
             return false;
