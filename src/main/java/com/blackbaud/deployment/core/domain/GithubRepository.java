@@ -1,6 +1,7 @@
 package com.blackbaud.deployment.core.domain;
 
 import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
 import org.eclipse.egit.github.core.Repository;
 
 import java.io.File;
@@ -30,9 +31,9 @@ public class GithubRepository {
         return repository.getCloneUrl();
     }
 
-    public List<String> getCommitsBetween(String fromSha, String toSha) throws IOException, GitAPIException {
+    @SneakyThrows
+    public List<String> getCommitsBetween(String fromSha, String toSha) {
         Git gitProject = Git.open(getCloneDir());
-
         List<String> allCommits = new ArrayList<>();
         for (RevCommit commit : getCommits(gitProject, fromSha, toSha)) {
             allCommits.add(commit.getAuthorIdent().getName() + " - " + commit.getFullMessage());

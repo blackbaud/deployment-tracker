@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 @Component
@@ -21,49 +22,49 @@ public class ReleaseService {
     public static final String PROD_FOUNDATION = "pivotal-prod1";
     public static final String PROD_SPACE = "prod1-apps";
 
+    @Autowired
+    private GithubRepositoryService repositoryService;
+
     public Map<String, DevProdDeploymentInfos> getCurrentSummary() {
-        List<DeploymentInfo> devDeploymentInfos = deploymentInfoService.findManyByFoundationAndSpace(DEV_FOUNDATION, DEV_SPACE);
-        List<DeploymentInfo> prodDeploymentInfos = deploymentInfoService.findManyByFoundationAndSpace(PROD_FOUNDATION, PROD_SPACE);
+        List<DeploymentInfo> devInfos = deploymentInfoService.findManyByFoundationAndSpace(DEV_FOUNDATION, DEV_SPACE);
+        List<DeploymentInfo> prodInfos = deploymentInfoService.findManyByFoundationAndSpace(PROD_FOUNDATION, PROD_SPACE);
 
-        Map<String, DevProdDeploymentInfos> releaseSummary = getArtifactsWithBuildChanges(devDeploymentInfos, prodDeploymentInfos);
-        return releaseSummary;
+        return combineDeploymentInfos(devInfos, prodInfos);
     }
 
-    // TODO: complain if version in dev is older than prod
-    private Map<String, DevProdDeploymentInfos> getArtifactsWithBuildChanges(List<DeploymentInfo> devDeploymentInfos,
-                                                                             List<DeploymentInfo> prodDeploymentInfos) {
-
-        Map<String, DevProdDeploymentInfos> releaseSummary = combineDeploymentInfos(devDeploymentInfos, prodDeploymentInfos);
-        removeArtifactsWithNoChanges(releaseSummary);
-        return releaseSummary;
-    }
-
-    private TreeMap<String, DevProdDeploymentInfos> combineDeploymentInfos(List<DeploymentInfo> devDeploymentInfos, List<DeploymentInfo> prodDeploymentInfos) {
+    private TreeMap<String, DevProdDeploymentInfos> combineDeploymentInfos(List<DeploymentInfo> devInfos, List<DeploymentInfo> prodInfos) {
         TreeMap<String, DevProdDeploymentInfos> allDeploymentInfos = new TreeMap<>();
-        for (DeploymentInfo devDeploymentInfo : devDeploymentInfos) {
-            allDeploymentInfos.put(devDeploymentInfo.getArtifactId(), new DevProdDeploymentInfos(devDeploymentInfo, null));
-        }
-        for (DeploymentInfo prodDeploymentInfo : prodDeploymentInfos) {
-            DevProdDeploymentInfos deploymentInfos = allDeploymentInfos.get(prodDeploymentInfo.getArtifactId());
-            setProdDeploymentInfo(allDeploymentInfos, prodDeploymentInfo, deploymentInfos);
-        }
+        addDevDeploymentInfos(devInfos, allDeploymentInfos);
+        addProdDeploymentInfo(prodInfos, allDeploymentInfos);
+        addStoryLinks(allDeploymentInfos);
         return allDeploymentInfos;
     }
 
-    private void setProdDeploymentInfo(TreeMap<String, DevProdDeploymentInfos> allDeploymentInfos, DeploymentInfo prodDeploymentInfo, DevProdDeploymentInfos deploymentInfos) {
-        if (deploymentInfos == null){
-            allDeploymentInfos.put(prodDeploymentInfo.getArtifactId(), new DevProdDeploymentInfos(null, prodDeploymentInfo));
-        } else {
-            deploymentInfos.setProd(prodDeploymentInfo);
+    public void addDevDeploymentInfos(List<DeploymentInfo> devInfos, TreeMap<String, DevProdDeploymentInfos> allDeploymentInfos) {
+        for (DeploymentInfo devInfo : devInfos) {
+            allDeploymentInfos.put(devInfo.getArtifactId(), new DevProdDeploymentInfos(devInfo, null, null));
         }
     }
 
-    private void removeArtifactsWithNoChanges(Map<String, DevProdDeploymentInfos> allDeploymentInfos) {
-        for (Map.Entry<String, DevProdDeploymentInfos> entry : allDeploymentInfos.entrySet()){
-            DevProdDeploymentInfos deploymentInfos = entry.getValue();
-            if (deploymentInfos.sameVersion()){
-                allDeploymentInfos.remove(entry.getKey());
+    private void addProdDeploymentInfo(List<DeploymentInfo> prodInfos, TreeMap<String, DevProdDeploymentInfos> allDeploymentInfos) {
+        for (DeploymentInfo prodInfo : prodInfos) {
+            DevProdDeploymentInfos deploymentInfos = allDeploymentInfos.get(prodInfo.getArtifactId());
+            if (deploymentInfos == null) {
+                allDeploymentInfos.put(prodInfo.getArtifactId(), new DevProdDeploymentInfos(null, prodInfo, null));
+            } else {
+                deploymentInfos.setProd(prodInfo);
             }
         }
     }
+
+    public void addStoryLinks(TreeMap<String, DevProdDeploymentInfos> allDeploymentInfos) {
+        for (String artifactId : allDeploymentInfos.keySet()) {
+            DevProdDeploymentInfos deploymentInfos = allDeploymentInfos.get(artifactId);
+            if (deploymentInfos.hasBothShas()) {
+                Set<String> stories = repositoryService.getStories(artifactId, deploymentInfos.getProdSha(), deploymentInfos.getDevSha());
+                deploymentInfos.setStories(stories);
+            }
+        }
+    }
+
 }

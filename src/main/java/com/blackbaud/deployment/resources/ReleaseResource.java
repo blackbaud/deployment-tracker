@@ -22,7 +22,7 @@ public class ReleaseResource {
 
     @GET
     @Path ("current/summary")
-    public Map<String, DevProdDeploymentInfos> getCurrentReleaseSummary(){
+    public Map<String, DevProdDeploymentInfos> getCurrentReleaseSummary() {
         return releaseService.getCurrentSummary();
     }
 
