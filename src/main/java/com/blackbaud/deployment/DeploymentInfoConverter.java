@@ -11,12 +11,11 @@ import java.util.stream.Collectors;
 public class DeploymentInfoConverter {
     private EntityMapper entityMapper = new EntityMapper();
 
-    public DeploymentInfoEntity toEntity(DeploymentInfo info) {
-        return entityMapper.mapIfNotNull(info, DeploymentInfoEntity.class);
-    }
-
-    public List<DeploymentInfoEntity> toEntityList(Iterable<DeploymentInfo> infoList) {
-        return entityMapper.mapList(infoList, this::toEntity);
+    public DeploymentInfoEntity toEntity(DeploymentInfo info, String foundation, String space) {
+        DeploymentInfoEntity entity = entityMapper.mapIfNotNull(info, DeploymentInfoEntity.class);
+        entity.setFoundation(foundation);
+        entity.setSpace(space);
+        return entity;
     }
 
     public DeploymentInfo toApi(DeploymentInfoEntity entity) {
