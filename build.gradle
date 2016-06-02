@@ -74,3 +74,19 @@ docker {
 }
 
 componentTest.dependsOn System.getenv("BUILD_NUMBER") ? refreshPostgres : startPostgres
+
+jacocoAllReport {
+    afterEvaluate {
+        classDirectories = files(classDirectories.files.collect {
+            fileTree(dir: it,
+                     exclude: [ 'src/test',
+                                'src/mainTest',
+                                'src/componentTest',
+                                '**/api/**',
+                                '**/core/domain/*Entity*',
+                                '**/config/**',
+                                '**/*ARandom*',
+                     ])
+        })
+    }
+}

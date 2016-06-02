@@ -2,6 +2,7 @@ package com.blackbaud.deployment;
 
 import com.blackbaud.deployment.client.ArtifactInfoClient;
 import com.blackbaud.deployment.client.DeploymentInfoClient;
+import com.blackbaud.deployment.client.ReleaseClient;
 import com.blackbaud.testsupport.BaseTestConfig;
 import com.blackbaud.testsupport.TestTokenSupport;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,11 @@ public class TestConfig extends BaseTestConfig {
     public DeploymentInfoClient deploymentTrackerClient() {
         return new DeploymentInfoClient(hostUri)
                 .header(testTokenSupport.createTestTokenHeader());
+    }
+
+    @Bean
+    public ReleaseClient releaseClient() {
+        return new ReleaseClient(hostUri);
     }
 
     @Bean
