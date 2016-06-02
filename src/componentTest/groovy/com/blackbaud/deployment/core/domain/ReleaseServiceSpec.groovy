@@ -8,34 +8,31 @@ import static com.blackbaud.deployment.core.CoreARandom.aRandom
 class ReleaseServiceSpec extends Specification {
 
     private ReleaseService releaseService = new ReleaseService();
-    private DeploymentInfoService mockService = Mock()
+    private DeploymentInfoService mockDeploymentInfoService = Mock()
+    private GithubRepositoryService mockGithubRepoService = Mock()
 
     def setup(){
-        releaseService.deploymentInfoService = mockService
+        releaseService.deploymentInfoService = mockDeploymentInfoService
+        releaseService.repositoryService = mockGithubRepoService
     }
 
     def "getCurrentSummary returns artifact with different versions in dev and prod"() {
         given:
         DeploymentInfo devDeploymentInfo = aRandom.deploymentInfo().build()
-        DeploymentInfo prodDeploymentInfo = aRandom.deploymentInfo().artifactId(devDeploymentInfo.artifactId).build()
+        String artifactId = devDeploymentInfo.artifactId
+        DeploymentInfo prodDeploymentInfo = aRandom.deploymentInfo().artifactId(artifactId).build()
 
         inDev(devDeploymentInfo)
         inProd(prodDeploymentInfo)
 
-        expect:
-        String artifactId = devDeploymentInfo.artifactId
-        DevProdDeploymentInfos devProdDeploymentInfos = new DevProdDeploymentInfos(devDeploymentInfo, prodDeploymentInfo)
-        releaseService.getCurrentSummary() == [ (artifactId) : devProdDeploymentInfos]
-    }
-
-    def "getCurrentSummary does not returns artifact with same versions in dev and prod"() {
-        given:
-        DeploymentInfo deploymentInfo = aRandom.deploymentInfo().build()
-        inDev(deploymentInfo)
-        inProd(deploymentInfo)
+        DevProdDeploymentInfos expected = DevProdDeploymentInfos.builder()
+                .dev(devDeploymentInfo)
+                .prod(prodDeploymentInfo)
+                .stories(null)
+                .build();
 
         expect:
-        releaseService.getCurrentSummary() == [:]
+        releaseService.getCurrentSummary() == [ (artifactId) : expected]
     }
 
     def "getCurrentSummary returns artifact that is in prod but not dev"() {
@@ -44,10 +41,15 @@ class ReleaseServiceSpec extends Specification {
         inProd(prodDeploymentInfo)
         nothingInDev()
 
-        expect:
         String artifactId = prodDeploymentInfo.artifactId
-        DevProdDeploymentInfos devProdDeploymentInfos = new DevProdDeploymentInfos(null, prodDeploymentInfo)
-        releaseService.getCurrentSummary() == [ (artifactId) : devProdDeploymentInfos]
+        DevProdDeploymentInfos expected = DevProdDeploymentInfos.builder()
+                .dev(null)
+                .prod(prodDeploymentInfo)
+                .stories(null)
+                .build();
+
+        expect:
+        releaseService.getCurrentSummary() == [ (artifactId) : expected]
     }
 
     def "getCurrentSummary returns artifact that is in dev but not prod"() {
@@ -56,25 +58,30 @@ class ReleaseServiceSpec extends Specification {
         inDev(devDeploymentInfo)
         nothingInProd()
 
-        expect:
         String artifactId = devDeploymentInfo.artifactId
-        DevProdDeploymentInfos devProdDeploymentInfos = new DevProdDeploymentInfos(devDeploymentInfo, null)
-        releaseService.getCurrentSummary() == [ (artifactId) : devProdDeploymentInfos]
+        DevProdDeploymentInfos expected = DevProdDeploymentInfos.builder()
+                .dev(devDeploymentInfo)
+                .prod(null)
+                .stories(null)
+                .build();
+
+        expect:
+        releaseService.getCurrentSummary() == [ (artifactId) : expected]
     }
 
     def inDev(DeploymentInfo deploymentInfo){
-        mockService.findManyByFoundationAndSpace(ReleaseService.DEV_FOUNDATION, ReleaseService.DEV_SPACE) >> [deploymentInfo]
+        mockDeploymentInfoService.findManyByFoundationAndSpace(ReleaseService.DEV_FOUNDATION, ReleaseService.DEV_SPACE) >> [deploymentInfo]
     }
 
     def inProd(DeploymentInfo deploymentInfo){
-        mockService.findManyByFoundationAndSpace(ReleaseService.PROD_FOUNDATION, ReleaseService.PROD_SPACE) >> [deploymentInfo]
+        mockDeploymentInfoService.findManyByFoundationAndSpace(ReleaseService.PROD_FOUNDATION, ReleaseService.PROD_SPACE) >> [deploymentInfo]
     }
 
     def nothingInDev(){
-        mockService.findManyByFoundationAndSpace(ReleaseService.DEV_FOUNDATION, ReleaseService.DEV_SPACE) >> []
+        mockDeploymentInfoService.findManyByFoundationAndSpace(ReleaseService.DEV_FOUNDATION, ReleaseService.DEV_SPACE) >> []
     }
 
     def nothingInProd(){
-        mockService.findManyByFoundationAndSpace(ReleaseService.PROD_FOUNDATION, ReleaseService.PROD_SPACE) >> []
+        mockDeploymentInfoService.findManyByFoundationAndSpace(ReleaseService.PROD_FOUNDATION, ReleaseService.PROD_SPACE) >> []
     }
 }
