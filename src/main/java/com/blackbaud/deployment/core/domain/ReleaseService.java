@@ -1,7 +1,7 @@
 package com.blackbaud.deployment.core.domain;
 
-import com.blackbaud.deployment.api.DeploymentInfo;
 import com.blackbaud.deployment.api.DeploymentDiff;
+import com.blackbaud.deployment.api.DeploymentInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -61,7 +61,10 @@ public class ReleaseService {
         for (DeploymentInfo prodInfo : prodInfos) {
             DeploymentDiff deploymentInfos = allDeploymentInfos.get(prodInfo.getArtifactId());
             if (deploymentInfos == null) {
-                allDeploymentInfos.put(prodInfo.getArtifactId(), new DeploymentDiff(null, prodInfo, null));
+                allDeploymentInfos.put(prodInfo.getArtifactId(),
+                                       DeploymentDiff.builder()
+                                               .prod(prodInfo)
+                                               .build());
             } else {
                 deploymentInfos.setProd(prodInfo);
             }
