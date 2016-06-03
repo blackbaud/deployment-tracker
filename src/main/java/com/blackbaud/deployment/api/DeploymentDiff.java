@@ -1,11 +1,13 @@
 package com.blackbaud.deployment.api;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.net.URL;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -13,10 +15,10 @@ import java.util.Set;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class DevProdDeploymentInfos {
+public class DeploymentDiff {
     private DeploymentInfo dev;
     private DeploymentInfo prod;
-    private Set<String> stories;
+    private Set<String> stories = Collections.emptySet();
 
     public Boolean sameVersion() {
         if (!hasBothDeploymentInfos()) {
@@ -25,10 +27,12 @@ public class DevProdDeploymentInfos {
         return dev.getBuildVersion().equals(prod.getBuildVersion());
     }
 
+    @JsonIgnore
     public String getDevSha() {
         return dev == null ? null : dev.getGitSha();
     }
 
+    @JsonIgnore
     public String getProdSha() {
         return prod == null ? null : prod.getGitSha();
     }

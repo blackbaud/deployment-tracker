@@ -28,10 +28,17 @@ public class GithubRepositoryService {
         repositoryService = new RepositoryService(gitHubClient);
     }
 
+    // TODO: early exit if shas are the same
     public Set<String> getStories(String artifactId, String fromSha, String toSha) {
         GithubRepository repo = getRepository(artifactId);
         List<String> commits = repo.getCommitsBetween(fromSha, toSha);
         return parseStories(commits);
+    }
+
+    @SneakyThrows
+    public List<String> getCommitsBetween(String artifactId, String fromSha, String toSha) {
+        GithubRepository repo = getRepository(artifactId);
+        return repo.getCommitsBetween(fromSha, toSha);
     }
 
     @SneakyThrows
