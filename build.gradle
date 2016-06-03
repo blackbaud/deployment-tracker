@@ -77,15 +77,15 @@ componentTest.dependsOn System.getenv("BUILD_NUMBER") ? refreshPostgres : startP
 
 jacocoAllReport {
     afterEvaluate {
-        classDirectories = files(classDirectories.files.collect {
+        classDirectories = files(classDirectories.filter {
+it.name != 'mainTest'
+}.files.collect {
             fileTree(dir: it,
-                     exclude: [ 'src/test',
-                                'src/mainTest',
-                                'src/componentTest',
+                     exclude: [ 
                                 '**/api/**',
                                 '**/core/domain/*Entity*',
+                                '**/core/domain/*PrimaryKey*',
                                 '**/config/**',
-                                '**/*ARandom*',
                      ])
         })
     }
