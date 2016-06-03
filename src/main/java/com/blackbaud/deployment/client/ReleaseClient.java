@@ -17,10 +17,10 @@ public class ReleaseClient extends CrudClient<Release, ReleaseClient> {
         return crudClientRequest.path(ResourcePaths.CURRENT_PATH).find();
     }
 
-    public Release getCurrentReleaseForDevSnapshot(List<DeploymentInfo> devDeploymentInfos) {
+    public Release getCurrentReleaseForProdSnapshot(List<DeploymentInfo> prodDeploymentInfos) {
         return (Release) getUntypedCrudClientRequest()
                 .path(ResourcePaths.CURRENT_PATH)
-                .createWithPost(devDeploymentInfos);
+                .createWithPost(prodDeploymentInfos);
     }
 
 }

@@ -53,6 +53,7 @@ public class GithubRepositoryService {
 
     private Set<String> parseStories(List<String> commits) {
         Set<String> storyUrls = new HashSet<>();
+        // TODO: do we need the \w ?
         Pattern pattern = Pattern.compile("lum[^0-9](\\d*)\\w*");
         for (String commit : commits) {
             Matcher m = pattern.matcher(commit.toLowerCase());

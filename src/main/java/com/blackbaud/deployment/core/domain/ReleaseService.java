@@ -33,8 +33,8 @@ public class ReleaseService {
         return releaseSummary;
     }
 
-    public Map<String, DeploymentDiff> createDeploymentDiffs(List<DeploymentInfo> devInfos) {
-        List<DeploymentInfo> prodInfos = deploymentInfoService.findManyByFoundationAndSpace(PROD_FOUNDATION, PROD_SPACE);
+    public Map<String, DeploymentDiff> createDeploymentDiffs(List<DeploymentInfo> prodInfos) {
+        List<DeploymentInfo> devInfos = deploymentInfoService.findManyByFoundationAndSpace(DEV_FOUNDATION, DEV_SPACE);
         TreeMap<String, DeploymentDiff> releaseSummary = combineDeploymentInfos(devInfos, prodInfos);
         addStoryLinks(releaseSummary);
         return releaseSummary;
@@ -73,10 +73,10 @@ public class ReleaseService {
 
     public void addStoryLinks(TreeMap<String, DeploymentDiff> allDeploymentInfos) {
         for (String artifactId : allDeploymentInfos.keySet()) {
-            DeploymentDiff deploymentInfos = allDeploymentInfos.get(artifactId);
-            if (deploymentInfos.hasBothShas()) {
-                Set<String> stories = repositoryService.getStories(artifactId, deploymentInfos.getProdSha(), deploymentInfos.getDevSha());
-                deploymentInfos.setStories(stories);
+            DeploymentDiff deploymentDiff = allDeploymentInfos.get(artifactId);
+            if (deploymentDiff.hasBothShas()) {
+                Set<String> stories = repositoryService.getStories(artifactId, deploymentDiff.getProdSha(), deploymentDiff.getDevSha());
+                deploymentDiff.setStories(stories);
             }
         }
     }

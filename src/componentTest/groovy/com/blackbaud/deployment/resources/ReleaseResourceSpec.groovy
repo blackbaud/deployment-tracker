@@ -24,9 +24,6 @@ class ReleaseResourceSpec extends Specification {
     @Autowired
     private ReleaseClient releaseClient
 
-    private String foundation = "pivotal"
-    private String space = "dev"
-
     private GithubRepositoryService mockGithubRepoService = Mock()
 
     def setup() {
@@ -93,20 +90,20 @@ class ReleaseResourceSpec extends Specification {
         assert releaseClient.getCurrentRelease().deploymentDiffs == [(artifactId): expected]
     }
 
-    def "getCurrentReleaseForDevSnapshot returns empty Release when there is no data provided and no data stored"() {
+    def "getCurrentReleaseForProdSnapshot returns empty Release when there is no data provided and no data stored"() {
         expect:
-        releaseClient.getCurrentReleaseForDevSnapshot([]).deploymentDiffs == [:]
+        releaseClient.getCurrentReleaseForProdSnapshot([]).deploymentDiffs == [:]
     }
 
-    def "getCurrentReleaseForDevSnapshot returns artifact with different versions in provided dev and stored prod"() {
-        given: "A version in dev"
+    def "getCurrentReleaseForProdSnapshot returns artifact with different versions in stored dev and provided prod"() {
+        given: "A version stored in dev"
         DeploymentInfo devDeploymentInfo = aRandom.deploymentInfo().build()
         String artifactId = devDeploymentInfo.artifactId
-        def devSnapshot = [devDeploymentInfo]
+        storeInDev(devDeploymentInfo)
 
-        and: "A different version in prod"
+        and: "A different version in prod snapshot"
         DeploymentInfo prodDeploymentInfo = aRandom.deploymentInfo().artifactId(artifactId).build()
-        storeInProd(prodDeploymentInfo)
+        def prodSnapshot = [prodDeploymentInfo]
 
         DeploymentDiff expected = DeploymentDiff.builder()
                 .dev(devDeploymentInfo)
@@ -114,16 +111,16 @@ class ReleaseResourceSpec extends Specification {
                 .build();
 
         expect:
-        assert releaseClient.getCurrentReleaseForDevSnapshot(devSnapshot).deploymentDiffs == [(artifactId): expected]
+        assert releaseClient.getCurrentReleaseForProdSnapshot(prodSnapshot).deploymentDiffs == [(artifactId): expected]
     }
 
-    def "getCurrentReleaseForDevSnapshot returns artifact that is in stored prod but not provided dev"() {
+    def "getCurrentReleaseForProdSnapshot returns artifact that is in provided prod but not stored dev"() {
         given:
-        def devSnapshot = []
+        nothingStoredInDev()
 
         and:
         DeploymentInfo prodDeploymentInfo = aRandom.deploymentInfo().build()
-        storeInProd(prodDeploymentInfo)
+        def prodSnapshot = [prodDeploymentInfo]
 
         String artifactId = prodDeploymentInfo.artifactId
         DeploymentDiff expected = DeploymentDiff.builder()
@@ -132,25 +129,25 @@ class ReleaseResourceSpec extends Specification {
                 .build();
 
         expect:
-        assert releaseClient.getCurrentReleaseForDevSnapshot(devSnapshot).deploymentDiffs == [(artifactId): expected]
+        assert releaseClient.getCurrentReleaseForProdSnapshot(prodSnapshot).deploymentDiffs == [(artifactId): expected]
     }
 
-    def "getCurrentReleaseForDevSnapshot returns artifact that is in provided dev but not stored prod"() {
+    def "getCurrentReleaseForProdSnapshot returns artifact that is in stored dev but not provided prod"() {
         given:
         DeploymentInfo devDeploymentInfo = aRandom.deploymentInfo().build()
-        def devSnapshot = [devDeploymentInfo]
+        String artifactId = devDeploymentInfo.artifactId
+        storeInDev(devDeploymentInfo)
 
         and:
-        nothingStoredInProd()
+        def prodSnapshot = []
 
-        String artifactId = devDeploymentInfo.artifactId
         DeploymentDiff expected = DeploymentDiff.builder()
                 .dev(devDeploymentInfo)
                 .prod(null)
                 .build();
 
         expect:
-        assert releaseClient.getCurrentReleaseForDevSnapshot(devSnapshot).deploymentDiffs == [(artifactId): expected]
+        assert releaseClient.getCurrentReleaseForProdSnapshot(prodSnapshot).deploymentDiffs == [(artifactId): expected]
     }
 
     def storeInDev(DeploymentInfo deploymentInfo) {
@@ -160,6 +157,8 @@ class ReleaseResourceSpec extends Specification {
     def storeInProd(DeploymentInfo deploymentInfo) {
         deploymentInfoClient.update(ReleaseService.PROD_FOUNDATION, ReleaseService.PROD_SPACE, deploymentInfo)
     }
+
+    // TODO: a real git test
 
     def nothingStoredInDev() {}
 
