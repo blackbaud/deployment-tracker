@@ -32,8 +32,8 @@ public class ReleaseResource {
 
     @POST
     @Path(ResourcePaths.CURRENT_PATH)
-    public Release getCurrentReleaseForDevSnapshot(List<DeploymentInfo> devDeploymentInfos) {
-        return new Release(releaseService.createDeploymentDiffs(devDeploymentInfos));
+    public Release getCurrentReleaseForProdSnapshot(List<DeploymentInfo> prodDeploymentInfos) {
+        return new Release(releaseService.createDeploymentDiffs(prodDeploymentInfos));
     }
 
     @GET
