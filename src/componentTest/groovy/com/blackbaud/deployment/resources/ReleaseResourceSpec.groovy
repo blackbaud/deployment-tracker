@@ -104,11 +104,11 @@ class ReleaseResourceSpec extends Specification {
         releaseService.repositoryService = repositoryService
 
         and: "A version stored in dev"
-        def artifactId = "bluemoon-core"
+        def artifactId = "deployment-tracker"
         DeploymentInfo devDeploymentInfo = aRandom.deploymentInfo()
                 .artifactId(artifactId)
-                .buildVersion("1.20160606.192035")
-                .gitSha("7e46a8c229bad6806898d0efb0d26435669496b1")
+                .buildVersion("0.20160606.194525")
+                .gitSha("e36ec0e653bb77dd20a6ac2c200d4a82a962e6e7")
                 .build()
 
         storeInDev(devDeploymentInfo)
@@ -116,15 +116,15 @@ class ReleaseResourceSpec extends Specification {
         and: "A different version in prod snapshot"
         DeploymentInfo prodDeploymentInfo = aRandom.deploymentInfo()
                 .artifactId(artifactId)
-                .buildVersion("1.20160531.212531")
-                .gitSha("3fee91bb6c6ff41a2a3682ec3787b64877835040")
+                .buildVersion("0.20160525.221050")
+                .gitSha("bb0ce6f142d3c52e48c914768f3174278bfa035b")
                 .build()
         def prodSnapshot = [prodDeploymentInfo]
 
         DeploymentDiff expected = DeploymentDiff.builder()
                 .dev(devDeploymentInfo)
                 .prod(prodDeploymentInfo)
-                .stories(["LUM-7773"] as Set)
+                .stories(["LUM-7759", "LUM-8045"] as Set)
                 .build();
 
         expect:
