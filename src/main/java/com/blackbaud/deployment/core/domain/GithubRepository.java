@@ -2,6 +2,7 @@ package com.blackbaud.deployment.core.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.extern.log4j.Log4j;
 import org.eclipse.egit.github.core.Repository;
 
 import java.io.File;
@@ -16,8 +17,10 @@ import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
+import org.eclipse.jgit.util.FileUtils;
 
 @AllArgsConstructor
+@Log4j
 public class GithubRepository {
 
     private Repository repository;
@@ -33,11 +36,13 @@ public class GithubRepository {
 
     @SneakyThrows
     public List<String> getCommitsBetween(String fromSha, String toSha) {
-        Git gitProject = Git.open(getCloneDir());
+        File cloneDir = getCloneDir();
+        Git gitProject = Git.open(cloneDir);
         List<String> allCommits = new ArrayList<>();
         for (RevCommit commit : getCommits(gitProject, fromSha, toSha)) {
             allCommits.add(commit.getAuthorIdent().getName() + " - " + commit.getFullMessage());
         }
+        FileUtils.delete(cloneDir, FileUtils.RECURSIVE);
         return allCommits;
     }
 
@@ -60,6 +65,7 @@ public class GithubRepository {
         if (targetDir.exists()) {
             throw new RuntimeException("Target directory must not exist, path=${targetDir.absolutePath}");
         }
+        log.debug("cloning to "+targetDir);
 
         targetDir.getParentFile().mkdirs();
         try {

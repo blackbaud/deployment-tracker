@@ -30,14 +30,10 @@ public class GithubRepositoryService {
     }
 
     public Set<String> getStories(String artifactId, String fromSha, String toSha) {
-        // TODO: clone without leaving files laying around
-        return Collections.emptySet();
-        /*
         if(fromSha.equals(toSha)) return Collections.emptySet();
         GithubRepository repo = getRepository(artifactId);
         List<String> commits = repo.getCommitsBetween(fromSha, toSha);
         return parseStories(commits);
-        */
     }
 
     @SneakyThrows
