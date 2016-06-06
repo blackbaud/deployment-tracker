@@ -2,13 +2,8 @@ package com.blackbaud.deployment.core.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.extern.log4j.Log4j;
 import org.eclipse.egit.github.core.Repository;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
@@ -16,8 +11,15 @@ import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
+import org.eclipse.jgit.util.FileUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 @AllArgsConstructor
+@Log4j
 public class GithubRepository {
 
     private Repository repository;
@@ -33,12 +35,21 @@ public class GithubRepository {
 
     @SneakyThrows
     public List<String> getCommitsBetween(String fromSha, String toSha) {
-        Git gitProject = Git.open(getCloneDir());
-        List<String> allCommits = new ArrayList<>();
-        for (RevCommit commit : getCommits(gitProject, fromSha, toSha)) {
-            allCommits.add(commit.getAuthorIdent().getName() + " - " + commit.getFullMessage());
+        File cloneDir = null;
+
+        try {
+            cloneDir = getCloneDir();
+            Git gitProject = Git.open(cloneDir);
+            List<String> allCommits = new ArrayList<>();
+            for (RevCommit commit : getCommits(gitProject, fromSha, toSha)) {
+                allCommits.add(commit.getAuthorIdent().getName() + " - " + commit.getFullMessage());
+            }
+            return allCommits;
+        } finally {
+            if (cloneDir != null) {
+                FileUtils.delete(cloneDir, FileUtils.RECURSIVE);
+            }
         }
-        return allCommits;
     }
 
     private Iterable<RevCommit> getCommits(Git gitProject, String fromSha, String toSha) throws IncorrectObjectTypeException, MissingObjectException, GitAPIException {
@@ -60,6 +71,7 @@ public class GithubRepository {
         if (targetDir.exists()) {
             throw new RuntimeException("Target directory must not exist, path=${targetDir.absolutePath}");
         }
+        log.debug("cloning to " + targetDir);
 
         targetDir.getParentFile().mkdirs();
         try {

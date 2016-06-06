@@ -30,14 +30,12 @@ public class GithubRepositoryService {
     }
 
     public Set<String> getStories(String artifactId, String fromSha, String toSha) {
-        // TODO: clone without leaving files laying around
-        return Collections.emptySet();
-        /*
-        if(fromSha.equals(toSha)) return Collections.emptySet();
+        if (fromSha.equals(toSha)) {
+            return Collections.emptySet();
+        }
         GithubRepository repo = getRepository(artifactId);
         List<String> commits = repo.getCommitsBetween(fromSha, toSha);
         return parseStories(commits);
-        */
     }
 
     @SneakyThrows
@@ -52,8 +50,7 @@ public class GithubRepositoryService {
 
     private Set<String> parseStories(List<String> commits) {
         Set<String> storyUrls = new HashSet<>();
-        // TODO: do we need the \w ?
-        Pattern pattern = Pattern.compile("lum[^0-9](\\d*)\\w*");
+        Pattern pattern = Pattern.compile("lum[^0-9]?(\\d*)");
         for (String commit : commits) {
             Matcher m = pattern.matcher(commit.toLowerCase());
             if (m.find()) {
