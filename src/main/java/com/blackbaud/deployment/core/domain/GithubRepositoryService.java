@@ -11,7 +11,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -31,7 +30,9 @@ public class GithubRepositoryService {
     }
 
     public Set<String> getStories(String artifactId, String fromSha, String toSha) {
-        if(fromSha.equals(toSha)) return Collections.emptySet();
+        if (fromSha.equals(toSha)) {
+            return Collections.emptySet();
+        }
         GithubRepository repo = getRepository(artifactId);
         List<String> commits = repo.getCommitsBetween(fromSha, toSha);
         return parseStories(commits);
@@ -48,7 +49,7 @@ public class GithubRepositoryService {
     }
 
     private Set<String> parseStories(List<String> commits) {
-        Set<String> storyUrls = new TreeSet<>();
+        Set<String> storyUrls = new HashSet<>();
         Pattern pattern = Pattern.compile("lum[^0-9]?(\\d*)");
         for (String commit : commits) {
             Matcher m = pattern.matcher(commit.toLowerCase());
