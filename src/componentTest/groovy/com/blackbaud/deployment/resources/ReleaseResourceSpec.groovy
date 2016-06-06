@@ -24,9 +24,13 @@ class ReleaseResourceSpec extends Specification {
     @Autowired
     private ReleaseClient releaseClient
 
+    @Autowired
+    private GithubRepositoryService repositoryService;
+
     private GithubRepositoryService mockGithubRepoService = Mock()
 
     def setup() {
+        // NOTE: most tests have git functionality mocked out
         releaseService.repositoryService = mockGithubRepoService
     }
 
@@ -96,18 +100,31 @@ class ReleaseResourceSpec extends Specification {
     }
 
     def "getCurrentReleaseForProdSnapshot returns artifact with different versions in stored dev and provided prod"() {
-        given: "A version stored in dev"
-        DeploymentInfo devDeploymentInfo = aRandom.deploymentInfo().build()
-        String artifactId = devDeploymentInfo.artifactId
+        given: "the real git service"
+        releaseService.repositoryService = repositoryService
+
+        and: "A version stored in dev"
+        def artifactId = "bluemoon-core"
+        DeploymentInfo devDeploymentInfo = aRandom.deploymentInfo()
+                .artifactId(artifactId)
+                .buildVersion("1.20160606.192035")
+                .gitSha("7e46a8c229bad6806898d0efb0d26435669496b1")
+                .build()
+
         storeInDev(devDeploymentInfo)
 
         and: "A different version in prod snapshot"
-        DeploymentInfo prodDeploymentInfo = aRandom.deploymentInfo().artifactId(artifactId).build()
+        DeploymentInfo prodDeploymentInfo = aRandom.deploymentInfo()
+                .artifactId(artifactId)
+                .buildVersion("1.20160531.212531")
+                .gitSha("3fee91bb6c6ff41a2a3682ec3787b64877835040")
+                .build()
         def prodSnapshot = [prodDeploymentInfo]
 
         DeploymentDiff expected = DeploymentDiff.builder()
                 .dev(devDeploymentInfo)
                 .prod(prodDeploymentInfo)
+                .stories(["LUM-7773"] as Set)
                 .build();
 
         expect:
