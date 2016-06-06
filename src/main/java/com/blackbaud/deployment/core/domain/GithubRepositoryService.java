@@ -7,6 +7,7 @@ import org.eclipse.egit.github.core.service.RepositoryService;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -28,17 +29,15 @@ public class GithubRepositoryService {
         repositoryService = new RepositoryService(gitHubClient);
     }
 
-    // TODO: early exit if shas are the same
     public Set<String> getStories(String artifactId, String fromSha, String toSha) {
+        // TODO: clone without leaving files laying around
+        return Collections.emptySet();
+        /*
+        if(fromSha.equals(toSha)) return Collections.emptySet();
         GithubRepository repo = getRepository(artifactId);
         List<String> commits = repo.getCommitsBetween(fromSha, toSha);
         return parseStories(commits);
-    }
-
-    @SneakyThrows
-    public List<String> getCommitsBetween(String artifactId, String fromSha, String toSha) {
-        GithubRepository repo = getRepository(artifactId);
-        return repo.getCommitsBetween(fromSha, toSha);
+        */
     }
 
     @SneakyThrows
@@ -48,7 +47,7 @@ public class GithubRepositoryService {
                 return new GithubRepository(repo, githubCredentialsProvider);
             }
         }
-        throw new RuntimeException("Cannot find repository " + projectName);
+        throw new RuntimeException("Cannot find repository: " + projectName);
     }
 
     private Set<String> parseStories(List<String> commits) {
