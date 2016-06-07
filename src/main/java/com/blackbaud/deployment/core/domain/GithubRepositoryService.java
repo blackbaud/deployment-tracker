@@ -7,6 +7,8 @@ import org.eclipse.egit.github.core.service.RepositoryService;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.springframework.stereotype.Component;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -21,12 +23,21 @@ public class GithubRepositoryService {
     private String githubUsername = "Blackbaud-OdsDeploy";
     private String githubPassword = "0DPassword2!";
     private UsernamePasswordCredentialsProvider githubCredentialsProvider;
+    private Path workspace;
 
     public GithubRepositoryService() {
         githubCredentialsProvider = new UsernamePasswordCredentialsProvider(githubUsername, githubPassword);
         GitHubClient gitHubClient = new GitHubClient();
         gitHubClient.setCredentials(githubUsername, githubPassword);
         repositoryService = new RepositoryService(gitHubClient);
+        setupWorkspaceDir();
+    }
+
+    @SneakyThrows
+    private void setupWorkspaceDir() {
+        workspace = Files.createTempDirectory("workspace");
+        workspace.toFile().mkdirs();
+        workspace.toFile().deleteOnExit();
     }
 
     public Set<String> getStories(String artifactId, String fromSha, String toSha) {
@@ -42,7 +53,7 @@ public class GithubRepositoryService {
     private GithubRepository getRepository(String projectName) {
         for (Repository repo : repositoryService.getOrgRepositories("Blackbaud")) {
             if (repo.getName().equals(projectName)) {
-                return new GithubRepository(repo, githubCredentialsProvider);
+                return new GithubRepository(repo, githubCredentialsProvider, workspace);
             }
         }
         throw new RuntimeException("Cannot find repository: " + projectName);
@@ -59,11 +70,4 @@ public class GithubRepositoryService {
         }
         return storyUrls;
     }
-
-//    private String getStoryLink(String storyNumber) {
-//        try {
-//            return new URL("http", "jira.blackbaud.com", "/browse/LUM-" + storyNumber);
-//        } catch (MalformedURLException e) {}
-//        return null;
-//    }
 }
