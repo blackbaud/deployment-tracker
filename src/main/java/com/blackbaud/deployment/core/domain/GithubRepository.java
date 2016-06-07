@@ -16,6 +16,7 @@ import org.eclipse.jgit.util.FileUtils;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @AllArgsConstructor
@@ -24,14 +25,6 @@ public class GithubRepository {
 
     private Repository repository;
     private UsernamePasswordCredentialsProvider githubCredentialsProvider;
-
-    public String getName() {
-        return repository.getName();
-    }
-
-    public String getCloneUrl() {
-        return repository.getCloneUrl();
-    }
 
     @SneakyThrows
     public List<String> getCommitsBetween(String fromSha, String toSha) {
@@ -46,6 +39,9 @@ public class GithubRepository {
                 allCommits.add(commit.getAuthorIdent().getName() + " - " + commit.getFullMessage());
             }
             return allCommits;
+        } catch (Exception ex) {
+            log.warn("Failed to retrieve commits for repo:" + repository.getCloneUrl() + " between sha:" + fromSha + " and sha:" + toSha, ex);
+            return Arrays.asList("Failed");
         } finally {
             if (cloneDir != null) {
                 FileUtils.delete(cloneDir, FileUtils.RECURSIVE);
@@ -62,7 +58,7 @@ public class GithubRepository {
     }
 
     private File getCloneDir() throws IOException {
-        File tmpDir = File.createTempFile(getName(), "");
+        File tmpDir = File.createTempFile(repository.getName(), "");
         tmpDir.delete();
         return tmpDir;
     }
@@ -77,8 +73,9 @@ public class GithubRepository {
         try {
             Git.cloneRepository()
                     .setDirectory(targetDir)
-                    .setURI(getCloneUrl())
+                    .setURI(repository.getCloneUrl())
                     .setCredentialsProvider(githubCredentialsProvider)
+                    .setBare(true)
                     .call();
         } catch (GitAPIException e) {
             e.printStackTrace();
