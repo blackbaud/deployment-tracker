@@ -39,6 +39,7 @@ public class GithubRepository {
 
         try {
             cloneDir = getCloneDir();
+            clone(cloneDir);
             Git gitProject = Git.open(cloneDir);
             List<String> allCommits = new ArrayList<>();
             for (RevCommit commit : getCommits(gitProject, fromSha, toSha)) {
@@ -63,7 +64,6 @@ public class GithubRepository {
     private File getCloneDir() throws IOException {
         File tmpDir = File.createTempFile(getName(), "");
         tmpDir.delete();
-        clone(tmpDir);
         return tmpDir;
     }
 
