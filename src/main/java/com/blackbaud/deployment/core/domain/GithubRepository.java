@@ -43,8 +43,12 @@ public class GithubRepository {
             log.warn("Failed to retrieve commits for repo:" + repository.getCloneUrl() + " between sha:" + fromSha + " and sha:" + toSha, ex);
             return Arrays.asList("Failed");
         } finally {
-            if (cloneDir != null) {
-                FileUtils.delete(cloneDir, FileUtils.RECURSIVE);
+            if (cloneDir != null && cloneDir.exists()) {
+                try {
+                    FileUtils.delete(cloneDir, FileUtils.RECURSIVE);
+                } catch (IOException ioex) {
+                    log.error("Failed to delete clone dir:" + cloneDir, ioex);
+                }
             }
         }
     }
