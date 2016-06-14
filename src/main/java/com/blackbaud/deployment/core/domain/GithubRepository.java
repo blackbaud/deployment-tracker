@@ -3,19 +3,16 @@ package com.blackbaud.deployment.core.domain;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j;
+import org.apache.commons.collections.IteratorUtils;
 import org.eclipse.egit.github.core.Repository;
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.errors.IncorrectObjectTypeException;
-import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @AllArgsConstructor
@@ -25,30 +22,37 @@ public class GithubRepository {
     private Repository repository;
     private UsernamePasswordCredentialsProvider githubCredentialsProvider;
     private Path workspace;
+    private Git gitProject;
 
-    @SneakyThrows
-    public List<String> getCommitsBetween(String fromSha, String toSha) {
-        try {
-            File cloneDir = workspace.resolve(repository.getName()).toFile();
-            cloneOrFetch(cloneDir);
-            Git gitProject = Git.open(cloneDir);
-            List<String> allCommits = new ArrayList<>();
-            for (RevCommit commit : getCommits(gitProject, fromSha, toSha)) {
-                allCommits.add(commit.getAuthorIdent().getName() + " - " + commit.getFullMessage());
-            }
-            return allCommits;
-        } catch (Exception ex) {
-            log.warn("Failed to retrieve commits for repositoryUrl=" + repository.getCloneUrl() + " between sha:" + fromSha + " and sha:" + toSha, ex);
-            return Arrays.asList("Failed");
-        }
+    public GithubRepository(Repository repository, UsernamePasswordCredentialsProvider credentials, Path workspace) throws IOException {
+        this.repository = repository;
+        this.githubCredentialsProvider = credentials;
+        this.workspace = workspace;
+        setGitProject();
     }
 
-    private Iterable<RevCommit> getCommits(Git gitProject, String fromSha, String toSha) throws IncorrectObjectTypeException, MissingObjectException, GitAPIException {
+    private void setGitProject() throws IOException {
+        File cloneDir = workspace.resolve(repository.getName()).toFile();
+        cloneOrFetch(cloneDir);
+        gitProject = Git.open(cloneDir);
+    }
+
+    @SneakyThrows
+    public List<RevCommit> getCommits(String fromSha, String toSha) {
         Iterable<RevCommit> commits = gitProject
                 .log()
                 .addRange(ObjectId.fromString(fromSha), ObjectId.fromString(toSha))
                 .call();
-        return commits;
+        return (List<RevCommit>) IteratorUtils.toList(commits.iterator());
+    }
+
+    @SneakyThrows
+    public List<RevCommit> getCommitsUntil(String toSha){
+        Iterable<RevCommit> commits = gitProject
+                .log()
+                .add(ObjectId.fromString(toSha))
+                .call();
+        return (List<RevCommit>) IteratorUtils.toList(commits.iterator());
     }
 
     @SneakyThrows

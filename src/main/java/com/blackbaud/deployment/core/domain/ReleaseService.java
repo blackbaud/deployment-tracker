@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 
 @Component
@@ -23,20 +22,20 @@ public class ReleaseService {
     private DeploymentInfoService deploymentInfoService;
 
     @Autowired
-    private GithubRepositoryService repositoryService;
+    private GitLogParserFactory gitLogParserFactory;
 
     public Map<String, DeploymentDiff> createDeploymentDiffs() {
         List<DeploymentInfo> devInfos = deploymentInfoService.findManyByFoundationAndSpace(DEV_FOUNDATION, DEV_SPACE);
         List<DeploymentInfo> prodInfos = deploymentInfoService.findManyByFoundationAndSpace(PROD_FOUNDATION, PROD_SPACE);
         TreeMap<String, DeploymentDiff> releaseSummary = combineDeploymentInfos(devInfos, prodInfos);
-        addStoryLinks(releaseSummary);
+        addStoriesAndDevelopers(releaseSummary);
         return releaseSummary;
     }
 
     public Map<String, DeploymentDiff> createDeploymentDiffs(List<DeploymentInfo> prodInfos) {
         List<DeploymentInfo> devInfos = deploymentInfoService.findManyByFoundationAndSpace(DEV_FOUNDATION, DEV_SPACE);
         TreeMap<String, DeploymentDiff> releaseSummary = combineDeploymentInfos(devInfos, prodInfos);
-        addStoryLinks(releaseSummary);
+        addStoriesAndDevelopers(releaseSummary);
         return releaseSummary;
     }
 
@@ -71,14 +70,12 @@ public class ReleaseService {
         }
     }
 
-    public void addStoryLinks(TreeMap<String, DeploymentDiff> allDeploymentInfos) {
+    public void addStoriesAndDevelopers(TreeMap<String, DeploymentDiff> allDeploymentInfos) {
         for (String artifactId : allDeploymentInfos.keySet()) {
             DeploymentDiff deploymentDiff = allDeploymentInfos.get(artifactId);
-            if (deploymentDiff.hasBothShas()) {
-                Set<String> stories = repositoryService.getStories(artifactId, deploymentDiff.getProdSha(), deploymentDiff.getDevSha());
-                deploymentDiff.setStories(stories);
-            }
+            GitLogParser parser = gitLogParserFactory.createParser(artifactId, deploymentDiff.getProdSha(), deploymentDiff.getDevSha());
+            deploymentDiff.setStories(parser.getStories());
+            deploymentDiff.setDevelopers(parser.getDevelopers());
         }
     }
-
 }

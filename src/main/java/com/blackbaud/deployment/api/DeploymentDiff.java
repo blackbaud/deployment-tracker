@@ -12,19 +12,19 @@ import java.util.List;
 import java.util.Set;
 
 @Data
-@Builder
-@AllArgsConstructor
 @NoArgsConstructor
 public class DeploymentDiff {
     private DeploymentInfo dev;
     private DeploymentInfo prod;
-    private Set<String> stories = Collections.emptySet();
+    private Set<String> stories;
+    private Set<String> developers;
 
-    public Boolean sameVersion() {
-        if (!hasBothDeploymentInfos()) {
-            return false;
-        }
-        return dev.getBuildVersion().equals(prod.getBuildVersion());
+    @Builder
+    public DeploymentDiff(DeploymentInfo dev, DeploymentInfo prod, Set<String> stories, Set<String> developers) {
+        this.dev = dev;
+        this.prod = prod;
+        this.stories = stories == null ? Collections.emptySet() : stories;
+        this.developers = developers == null ? Collections.emptySet() : developers;
     }
 
     @JsonIgnore
@@ -37,13 +37,4 @@ public class DeploymentDiff {
         return prod == null ? null : prod.getGitSha();
     }
 
-    public Boolean hasBothDeploymentInfos() {
-        return dev != null && prod != null;
-    }
-
-    public boolean hasBothShas() {
-        return hasBothDeploymentInfos() &&
-                getDevSha() != null && getProdSha() != null;
-
-    }
 }
