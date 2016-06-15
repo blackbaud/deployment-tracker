@@ -1,20 +1,20 @@
 package com.blackbaud.deployment.resources;
 
-import com.blackbaud.deployment.api.DeploymentDiff;
 import com.blackbaud.deployment.api.DeploymentInfo;
 import com.blackbaud.deployment.api.Release;
 import com.blackbaud.deployment.api.ResourcePaths;
+import com.blackbaud.deployment.core.domain.GitLogParserFactory;
 import com.blackbaud.deployment.core.domain.ReleaseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
-import java.util.Map;
 
 @Component
 @Path(ResourcePaths.RELEASE_PATH)
@@ -27,19 +27,20 @@ public class ReleaseResource {
     @GET
     @Path(ResourcePaths.CURRENT_PATH)
     public Release getCurrentRelease() {
-        return new Release(releaseService.createDeploymentDiffs());
+        try {
+            return new Release(releaseService.createDeploymentDiffs());
+        } catch (GitLogParserFactory.InvalidRepositoryException ex) {
+            throw new BadRequestException(ex.getMessage());
+        }
     }
 
     @POST
     @Path(ResourcePaths.CURRENT_PATH)
     public Release getCurrentReleaseForProdSnapshot(List<DeploymentInfo> prodDeploymentInfos) {
-        return new Release(releaseService.createDeploymentDiffs(prodDeploymentInfos));
+        try {
+            return new Release(releaseService.createDeploymentDiffs(prodDeploymentInfos));
+        } catch (GitLogParserFactory.InvalidRepositoryException ex) {
+            throw new BadRequestException(ex.getMessage());
+        }
     }
-
-    @GET
-    @Path(ResourcePaths.DEPRECATED_CURRENT_SUMMARY_PATH)
-    public Map<String, DeploymentDiff> getDeprecatedCurrentReleaseSummary() {
-        return releaseService.createDeploymentDiffs();
-    }
-
 }

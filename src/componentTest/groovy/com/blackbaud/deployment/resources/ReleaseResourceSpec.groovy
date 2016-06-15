@@ -1,5 +1,6 @@
 package com.blackbaud.deployment.resources
 
+import com.blackbaud.boot.exception.BadRequestException
 import com.blackbaud.deployment.ComponentTest
 import com.blackbaud.deployment.api.DeploymentDiff
 import com.blackbaud.deployment.api.DeploymentInfo
@@ -97,7 +98,6 @@ class ReleaseResourceSpec extends Specification {
 
         expect:
         assert releaseClient.getCurrentRelease().deploymentDiffs == [(artifactId): expected]
-
     }
 
     def "getCurrentReleaseForProdSnapshot returns artifact with different versions in stored dev and provided prod"() {
@@ -116,6 +116,19 @@ class ReleaseResourceSpec extends Specification {
 
         expect:
         assert releaseClient.getCurrentReleaseForProdSnapshot(prodSnapshot).deploymentDiffs == [(artifactId): expected]
+    }
+
+    def "Invalid github repo throws exception"() {
+        given:
+        DeploymentInfo deploymentInfo = aRandom.deploymentInfo().build();
+        storeInDev(deploymentInfo)
+
+        when:
+        releaseClient.getCurrentRelease()
+
+        then:
+        BadRequestException ex = thrown()
+        ex.errorEntity.message == "Cannot find repository with name " + deploymentInfo.artifactId
     }
 
     def storeInDev(DeploymentInfo deploymentInfo) {

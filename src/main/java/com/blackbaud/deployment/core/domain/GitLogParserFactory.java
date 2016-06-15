@@ -45,7 +45,7 @@ public class GitLogParserFactory {
                 return new GithubRepository(repo, githubCredentialsProvider, workspace);
             }
         }
-        throw new RuntimeException("Cannot find repository: " + projectName);
+        throw new InvalidRepositoryException("Cannot find repository with name " + projectName);
     }
 
     private GitLogParser getGitLogParser(String projectName, String fromSha, String toSha) {
@@ -71,5 +71,11 @@ public class GitLogParserFactory {
             return getGitLogParserForNewProject(artifactId, devSha);
         }
         return getEmptyGitLogParser();
+    }
+
+    public class InvalidRepositoryException extends RuntimeException {
+        public InvalidRepositoryException(String message) {
+            super(message);
+        }
     }
 }
