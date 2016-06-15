@@ -4,28 +4,26 @@ import lombok.SneakyThrows;
 import org.eclipse.egit.github.core.Repository;
 import org.eclipse.egit.github.core.client.GitHubClient;
 import org.eclipse.egit.github.core.service.RepositoryService;
+import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Component
-public class GithubRepositoryService {
+public class GitLogParserFactory {
 
     private RepositoryService repositoryService;
     private String githubUsername = "Blackbaud-OdsDeploy";
     private String githubPassword = "0DPassword2!";
+
     private UsernamePasswordCredentialsProvider githubCredentialsProvider;
     private Path workspace;
 
-    public GithubRepositoryService() {
+    public GitLogParserFactory() {
         githubCredentialsProvider = new UsernamePasswordCredentialsProvider(githubUsername, githubPassword);
         GitHubClient gitHubClient = new GitHubClient();
         gitHubClient.setCredentials(githubUsername, githubPassword);
@@ -40,15 +38,6 @@ public class GithubRepositoryService {
         workspace.toFile().deleteOnExit();
     }
 
-    public Set<String> getStories(String artifactId, String fromSha, String toSha) {
-        if (fromSha.equals(toSha)) {
-            return Collections.emptySet();
-        }
-        GithubRepository repo = getRepository(artifactId);
-        List<String> commits = repo.getCommitsBetween(fromSha, toSha);
-        return parseStories(commits);
-    }
-
     @SneakyThrows
     private GithubRepository getRepository(String projectName) {
         for (Repository repo : repositoryService.getOrgRepositories("Blackbaud")) {
@@ -56,18 +45,37 @@ public class GithubRepositoryService {
                 return new GithubRepository(repo, githubCredentialsProvider, workspace);
             }
         }
-        throw new RuntimeException("Cannot find repository: " + projectName);
+        throw new InvalidRepositoryException("Cannot find repository with name " + projectName);
     }
 
-    private Set<String> parseStories(List<String> commits) {
-        Set<String> storyUrls = new HashSet<>();
-        Pattern pattern = Pattern.compile("lum[^0-9]?(\\d*)");
-        for (String commit : commits) {
-            Matcher m = pattern.matcher(commit.toLowerCase());
-            if (m.find()) {
-                storyUrls.add("LUM-" + m.group(1));
-            }
+    private GitLogParser getGitLogParser(String projectName, String fromSha, String toSha) {
+        GithubRepository repo = getRepository(projectName);
+        List<RevCommit> commits = repo.getCommits(fromSha, toSha);
+        return new GitLogParser(commits);
+    }
+
+    private GitLogParser getGitLogParserForNewProject(String projectName, String toSha) {
+        GithubRepository repo = getRepository(projectName);
+        List<RevCommit> commits = repo.getCommitsUntil(toSha);
+        return new GitLogParser(commits);
+    }
+
+    private GitLogParser getEmptyGitLogParser() {
+        return new GitLogParser(Collections.emptyList());
+    }
+
+    public GitLogParser createParser(String artifactId, String prodSha, String devSha) {
+        if (prodSha != null && devSha != null) {
+            return getGitLogParser(artifactId, prodSha, devSha);
+        } else if (devSha != null) {
+            return getGitLogParserForNewProject(artifactId, devSha);
         }
-        return storyUrls;
+        return getEmptyGitLogParser();
+    }
+
+    public class InvalidRepositoryException extends RuntimeException {
+        public InvalidRepositoryException(String message) {
+            super(message);
+        }
     }
 }
