@@ -37,21 +37,29 @@ public class GithubRepository {
         gitProject = Git.open(cloneDir);
     }
 
-    @SneakyThrows
     public List<RevCommit> getCommits(String fromSha, String toSha) {
-        Iterable<RevCommit> commits = gitProject
-                .log()
-                .addRange(ObjectId.fromString(fromSha), ObjectId.fromString(toSha))
-                .call();
+        Iterable<RevCommit> commits = null;
+        try {
+            commits = gitProject
+                    .log()
+                    .addRange(ObjectId.fromString(fromSha), ObjectId.fromString(toSha))
+                    .call();
+        } catch (Exception e) {
+            throw new CannotRetrieveCommitsException("Cannot retrieve commits between from=" + fromSha + " to=" + toSha + " for repo=" + repository.getName(), e);
+        }
         return (List<RevCommit>) IteratorUtils.toList(commits.iterator());
     }
 
-    @SneakyThrows
-    public List<RevCommit> getCommitsUntil(String toSha){
-        Iterable<RevCommit> commits = gitProject
-                .log()
-                .add(ObjectId.fromString(toSha))
-                .call();
+    public List<RevCommit> getCommitsUntil(String toSha) {
+        Iterable<RevCommit> commits = null;
+        try {
+            commits = gitProject
+                    .log()
+                    .add(ObjectId.fromString(toSha))
+                    .call();
+        } catch (Exception e) {
+            throw new CannotRetrieveCommitsException("Cannot retrieve commits to=" + toSha + " for repo=" + repository.getName(), e);
+        }
         return (List<RevCommit>) IteratorUtils.toList(commits.iterator());
     }
 
@@ -68,6 +76,12 @@ public class GithubRepository {
                     .setCredentialsProvider(githubCredentialsProvider)
                     .setBare(true)
                     .call();
+        }
+    }
+
+    public class CannotRetrieveCommitsException extends RuntimeException {
+        public CannotRetrieveCommitsException(String message, Exception cause) {
+            super(message, cause);
         }
     }
 }
