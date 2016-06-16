@@ -120,6 +120,15 @@ class ReleaseResourceSpec extends Specification {
         assert releaseClient.getCurrentReleaseForProdSnapshot(prodSnapshot).deploymentDiffs == [(artifactId): expected]
     }
 
+    def "getCurrentRelease does not return non-releasable artifacts"() {
+        given:
+        DeploymentInfo deploymentInfo = aRandom.deploymentInfo().artifactId("bluemoon-dojo").build();
+        storeInDev(deploymentInfo)
+
+        expect:
+        releaseClient.getCurrentRelease().deploymentDiffs == [:]
+    }
+
     def "Missing commits throws exception"() {
         given:
         DeploymentInfo dev = aRandom.deploymentInfo()

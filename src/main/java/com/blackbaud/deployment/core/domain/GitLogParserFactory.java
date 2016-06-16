@@ -66,7 +66,9 @@ public class GitLogParserFactory {
 
     public GitLogParser createParser(String artifactId, String prodSha, String devSha) {
         if (prodSha != null && devSha != null) {
-            return getGitLogParser(artifactId, prodSha, devSha);
+            if (!prodSha.equals(devSha)) {
+                return getGitLogParser(artifactId, prodSha, devSha);
+            }
         } else if (devSha != null) {
             return getGitLogParserForNewProject(artifactId, devSha);
         }
