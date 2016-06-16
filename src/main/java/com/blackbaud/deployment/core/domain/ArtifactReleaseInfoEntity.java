@@ -15,13 +15,13 @@ import javax.persistence.Table;
 
 @Entity(name = "deployment_info")
 @Table(name = "deployment_info")
-@IdClass(DeploymentInfoPrimaryKey.class)
+@IdClass(ArtifactReleaseInfoPrimaryKey.class)
 @Data
 @EqualsAndHashCode(of = {"artifactId", "space", "foundation"})
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class DeploymentInfoEntity {
+public class ArtifactReleaseInfoEntity {
 
     @Id
     @Column(name = "artifact_id")
