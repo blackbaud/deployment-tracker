@@ -10,6 +10,8 @@ import com.blackbaud.deployment.core.domain.ReleaseService
 import org.springframework.beans.factory.annotation.Autowired
 import spock.lang.Specification
 
+import javax.ws.rs.WebApplicationException
+
 import static com.blackbaud.deployment.core.CoreARandom.aRandom
 
 @ComponentTest
@@ -116,6 +118,22 @@ class ReleaseResourceSpec extends Specification {
 
         expect:
         assert releaseClient.getCurrentReleaseForProdSnapshot(prodSnapshot).deploymentDiffs == [(artifactId): expected]
+    }
+
+    def "Missing commits throws exception"() {
+        given:
+        DeploymentInfo dev = aRandom.deploymentInfo()
+                .artifactId(artifactId)
+                .buildVersion("0.20160606.194525")
+                .gitSha("3e176dced48f7b888707337261ba5b97902cf5b8")
+                .build()
+        storeInDev(dev)
+
+        when:
+        releaseClient.getCurrentReleaseForProdSnapshot([earlyDeploymentInfo])
+
+        then:
+        WebApplicationException ex = thrown()
     }
 
     def "Invalid github repo throws exception"() {
