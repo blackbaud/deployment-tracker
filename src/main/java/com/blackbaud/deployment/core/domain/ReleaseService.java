@@ -5,6 +5,8 @@ import com.blackbaud.deployment.api.DeploymentInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -17,6 +19,13 @@ public class ReleaseService {
 
     public static final String PROD_FOUNDATION = "pivotal-prod1";
     public static final String PROD_SPACE = "prod1-apps";
+
+    private static final List<String> nonReleasable = Arrays.asList("bluemoon-dojo",
+                                                                    "bluemoon-dojo-ui",
+                                                                    "data-pipeline-kafka-rest-proxy",
+                                                                    "data-pipeline-performance-consumer",
+                                                                    "data-pipeline-performance-producer",
+                                                                    "data-pipeline-tests-endpoints");
 
     @Autowired
     private DeploymentInfoService deploymentInfoService;
@@ -48,12 +57,18 @@ public class ReleaseService {
 
     public void addDevDeploymentInfos(List<DeploymentInfo> devInfos, Map<String, DeploymentDiff> allDeploymentInfos) {
         for (DeploymentInfo devInfo : devInfos) {
-            allDeploymentInfos.put(devInfo.getArtifactId(),
-                                   DeploymentDiff.builder()
-                                           .dev(devInfo)
-                                           .build()
-            );
+            if (isReleasable(devInfo)){
+                allDeploymentInfos.put(devInfo.getArtifactId(),
+                                       DeploymentDiff.builder()
+                                               .dev(devInfo)
+                                               .build()
+                );
+            }
         }
+    }
+
+    private boolean isReleasable(DeploymentInfo deploymentInfo) {
+        return !nonReleasable.contains(deploymentInfo.getArtifactId());
     }
 
     private void addProdDeploymentInfo(List<DeploymentInfo> prodInfos, Map<String, DeploymentDiff> allDeploymentInfos) {
