@@ -128,7 +128,7 @@ class ReleaseResourceSpec extends Specification {
         expect:
         releaseClient.getCurrentRelease().deploymentDiffs == [:]
     }
-    
+
     def "Missing commits throws exception"() {
         given:
         DeploymentInfo dev = aRandom.deploymentInfo()
