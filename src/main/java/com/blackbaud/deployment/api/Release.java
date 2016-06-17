@@ -11,5 +11,5 @@ import java.util.Map;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Release {
-    private Map<String, DeploymentDiff> deploymentDiffs = Collections.emptyMap();
+    private Map<String, ArtifactReleaseDiff> artifactReleaseDiffs = Collections.emptyMap();
 }

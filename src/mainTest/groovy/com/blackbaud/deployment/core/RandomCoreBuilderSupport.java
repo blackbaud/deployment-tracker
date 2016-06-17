@@ -1,10 +1,10 @@
 package com.blackbaud.deployment.core;
-import com.blackbaud.deployment.core.domain.RandomDeploymentInfoEntityBuilder;
+import com.blackbaud.deployment.core.domain.RandomArtifactReleaseInfoEntityBuilder;
 
 public class RandomCoreBuilderSupport {
 
-    public RandomDeploymentInfoEntityBuilder deploymentInfoEntity() {
-        return new RandomDeploymentInfoEntityBuilder();
+    public RandomArtifactReleaseInfoEntityBuilder artifactReleaseInfoEntity() {
+        return new RandomArtifactReleaseInfoEntityBuilder();
     }
 
 }
