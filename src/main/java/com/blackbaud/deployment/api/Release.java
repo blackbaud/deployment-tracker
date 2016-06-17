@@ -11,5 +11,13 @@ import java.util.Map;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Release {
-    private Map<String, DeploymentDiff> deploymentDiffs = Collections.emptyMap();
+<<<<<<< HEAD
+<<<<<<< HEAD
+    private Map<String, ArtifactReleaseDiff> releaseDiff = Collections.emptyMap();
+=======
+    private Map<String, ArtifactReleaseDiff> deploymentDiffs = Collections.emptyMap();
+>>>>>>> f678692... more renaming
+=======
+    private Map<String, ArtifactReleaseDiff> releaseDiff = Collections.emptyMap();
+>>>>>>> e82996a... so much renaming
 }

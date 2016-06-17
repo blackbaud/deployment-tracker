@@ -2,9 +2,9 @@ package com.blackbaud.deployment.api;
 
 import static com.blackbaud.deployment.api.ClientARandom.aRandom
 
-class RandomDeploymentInfoBuilder extends DeploymentInfo.DeploymentInfoBuilder {
+class RandomArtifactReleaseInfoBuilder extends ArtifactReleaseInfo.ArtifactReleaseInfoBuilder {
 
-    public RandomDeploymentInfoBuilder() {
+    public RandomArtifactReleaseInfoBuilder() {
         artifactId(aRandom.text(20))
         buildVersion(aRandom.text(20))
         releaseVersion(aRandom.text(20))

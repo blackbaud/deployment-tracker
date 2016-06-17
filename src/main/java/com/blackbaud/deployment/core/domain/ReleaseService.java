@@ -1,11 +1,18 @@
 package com.blackbaud.deployment.core.domain;
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+import com.blackbaud.deployment.api.ArtifactReleaseDiff;
+=======
 import com.blackbaud.deployment.api.DeploymentDiff;
-import com.blackbaud.deployment.api.DeploymentInfo;
+>>>>>>> 746a757... LUM-9138 first pass at renaming
+=======
+import com.blackbaud.deployment.api.ArtifactReleaseDiff;
+>>>>>>> f678692... more renaming
+import com.blackbaud.deployment.api.ArtifactReleaseInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -29,38 +36,117 @@ public class ReleaseService {
                                                                     "mock-data-sync-api");
 
     @Autowired
-    private DeploymentInfoService deploymentInfoService;
+    private ArtifactReleaseInfoService artifactReleaseInfoService;
 
     @Autowired
     private GitLogParserFactory gitLogParserFactory;
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+    public Map<String, ArtifactReleaseDiff> createArtifactReleaseDiffs() {
+        List<ArtifactReleaseInfo> devInfos = artifactReleaseInfoService.findManyByFoundationAndSpace(DEV_FOUNDATION, DEV_SPACE);
+        List<ArtifactReleaseInfo> prodInfos = artifactReleaseInfoService.findManyByFoundationAndSpace(PROD_FOUNDATION, PROD_SPACE);
+        TreeMap<String, ArtifactReleaseDiff> releaseSummary = combineArtifactReleaseInfos(devInfos, prodInfos);
+=======
     public Map<String, DeploymentDiff> createDeploymentDiffs() {
-        List<DeploymentInfo> devInfos = deploymentInfoService.findManyByFoundationAndSpace(DEV_FOUNDATION, DEV_SPACE);
-        List<DeploymentInfo> prodInfos = deploymentInfoService.findManyByFoundationAndSpace(PROD_FOUNDATION, PROD_SPACE);
+        List<ArtifactReleaseInfo> devInfos = artifactReleaseInfoService.findManyByFoundationAndSpace(DEV_FOUNDATION, DEV_SPACE);
+        List<ArtifactReleaseInfo> prodInfos = artifactReleaseInfoService.findManyByFoundationAndSpace(PROD_FOUNDATION, PROD_SPACE);
         TreeMap<String, DeploymentDiff> releaseSummary = combineDeploymentInfos(devInfos, prodInfos);
+>>>>>>> 746a757... LUM-9138 first pass at renaming
+=======
+    public Map<String, ArtifactReleaseDiff> createDeploymentDiffs() {
+        List<ArtifactReleaseInfo> devInfos = artifactReleaseInfoService.findManyByFoundationAndSpace(DEV_FOUNDATION, DEV_SPACE);
+        List<ArtifactReleaseInfo> prodInfos = artifactReleaseInfoService.findManyByFoundationAndSpace(PROD_FOUNDATION, PROD_SPACE);
+        TreeMap<String, ArtifactReleaseDiff> releaseSummary = combineDeploymentInfos(devInfos, prodInfos);
+>>>>>>> f678692... more renaming
+=======
+    public Map<String, ArtifactReleaseDiff> createArtifactReleaseDiffs() {
+        List<ArtifactReleaseInfo> devInfos = artifactReleaseInfoService.findManyByFoundationAndSpace(DEV_FOUNDATION, DEV_SPACE);
+        List<ArtifactReleaseInfo> prodInfos = artifactReleaseInfoService.findManyByFoundationAndSpace(PROD_FOUNDATION, PROD_SPACE);
+        TreeMap<String, ArtifactReleaseDiff> releaseSummary = combineArtifactReleaseInfos(devInfos, prodInfos);
+>>>>>>> e82996a... so much renaming
         addStoriesAndDevelopers(releaseSummary);
         return releaseSummary;
     }
 
-    public Map<String, DeploymentDiff> createDeploymentDiffs(List<DeploymentInfo> prodInfos) {
-        List<DeploymentInfo> devInfos = deploymentInfoService.findManyByFoundationAndSpace(DEV_FOUNDATION, DEV_SPACE);
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+    public Map<String, ArtifactReleaseDiff> createArtifactReleaseDiffs(List<ArtifactReleaseInfo> prodInfos) {
+        List<ArtifactReleaseInfo> devInfos = artifactReleaseInfoService.findManyByFoundationAndSpace(DEV_FOUNDATION, DEV_SPACE);
+        TreeMap<String, ArtifactReleaseDiff> releaseSummary = combineArtifactReleaseInfos(devInfos, prodInfos);
+=======
+    public Map<String, DeploymentDiff> createDeploymentDiffs(List<ArtifactReleaseInfo> prodInfos) {
+        List<ArtifactReleaseInfo> devInfos = artifactReleaseInfoService.findManyByFoundationAndSpace(DEV_FOUNDATION, DEV_SPACE);
         TreeMap<String, DeploymentDiff> releaseSummary = combineDeploymentInfos(devInfos, prodInfos);
+>>>>>>> 746a757... LUM-9138 first pass at renaming
+=======
+    public Map<String, ArtifactReleaseDiff> createDeploymentDiffs(List<ArtifactReleaseInfo> prodInfos) {
+        List<ArtifactReleaseInfo> devInfos = artifactReleaseInfoService.findManyByFoundationAndSpace(DEV_FOUNDATION, DEV_SPACE);
+        TreeMap<String, ArtifactReleaseDiff> releaseSummary = combineDeploymentInfos(devInfos, prodInfos);
+>>>>>>> f678692... more renaming
+=======
+    public Map<String, ArtifactReleaseDiff> createArtifactReleaseDiffs(List<ArtifactReleaseInfo> prodInfos) {
+        List<ArtifactReleaseInfo> devInfos = artifactReleaseInfoService.findManyByFoundationAndSpace(DEV_FOUNDATION, DEV_SPACE);
+        TreeMap<String, ArtifactReleaseDiff> releaseSummary = combineArtifactReleaseInfos(devInfos, prodInfos);
+>>>>>>> e82996a... so much renaming
         addStoriesAndDevelopers(releaseSummary);
         return releaseSummary;
     }
 
-    private TreeMap<String, DeploymentDiff> combineDeploymentInfos(List<DeploymentInfo> devInfos, List<DeploymentInfo> prodInfos) {
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+    private TreeMap<String, ArtifactReleaseDiff> combineArtifactReleaseInfos(List<ArtifactReleaseInfo> devInfos, List<ArtifactReleaseInfo> prodInfos) {
+        TreeMap<String, ArtifactReleaseDiff> allArtifactReleaseInfos = new TreeMap<>();
+        addDevArtifactReleaseInfos(devInfos, allArtifactReleaseInfos);
+        addProdArtifactReleaseInfo(prodInfos, allArtifactReleaseInfos);
+        return allArtifactReleaseInfos;
+    }
+
+    public void addDevArtifactReleaseInfos(List<ArtifactReleaseInfo> devInfos, Map<String, ArtifactReleaseDiff> allArtifactReleaseInfos) {
+=======
+    private TreeMap<String, DeploymentDiff> combineDeploymentInfos(List<ArtifactReleaseInfo> devInfos, List<ArtifactReleaseInfo> prodInfos) {
         TreeMap<String, DeploymentDiff> allDeploymentInfos = new TreeMap<>();
+=======
+    private TreeMap<String, ArtifactReleaseDiff> combineDeploymentInfos(List<ArtifactReleaseInfo> devInfos, List<ArtifactReleaseInfo> prodInfos) {
+<<<<<<< HEAD
+        TreeMap<String, ArtifactReleaseDiff> allDeploymentInfos = new TreeMap<>();
+>>>>>>> f678692... more renaming
         addDevDeploymentInfos(devInfos, allDeploymentInfos);
         addProdDeploymentInfo(prodInfos, allDeploymentInfos);
         return allDeploymentInfos;
     }
 
-    public void addDevDeploymentInfos(List<DeploymentInfo> devInfos, Map<String, DeploymentDiff> allDeploymentInfos) {
-        for (DeploymentInfo devInfo : devInfos) {
+<<<<<<< HEAD
+    public void addDevDeploymentInfos(List<ArtifactReleaseInfo> devInfos, Map<String, DeploymentDiff> allDeploymentInfos) {
+>>>>>>> 746a757... LUM-9138 first pass at renaming
+        for (ArtifactReleaseInfo devInfo : devInfos) {
+            if (isReleasable(devInfo)){
+                allArtifactReleaseInfos.put(devInfo.getArtifactId(),
+=======
+    public void addDevDeploymentInfos(List<ArtifactReleaseInfo> devInfos, Map<String, ArtifactReleaseDiff> allDeploymentInfos) {
+        for (ArtifactReleaseInfo devInfo : devInfos) {
             if (isReleasable(devInfo)){
                 allDeploymentInfos.put(devInfo.getArtifactId(),
-                                       DeploymentDiff.builder()
+>>>>>>> f678692... more renaming
+=======
+=======
+    private TreeMap<String, ArtifactReleaseDiff> combineArtifactReleaseInfos(List<ArtifactReleaseInfo> devInfos, List<ArtifactReleaseInfo> prodInfos) {
+>>>>>>> e82996a... so much renaming
+        TreeMap<String, ArtifactReleaseDiff> allArtifactReleaseInfos = new TreeMap<>();
+        addDevArtifactReleaseInfos(devInfos, allArtifactReleaseInfos);
+        addProdArtifactReleaseInfo(prodInfos, allArtifactReleaseInfos);
+        return allArtifactReleaseInfos;
+    }
+
+    public void addDevArtifactReleaseInfos(List<ArtifactReleaseInfo> devInfos, Map<String, ArtifactReleaseDiff> allArtifactReleaseInfos) {
+        for (ArtifactReleaseInfo devInfo : devInfos) {
+            if (isReleasable(devInfo)){
+                allArtifactReleaseInfos.put(devInfo.getArtifactId(),
+>>>>>>> 5c342a4... more renaming
+                                       ArtifactReleaseDiff.builder()
                                                .dev(devInfo)
                                                .build()
                 );
@@ -68,30 +154,71 @@ public class ReleaseService {
         }
     }
 
-    private boolean isReleasable(DeploymentInfo deploymentInfo) {
-        return !nonReleasable.contains(deploymentInfo.getArtifactId());
+    private boolean isReleasable(ArtifactReleaseInfo artifactReleaseInfo) {
+        return !nonReleasable.contains(artifactReleaseInfo.getArtifactId());
     }
 
-    private void addProdDeploymentInfo(List<DeploymentInfo> prodInfos, Map<String, DeploymentDiff> allDeploymentInfos) {
-        for (DeploymentInfo prodInfo : prodInfos) {
-            DeploymentDiff deploymentInfos = allDeploymentInfos.get(prodInfo.getArtifactId());
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+    private void addProdArtifactReleaseInfo(List<ArtifactReleaseInfo> prodInfos, Map<String, ArtifactReleaseDiff> allArtifactReleaseInfos) {
+        for (ArtifactReleaseInfo prodInfo : prodInfos) {
+            ArtifactReleaseDiff artifactReleaseDiff = allArtifactReleaseInfos.get(prodInfo.getArtifactId());
+            if (artifactReleaseDiff == null) {
+                allArtifactReleaseInfos.put(prodInfo.getArtifactId(),
+                                       ArtifactReleaseDiff.builder()
+=======
+    private void addProdDeploymentInfo(List<ArtifactReleaseInfo> prodInfos, Map<String, DeploymentDiff> allDeploymentInfos) {
+=======
+    private void addProdDeploymentInfo(List<ArtifactReleaseInfo> prodInfos, Map<String, ArtifactReleaseDiff> allDeploymentInfos) {
+>>>>>>> f678692... more renaming
+        for (ArtifactReleaseInfo prodInfo : prodInfos) {
+            ArtifactReleaseDiff deploymentInfos = allDeploymentInfos.get(prodInfo.getArtifactId());
             if (deploymentInfos == null) {
                 allDeploymentInfos.put(prodInfo.getArtifactId(),
+<<<<<<< HEAD
                                        DeploymentDiff.builder()
+>>>>>>> 746a757... LUM-9138 first pass at renaming
+=======
+=======
+    private void addProdDeploymentInfo(List<ArtifactReleaseInfo> prodInfos, Map<String, ArtifactReleaseDiff> allArtifactReleaseInfos) {
+=======
+    private void addProdArtifactReleaseInfo(List<ArtifactReleaseInfo> prodInfos, Map<String, ArtifactReleaseDiff> allArtifactReleaseInfos) {
+>>>>>>> e82996a... so much renaming
+        for (ArtifactReleaseInfo prodInfo : prodInfos) {
+            ArtifactReleaseDiff artifactReleaseDiff = allArtifactReleaseInfos.get(prodInfo.getArtifactId());
+            if (artifactReleaseDiff == null) {
+                allArtifactReleaseInfos.put(prodInfo.getArtifactId(),
+>>>>>>> 5c342a4... more renaming
+                                       ArtifactReleaseDiff.builder()
+>>>>>>> f678692... more renaming
                                                .prod(prodInfo)
                                                .build());
             } else {
-                deploymentInfos.setProd(prodInfo);
+                artifactReleaseDiff.setProd(prodInfo);
             }
         }
     }
 
-    public void addStoriesAndDevelopers(TreeMap<String, DeploymentDiff> allDeploymentInfos) {
+<<<<<<< HEAD
+<<<<<<< HEAD
+    public void addStoriesAndDevelopers(TreeMap<String, ArtifactReleaseDiff> allArtifactReleaseInfos) {
+        for (String artifactId : allArtifactReleaseInfos.keySet()) {
+            ArtifactReleaseDiff artifactReleaseDiff = allArtifactReleaseInfos.get(artifactId);
+=======
+    public void addStoriesAndDevelopers(TreeMap<String, ArtifactReleaseDiff> allDeploymentInfos) {
         for (String artifactId : allDeploymentInfos.keySet()) {
-            DeploymentDiff deploymentDiff = allDeploymentInfos.get(artifactId);
-            GitLogParser parser = gitLogParserFactory.createParser(artifactId, deploymentDiff.getProdSha(), deploymentDiff.getDevSha());
-            deploymentDiff.setStories(parser.getStories());
-            deploymentDiff.setDevelopers(parser.getDevelopers());
+            ArtifactReleaseDiff artifactReleaseDiff = allDeploymentInfos.get(artifactId);
+>>>>>>> f678692... more renaming
+=======
+    public void addStoriesAndDevelopers(TreeMap<String, ArtifactReleaseDiff> allArtifactReleaseInfos) {
+        for (String artifactId : allArtifactReleaseInfos.keySet()) {
+            ArtifactReleaseDiff artifactReleaseDiff = allArtifactReleaseInfos.get(artifactId);
+>>>>>>> 5c342a4... more renaming
+            GitLogParser parser = gitLogParserFactory.createParser(artifactId, artifactReleaseDiff.getProdSha(), artifactReleaseDiff.getDevSha());
+            artifactReleaseDiff.setStories(parser.getStories());
+            artifactReleaseDiff.setDevelopers(parser.getDevelopers());
         }
     }
 }

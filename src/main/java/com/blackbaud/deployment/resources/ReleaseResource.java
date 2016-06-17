@@ -1,6 +1,6 @@
 package com.blackbaud.deployment.resources;
 
-import com.blackbaud.deployment.api.DeploymentInfo;
+import com.blackbaud.deployment.api.ArtifactReleaseInfo;
 import com.blackbaud.deployment.api.Release;
 import com.blackbaud.deployment.api.ResourcePaths;
 import com.blackbaud.deployment.core.domain.GitLogParserFactory;
@@ -28,7 +28,7 @@ public class ReleaseResource {
     @Path(ResourcePaths.CURRENT_PATH)
     public Release getCurrentRelease() {
         try {
-            return new Release(releaseService.createDeploymentDiffs());
+            return new Release(releaseService.createArtifactReleaseDiffs());
         } catch (GitLogParserFactory.InvalidRepositoryException ex) {
             throw new BadRequestException(ex.getMessage());
         }
@@ -36,9 +36,17 @@ public class ReleaseResource {
 
     @POST
     @Path(ResourcePaths.CURRENT_PATH)
-    public Release getCurrentReleaseForProdSnapshot(List<DeploymentInfo> prodDeploymentInfos) {
+    public Release getCurrentReleaseForProdSnapshot(List<ArtifactReleaseInfo> prodArtifactReleaseInfos) {
         try {
-            return new Release(releaseService.createDeploymentDiffs(prodDeploymentInfos));
+<<<<<<< HEAD
+<<<<<<< HEAD
+            return new Release(releaseService.createArtifactReleaseDiffs(prodArtifactReleaseInfos));
+=======
+            return new Release(releaseService.createDeploymentDiffs(prodArtifactReleaseInfos));
+>>>>>>> 746a757... LUM-9138 first pass at renaming
+=======
+            return new Release(releaseService.createArtifactReleaseDiffs(prodArtifactReleaseInfos));
+>>>>>>> e82996a... so much renaming
         } catch (GitLogParserFactory.InvalidRepositoryException ex) {
             throw new BadRequestException(ex.getMessage());
         }
