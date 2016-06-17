@@ -1,11 +1,10 @@
 package com.blackbaud.deployment.core.domain;
 
-import com.blackbaud.deployment.api.DeploymentDiff;
-import com.blackbaud.deployment.api.DeploymentInfo;
+import com.blackbaud.deployment.api.ArtifactReleaseDiff;
+import com.blackbaud.deployment.api.ArtifactReleaseInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -29,38 +28,38 @@ public class ReleaseService {
                                                                     "mock-data-sync-api");
 
     @Autowired
-    private DeploymentInfoService deploymentInfoService;
+    private ArtifactReleaseInfoService artifactReleaseInfoService;
 
     @Autowired
     private GitLogParserFactory gitLogParserFactory;
 
-    public Map<String, DeploymentDiff> createDeploymentDiffs() {
-        List<DeploymentInfo> devInfos = deploymentInfoService.findManyByFoundationAndSpace(DEV_FOUNDATION, DEV_SPACE);
-        List<DeploymentInfo> prodInfos = deploymentInfoService.findManyByFoundationAndSpace(PROD_FOUNDATION, PROD_SPACE);
-        TreeMap<String, DeploymentDiff> releaseSummary = combineDeploymentInfos(devInfos, prodInfos);
+    public Map<String, ArtifactReleaseDiff> creallArtifactReleaseDiffs() {
+        List<ArtifactReleaseInfo> devInfos = artifactReleaseInfoService.findManyByFoundationAndSpace(DEV_FOUNDATION, DEV_SPACE);
+        List<ArtifactReleaseInfo> prodInfos = artifactReleaseInfoService.findManyByFoundationAndSpace(PROD_FOUNDATION, PROD_SPACE);
+        TreeMap<String, ArtifactReleaseDiff> releaseSummary = comballArtifactReleaseInfos(devInfos, prodInfos);
         addStoriesAndDevelopers(releaseSummary);
         return releaseSummary;
     }
 
-    public Map<String, DeploymentDiff> createDeploymentDiffs(List<DeploymentInfo> prodInfos) {
-        List<DeploymentInfo> devInfos = deploymentInfoService.findManyByFoundationAndSpace(DEV_FOUNDATION, DEV_SPACE);
-        TreeMap<String, DeploymentDiff> releaseSummary = combineDeploymentInfos(devInfos, prodInfos);
+    public Map<String, ArtifactReleaseDiff> creallArtifactReleaseDiffs(List<ArtifactReleaseInfo> prodInfos) {
+        List<ArtifactReleaseInfo> devInfos = artifactReleaseInfoService.findManyByFoundationAndSpace(DEV_FOUNDATION, DEV_SPACE);
+        TreeMap<String, ArtifactReleaseDiff> releaseSummary = comballArtifactReleaseInfos(devInfos, prodInfos);
         addStoriesAndDevelopers(releaseSummary);
         return releaseSummary;
     }
 
-    private TreeMap<String, DeploymentDiff> combineDeploymentInfos(List<DeploymentInfo> devInfos, List<DeploymentInfo> prodInfos) {
-        TreeMap<String, DeploymentDiff> allDeploymentInfos = new TreeMap<>();
-        addDevDeploymentInfos(devInfos, allDeploymentInfos);
-        addProdDeploymentInfo(prodInfos, allDeploymentInfos);
-        return allDeploymentInfos;
+    private TreeMap<String, ArtifactReleaseDiff> comballArtifactReleaseInfos(List<ArtifactReleaseInfo> devInfos, List<ArtifactReleaseInfo> prodInfos) {
+        TreeMap<String, ArtifactReleaseDiff> allArtifactReleaseInfos = new TreeMap<>();
+        addallArtifactReleaseInfos(devInfos, allArtifactReleaseInfos);
+        addPallArtifactReleaseInfo(prodInfos, allArtifactReleaseInfos);
+        return allArtifactReleaseInfos;
     }
 
-    public void addDevDeploymentInfos(List<DeploymentInfo> devInfos, Map<String, DeploymentDiff> allDeploymentInfos) {
-        for (DeploymentInfo devInfo : devInfos) {
+    public void addallArtifactReleaseInfos(List<ArtifactReleaseInfo> devInfos, Map<String, ArtifactReleaseDiff> allArtifactReleaseInfos) {
+        for (ArtifactReleaseInfo devInfo : devInfos) {
             if (isReleasable(devInfo)){
-                allDeploymentInfos.put(devInfo.getArtifactId(),
-                                       DeploymentDiff.builder()
+                allArtifactReleaseInfos.put(devInfo.getArtifactId(),
+                                       ArtifactReleaseDiff.builder()
                                                .dev(devInfo)
                                                .build()
                 );
@@ -68,30 +67,30 @@ public class ReleaseService {
         }
     }
 
-    private boolean isReleasable(DeploymentInfo deploymentInfo) {
-        return !nonReleasable.contains(deploymentInfo.getArtifactId());
+    private boolean isReleasable(ArtifactReleaseInfo artifactReleaseInfo) {
+        return !nonReleasable.contains(artifactReleaseInfo.getArtifactId());
     }
 
-    private void addProdDeploymentInfo(List<DeploymentInfo> prodInfos, Map<String, DeploymentDiff> allDeploymentInfos) {
-        for (DeploymentInfo prodInfo : prodInfos) {
-            DeploymentDiff deploymentInfos = allDeploymentInfos.get(prodInfo.getArtifactId());
-            if (deploymentInfos == null) {
-                allDeploymentInfos.put(prodInfo.getArtifactId(),
-                                       DeploymentDiff.builder()
+    private void addPallArtifactReleaseInfo(List<ArtifactReleaseInfo> prodInfos, Map<String, ArtifactReleaseDiff> allArtifactReleaseInfos) {
+        for (ArtifactReleaseInfo prodInfo : prodInfos) {
+            ArtifactReleaseDiff artifactReleaseDiff = allArtifactReleaseInfos.get(prodInfo.getArtifactId());
+            if (artifactReleaseDiff == null) {
+                allArtifactReleaseInfos.put(prodInfo.getArtifactId(),
+                                       ArtifactReleaseDiff.builder()
                                                .prod(prodInfo)
                                                .build());
             } else {
-                deploymentInfos.setProd(prodInfo);
+                artifactReleaseDiff.setProd(prodInfo);
             }
         }
     }
 
-    public void addStoriesAndDevelopers(TreeMap<String, DeploymentDiff> allDeploymentInfos) {
-        for (String artifactId : allDeploymentInfos.keySet()) {
-            DeploymentDiff deploymentDiff = allDeploymentInfos.get(artifactId);
-            GitLogParser parser = gitLogParserFactory.createParser(artifactId, deploymentDiff.getProdSha(), deploymentDiff.getDevSha());
-            deploymentDiff.setStories(parser.getStories());
-            deploymentDiff.setDevelopers(parser.getDevelopers());
+    public void addStoriesAndDevelopers(TreeMap<String, ArtifactReleaseDiff> allArtifactReleaseInfos) {
+        for (String artifactId : allArtifactReleaseInfos.keySet()) {
+            ArtifactReleaseDiff artifactReleaseDiff = allArtifactReleaseInfos.get(artifactId);
+            GitLogParser parser = gitLogParserFactory.createParser(artifactId, artifactReleaseDiff.getProdSha(), artifactReleaseDiff.getDevSha());
+            artifactReleaseDiff.setStories(parser.getStories());
+            artifactReleaseDiff.setDevelopers(parser.getDevelopers());
         }
     }
 }

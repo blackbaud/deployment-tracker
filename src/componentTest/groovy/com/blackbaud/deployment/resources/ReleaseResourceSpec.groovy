@@ -2,9 +2,9 @@ package com.blackbaud.deployment.resources
 
 import com.blackbaud.boot.exception.BadRequestException
 import com.blackbaud.deployment.ComponentTest
-import com.blackbaud.deployment.api.DeploymentDiff
-import com.blackbaud.deployment.api.DeploymentInfo
-import com.blackbaud.deployment.client.DeploymentInfoClient
+import com.blackbaud.deployment.api.ArtifactReleaseDiff
+import com.blackbaud.deployment.api.ArtifactReleaseInfo
+import com.blackbaud.deployment.client.ArtifactReleaseInfoClient
 import com.blackbaud.deployment.client.ReleaseClient
 import com.blackbaud.deployment.core.domain.ReleaseService
 import org.springframework.beans.factory.annotation.Autowired
@@ -18,7 +18,7 @@ import static com.blackbaud.deployment.core.CoreARandom.aRandom
 class ReleaseResourceSpec extends Specification {
 
     @Autowired
-    private DeploymentInfoClient deploymentInfoClient
+    private ArtifactReleaseInfoClient artifactReleaseInfoClient
 
     @Autowired
     private ReleaseService releaseService
@@ -28,13 +28,13 @@ class ReleaseResourceSpec extends Specification {
 
     private String artifactId = "deployment-tracker"
 
-    private DeploymentInfo earlyDeploymentInfo = aRandom.deploymentInfo()
+    private ArtifactReleaseInfo earlyInfo = aRandom.artifactReleaseInfo()
             .artifactId(artifactId)
             .buildVersion("0.20160525.221050")
             .gitSha("bb0ce6f142d3c52e48c914768f3174278bfa035b")
             .build()
 
-    private DeploymentInfo recentDeploymentInfo = aRandom.deploymentInfo()
+    private ArtifactReleaseInfo recentInfo = aRandom.artifactReleaseInfo()
             .artifactId(artifactId)
             .buildVersion("0.20160606.194525")
             .gitSha("e36ec0e653bb77dd20a6ac2c200d4a82a962e6e7")
@@ -42,25 +42,25 @@ class ReleaseResourceSpec extends Specification {
 
     def "getCurrentRelease returns empty Release when there is no data"() {
         expect:
-        releaseClient.getCurrentRelease().deploymentDiffs == [:]
+        releaseClient.getCurrentRelease().artifactReleaseDiffs == [:]
     }
 
     def "getCurrentRelease returns artifact with different versions in dev and prod"() {
         given:
-        storeInDev(recentDeploymentInfo)
+        storeInDev(recentInfo)
 
         and:
-        storeInProd(earlyDeploymentInfo)
+        storeInProd(earlyInfo)
 
-        DeploymentDiff expected = DeploymentDiff.builder()
-                .dev(recentDeploymentInfo)
-                .prod(earlyDeploymentInfo)
+        ArtifactReleaseDiff expected = ArtifactReleaseDiff.builder()
+                .dev(recentInfo)
+                .prod(earlyInfo)
                 .stories(["LUM-8045", "LUM-7759"] as Set)
                 .developers(["Blackbaud-JohnHolland", "Ryan McKay"] as Set)
                 .build();
 
         expect:
-        assert releaseClient.getCurrentRelease().deploymentDiffs == [(artifactId): expected]
+        assert releaseClient.getCurrentRelease().artifactReleaseDiffs == [(artifactId): expected]
     }
 
     def "getCurrentRelease returns artifact that is in prod but not dev"() {
@@ -68,70 +68,70 @@ class ReleaseResourceSpec extends Specification {
         nothingStoredInDev()
 
         and:
-        DeploymentInfo prodDeploymentInfo = aRandom.deploymentInfo().build()
-        storeInProd(prodDeploymentInfo)
+        ArtifactReleaseInfo prodInfo = aRandom.artifactReleaseInfo().build()
+        storeInProd(prodInfo)
 
-        String artifactId = prodDeploymentInfo.artifactId
-        DeploymentDiff expected = DeploymentDiff.builder()
+        String artifactId = prodInfo.artifactId
+        ArtifactReleaseDiff expected = ArtifactReleaseDiff.builder()
                 .dev(null)
-                .prod(prodDeploymentInfo)
+                .prod(prodInfo)
                 .stories([] as Set)
                 .developers([] as Set)
                 .build();
 
         expect:
-        assert releaseClient.getCurrentRelease().deploymentDiffs == [(artifactId): expected]
+        assert releaseClient.getCurrentRelease().artifactReleaseDiffs == [(artifactId): expected]
     }
 
     def "getCurrentRelease returns artifact that is in dev but not prod"() {
         given:
-        storeInDev(earlyDeploymentInfo)
+        storeInDev(earlyInfo)
 
         and:
         nothingStoredInProd()
 
-        String artifactId = earlyDeploymentInfo.artifactId
-        DeploymentDiff expected = DeploymentDiff.builder()
-                .dev(earlyDeploymentInfo)
+        String artifactId = earlyInfo.artifactId
+        ArtifactReleaseDiff expected = ArtifactReleaseDiff.builder()
+                .dev(earlyInfo)
                 .prod(null)
                 .stories(["LUM-7759"] as Set)
                 .developers(["Ryan McKay", "Mike Lueders", "Blackbaud-DiHuynh", "Di Huynh"] as Set)
                 .build();
 
         expect:
-        assert releaseClient.getCurrentRelease().deploymentDiffs == [(artifactId): expected]
+        assert releaseClient.getCurrentRelease().artifactReleaseDiffs == [(artifactId): expected]
     }
 
     def "getCurrentReleaseForProdSnapshot returns artifact with different versions in stored dev and provided prod"() {
         given: "A version stored in dev"
-        storeInDev(recentDeploymentInfo)
+        storeInDev(recentInfo)
 
         and: "A different version in prod snapshot"
-        def prodSnapshot = [earlyDeploymentInfo]
+        def prodSnapshot = [earlyInfo]
 
-        DeploymentDiff expected = DeploymentDiff.builder()
-                .dev(recentDeploymentInfo)
-                .prod(earlyDeploymentInfo)
+        ArtifactReleaseDiff expected = ArtifactReleaseDiff.builder()
+                .dev(recentInfo)
+                .prod(earlyInfo)
                 .stories(["LUM-7759", "LUM-8045"] as Set)
                 .developers(["Ryan McKay", "Blackbaud-JohnHolland"] as Set)
                 .build();
 
         expect:
-        assert releaseClient.getCurrentReleaseForProdSnapshot(prodSnapshot).deploymentDiffs == [(artifactId): expected]
+        assert releaseClient.getCurrentReleaseForProdSnapshot(prodSnapshot).artifactReleaseDiffs == [(artifactId): expected]
     }
 
     def "getCurrentRelease does not return non-releasable artifacts"() {
         given:
-        DeploymentInfo deploymentInfo = aRandom.deploymentInfo().artifactId("bluemoon-dojo").build();
-        storeInDev(deploymentInfo)
+        ArtifactReleaseInfo artifactReleaseInfo = aRandom.artifactReleaseInfo().artifactId("bluemoon-dojo").build();
+        storeInDev(artifactReleaseInfo)
 
         expect:
-        releaseClient.getCurrentRelease().deploymentDiffs == [:]
+        releaseClient.getCurrentRelease().artifactReleaseDiffs == [:]
     }
     
     def "Missing commits throws exception"() {
         given:
-        DeploymentInfo dev = aRandom.deploymentInfo()
+        ArtifactReleaseInfo dev = aRandom.artifactReleaseInfo()
                 .artifactId(artifactId)
                 .buildVersion("0.20160606.194525")
                 .gitSha("3e176dced48f7b888707337261ba5b97902cf5b8")
@@ -139,7 +139,7 @@ class ReleaseResourceSpec extends Specification {
         storeInDev(dev)
 
         when:
-        releaseClient.getCurrentReleaseForProdSnapshot([earlyDeploymentInfo])
+        releaseClient.getCurrentReleaseForProdSnapshot([earlyInfo])
 
         then:
         WebApplicationException ex = thrown()
@@ -147,23 +147,23 @@ class ReleaseResourceSpec extends Specification {
 
     def "Invalid github repo throws exception"() {
         given:
-        DeploymentInfo deploymentInfo = aRandom.deploymentInfo().build();
-        storeInDev(deploymentInfo)
+        ArtifactReleaseInfo artifactReleaseInfo = aRandom.artifactReleaseInfo().build();
+        storeInDev(artifactReleaseInfo)
 
         when:
         releaseClient.getCurrentRelease()
 
         then:
         BadRequestException ex = thrown()
-        ex.errorEntity.message == "Cannot find repository with name " + deploymentInfo.artifactId
+        ex.errorEntity.message == "Cannot find repository with name " + artifactReleaseInfo.artifactId
     }
 
-    def storeInDev(DeploymentInfo deploymentInfo) {
-        deploymentInfoClient.update(ReleaseService.DEV_FOUNDATION, ReleaseService.DEV_SPACE, deploymentInfo)
+    def storeInDev(ArtifactReleaseInfo artifactReleaseInfo) {
+        artifactReleaseInfoClient.update(ReleaseService.DEV_FOUNDATION, ReleaseService.DEV_SPACE, artifactReleaseInfo)
     }
 
-    def storeInProd(DeploymentInfo deploymentInfo) {
-        deploymentInfoClient.update(ReleaseService.PROD_FOUNDATION, ReleaseService.PROD_SPACE, deploymentInfo)
+    def storeInProd(ArtifactReleaseInfo artifactReleaseInfo) {
+        artifactReleaseInfoClient.update(ReleaseService.PROD_FOUNDATION, ReleaseService.PROD_SPACE, artifactReleaseInfo)
     }
 
     def nothingStoredInDev() {}
