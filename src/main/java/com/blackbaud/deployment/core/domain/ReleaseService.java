@@ -25,7 +25,8 @@ public class ReleaseService {
                                                                     "data-pipeline-kafka-rest-proxy",
                                                                     "data-pipeline-performance-consumer",
                                                                     "data-pipeline-performance-producer",
-                                                                    "data-pipeline-tests-endpoints");
+                                                                    "data-pipeline-tests-endpoints",
+                                                                    "mock-data-sync-api");
 
     @Autowired
     private DeploymentInfoService deploymentInfoService;
