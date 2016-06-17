@@ -21,9 +21,9 @@ import javax.ws.rs.core.UriInfo;
 import java.util.List;
 
 @Component
-@Path(ResourcePaths.ARTIFACT_RELEASE_INFO_PATH + "/{foundation}/{space}")
+@Path(ResourcePaths.DEPRECATED_DEPLOYMENT_INFO_PATH + "/{foundation}/{space}")
 @Produces(MediaType.APPLICATION_JSON)
-public class ArtifactReleaseInfoResource {
+public class DeploymentInfoResource {
 
     @Context
     private UriInfo uriInfo;
