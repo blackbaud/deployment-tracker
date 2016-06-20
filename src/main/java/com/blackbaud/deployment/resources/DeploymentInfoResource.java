@@ -1,6 +1,5 @@
 package com.blackbaud.deployment.resources;
 
-import com.blackbaud.deployment.ArtifactReleaseInfoConverter;
 import com.blackbaud.deployment.api.ArtifactReleaseInfo;
 import com.blackbaud.deployment.api.ResourcePaths;
 import com.blackbaud.deployment.core.domain.ArtifactReleaseInfoService;
@@ -29,32 +28,32 @@ public class DeploymentInfoResource {
     private UriInfo uriInfo;
 
     @Autowired
-    private ArtifactReleaseInfoConverter converter;
-
-    @Autowired
     private ArtifactReleaseInfoService artifactReleaseInfoService;
+
+    @GET
+    public List<ArtifactReleaseInfo> findAllInSpace(@PathParam("foundation") String foundation, @PathParam("space") String space) {
+        return artifactReleaseInfoService.findManyByFoundationAndSpace(foundation, space);
+    }
+
+    @GET
+    @Path("{artifactId}")
+    public ArtifactReleaseInfo find(@PathParam("foundation") String foundation,
+                                    @PathParam("space") String space,
+                                    @PathParam("artifactId") String artifactId) {
+        ArtifactReleaseInfo releaseInfo = artifactReleaseInfoService.findOneByFoundationAndSpaceAndArtifactId(foundation,
+                space, artifactId);
+        if (null == releaseInfo) {
+            throw new NotFoundException();
+        }
+        return releaseInfo;
+    }
+
 
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     public ArtifactReleaseInfo update(@PathParam("foundation") String foundation, @PathParam("space") String space,
                                       @Valid ArtifactReleaseInfo artifactReleaseInfo) {
         return artifactReleaseInfoService.save(artifactReleaseInfo, foundation, space);
-    }
-
-    @GET
-    @Path("{artifactId}")
-    public ArtifactReleaseInfo find(@PathParam("foundation") String foundation, @PathParam("space") String space,
-                                    @PathParam("artifactId") String artifactId) {
-        ArtifactReleaseInfo artifactReleaseInfo = artifactReleaseInfoService.findOneByFoundationAndSpaceAndArtifactId(foundation, space, artifactId);
-        if (artifactReleaseInfo == null) {
-            throw new NotFoundException();
-        }
-        return artifactReleaseInfo;
-    }
-
-    @GET
-    public List<ArtifactReleaseInfo> findAllInSpace(@PathParam("foundation") String foundation, @PathParam("space") String space) {
-        return artifactReleaseInfoService.findManyByFoundationAndSpace(foundation, space);
     }
 
 }

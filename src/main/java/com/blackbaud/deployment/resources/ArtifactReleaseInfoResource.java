@@ -1,6 +1,5 @@
 package com.blackbaud.deployment.resources;
 
-import com.blackbaud.deployment.ArtifactReleaseInfoConverter;
 import com.blackbaud.deployment.api.ArtifactReleaseInfo;
 import com.blackbaud.deployment.api.ResourcePaths;
 import com.blackbaud.deployment.core.domain.ArtifactReleaseInfoService;
@@ -27,9 +26,6 @@ public class ArtifactReleaseInfoResource {
 
     @Context
     private UriInfo uriInfo;
-
-    @Autowired
-    private ArtifactReleaseInfoConverter converter;
 
     @Autowired
     private ArtifactReleaseInfoService artifactReleaseInfoService;
