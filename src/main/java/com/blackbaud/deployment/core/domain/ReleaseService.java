@@ -33,29 +33,29 @@ public class ReleaseService {
     @Autowired
     private GitLogParserFactory gitLogParserFactory;
 
-    public Map<String, ArtifactReleaseDiff> creallArtifactReleaseDiffs() {
+    public Map<String, ArtifactReleaseDiff> createArtifactReleaseDiffs() {
         List<ArtifactReleaseInfo> devInfos = artifactReleaseInfoService.findManyByFoundationAndSpace(DEV_FOUNDATION, DEV_SPACE);
         List<ArtifactReleaseInfo> prodInfos = artifactReleaseInfoService.findManyByFoundationAndSpace(PROD_FOUNDATION, PROD_SPACE);
-        TreeMap<String, ArtifactReleaseDiff> releaseSummary = comballArtifactReleaseInfos(devInfos, prodInfos);
+        TreeMap<String, ArtifactReleaseDiff> releaseSummary = combineArtifactReleaseInfos(devInfos, prodInfos);
         addStoriesAndDevelopers(releaseSummary);
         return releaseSummary;
     }
 
-    public Map<String, ArtifactReleaseDiff> creallArtifactReleaseDiffs(List<ArtifactReleaseInfo> prodInfos) {
+    public Map<String, ArtifactReleaseDiff> createArtifactReleaseDiffs(List<ArtifactReleaseInfo> prodInfos) {
         List<ArtifactReleaseInfo> devInfos = artifactReleaseInfoService.findManyByFoundationAndSpace(DEV_FOUNDATION, DEV_SPACE);
-        TreeMap<String, ArtifactReleaseDiff> releaseSummary = comballArtifactReleaseInfos(devInfos, prodInfos);
+        TreeMap<String, ArtifactReleaseDiff> releaseSummary = combineArtifactReleaseInfos(devInfos, prodInfos);
         addStoriesAndDevelopers(releaseSummary);
         return releaseSummary;
     }
 
-    private TreeMap<String, ArtifactReleaseDiff> comballArtifactReleaseInfos(List<ArtifactReleaseInfo> devInfos, List<ArtifactReleaseInfo> prodInfos) {
+    private TreeMap<String, ArtifactReleaseDiff> combineArtifactReleaseInfos(List<ArtifactReleaseInfo> devInfos, List<ArtifactReleaseInfo> prodInfos) {
         TreeMap<String, ArtifactReleaseDiff> allArtifactReleaseInfos = new TreeMap<>();
-        addallArtifactReleaseInfos(devInfos, allArtifactReleaseInfos);
-        addPallArtifactReleaseInfo(prodInfos, allArtifactReleaseInfos);
+        addDevArtifactReleaseInfos(devInfos, allArtifactReleaseInfos);
+        addProdArtifactReleaseInfo(prodInfos, allArtifactReleaseInfos);
         return allArtifactReleaseInfos;
     }
 
-    public void addallArtifactReleaseInfos(List<ArtifactReleaseInfo> devInfos, Map<String, ArtifactReleaseDiff> allArtifactReleaseInfos) {
+    public void addDevArtifactReleaseInfos(List<ArtifactReleaseInfo> devInfos, Map<String, ArtifactReleaseDiff> allArtifactReleaseInfos) {
         for (ArtifactReleaseInfo devInfo : devInfos) {
             if (isReleasable(devInfo)){
                 allArtifactReleaseInfos.put(devInfo.getArtifactId(),
@@ -71,7 +71,7 @@ public class ReleaseService {
         return !nonReleasable.contains(artifactReleaseInfo.getArtifactId());
     }
 
-    private void addPallArtifactReleaseInfo(List<ArtifactReleaseInfo> prodInfos, Map<String, ArtifactReleaseDiff> allArtifactReleaseInfos) {
+    private void addProdArtifactReleaseInfo(List<ArtifactReleaseInfo> prodInfos, Map<String, ArtifactReleaseDiff> allArtifactReleaseInfos) {
         for (ArtifactReleaseInfo prodInfo : prodInfos) {
             ArtifactReleaseDiff artifactReleaseDiff = allArtifactReleaseInfos.get(prodInfo.getArtifactId());
             if (artifactReleaseDiff == null) {

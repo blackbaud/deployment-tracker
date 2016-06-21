@@ -28,7 +28,7 @@ public class ReleaseResource {
     @Path(ResourcePaths.CURRENT_PATH)
     public Release getCurrentRelease() {
         try {
-            return new Release(releaseService.creallArtifactReleaseDiffs());
+            return new Release(releaseService.createArtifactReleaseDiffs());
         } catch (GitLogParserFactory.InvalidRepositoryException ex) {
             throw new BadRequestException(ex.getMessage());
         }
@@ -38,7 +38,7 @@ public class ReleaseResource {
     @Path(ResourcePaths.CURRENT_PATH)
     public Release getCurrentReleaseForProdSnapshot(List<ArtifactReleaseInfo> prodArtifactReleaseInfos) {
         try {
-            return new Release(releaseService.creallArtifactReleaseDiffs(prodArtifactReleaseInfos));
+            return new Release(releaseService.createArtifactReleaseDiffs(prodArtifactReleaseInfos));
         } catch (GitLogParserFactory.InvalidRepositoryException ex) {
             throw new BadRequestException(ex.getMessage());
         }
