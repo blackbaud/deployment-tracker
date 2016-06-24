@@ -9,7 +9,7 @@ import java.util.List;
 public class ArtifactReleaseInfoClient extends CrudClient<ArtifactReleaseInfo, ArtifactReleaseInfoClient> {
 
     public ArtifactReleaseInfoClient(String baseUrl) {
-        super(baseUrl, ResourcePaths.DEPRECATED_DEPLOYMENT_INFO_PATH, ArtifactReleaseInfo.class);
+        super(baseUrl, ResourcePaths.ARTIFACT_RELEASE_INFO_PATH, ArtifactReleaseInfo.class);
     }
 
     public ArtifactReleaseInfo update(String foundation, String space, ArtifactReleaseInfo info) {
