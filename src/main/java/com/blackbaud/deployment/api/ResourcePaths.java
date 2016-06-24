@@ -7,5 +7,4 @@ public class ResourcePaths {
     public static final String RELEASE_PATH = DEPLOYMENT_TRACKER_PATH + "/release";
     public static final String CURRENT_PATH = "current";
 
-    public static final String DEPRECATED_DEPLOYMENT_INFO_PATH = DEPLOYMENT_TRACKER_PATH + "/deployment-info";
 }
