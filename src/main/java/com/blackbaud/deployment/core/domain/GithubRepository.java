@@ -70,7 +70,9 @@ public class GithubRepository {
     private void cloneOrFetch(File targetDir) {
         if (targetDir.exists()) {
             log.debug("fetching to " + targetDir);
-            FetchResult fetchResult = Git.open(targetDir).fetch().call();
+            FetchResult fetchResult = Git.open(targetDir).fetch()
+                    .setCredentialsProvider(githubCredentialsProvider)
+                    .call();
             log.debug("fetch result for " + targetDir + " messages: " + fetchResult.getMessages());
         } else {
             log.debug("cloning to " + targetDir);
