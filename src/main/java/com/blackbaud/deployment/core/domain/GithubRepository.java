@@ -8,6 +8,7 @@ import org.eclipse.egit.github.core.Repository;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.transport.FetchResult;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
 import java.io.File;
@@ -45,6 +46,7 @@ public class GithubRepository {
                     .addRange(ObjectId.fromString(fromSha), ObjectId.fromString(toSha))
                     .call();
         } catch (Exception e) {
+            log.error("Could not retrieve commits between from=" + fromSha + " to=" + toSha + " for repo=" + repository.getName()+". This is a temporary workaround for cf message limit ", e);
             throw new CannotRetrieveCommitsException("Cannot retrieve commits between from=" + fromSha + " to=" + toSha + " for repo=" + repository.getName(), e);
         }
         return (List<RevCommit>) IteratorUtils.toList(commits.iterator());
@@ -58,6 +60,7 @@ public class GithubRepository {
                     .add(ObjectId.fromString(toSha))
                     .call();
         } catch (Exception e) {
+            log.error("Could not retrieve commits to=" + toSha + " for repo=" + repository.getName()+". This is a temporary workaround for cf message limit ", e);
             throw new CannotRetrieveCommitsException("Cannot retrieve commits to=" + toSha + " for repo=" + repository.getName(), e);
         }
         return (List<RevCommit>) IteratorUtils.toList(commits.iterator());
@@ -67,7 +70,8 @@ public class GithubRepository {
     private void cloneOrFetch(File targetDir) {
         if (targetDir.exists()) {
             log.debug("fetching to " + targetDir);
-            Git.open(targetDir).fetch();
+            FetchResult fetchResult = Git.open(targetDir).fetch().call();
+            log.debug("fetch result for " + targetDir + " messages: " + fetchResult.getMessages());
         } else {
             log.debug("cloning to " + targetDir);
             Git.cloneRepository()
@@ -77,6 +81,7 @@ public class GithubRepository {
                     .setBare(true)
                     .call();
         }
+
     }
 
     public class CannotRetrieveCommitsException extends RuntimeException {
