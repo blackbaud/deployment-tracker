@@ -120,6 +120,27 @@ class ReleaseResourceSpec extends Specification {
         assert releaseClient.getCurrentReleaseForProdSnapshot(prodSnapshot).artifactReleaseDiffs == [(artifactId): expected]
     }
 
+    def "getCurrentReleaseForProdSnapshot returns user error when prod info is null"() {
+        given: "A version stored in dev"
+        storeInDev(recentInfo)
+
+        and: "A different version in prod snapshot"
+        def prodSnapshot = null
+
+        ArtifactReleaseDiff expected = ArtifactReleaseDiff.builder()
+                .dev(recentInfo)
+                .prod(earlyInfo)
+                .stories(["LUM-7759", "LUM-8045"] as Set)
+                .developers(["Ryan McKay", "Blackbaud-JohnHolland"] as Set)
+                .build();
+
+        when:
+        releaseClient.getCurrentReleaseForProdSnapshot(prodSnapshot)
+
+        then:
+        thrown(BadRequestException)
+    }
+
     def "getCurrentRelease does not return non-releasable artifacts"() {
         given:
         ArtifactReleaseInfo artifactReleaseInfo = aRandom.artifactReleaseInfo().artifactId("bluemoon-dojo").build();

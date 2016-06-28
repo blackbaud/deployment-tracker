@@ -8,6 +8,7 @@ import com.blackbaud.deployment.core.domain.ReleaseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -36,7 +37,7 @@ public class ReleaseResource {
 
     @POST
     @Path(ResourcePaths.CURRENT_PATH)
-    public Release getCurrentReleaseForProdSnapshot(List<ArtifactReleaseInfo> prodArtifactReleaseInfos) {
+    public Release getCurrentReleaseForProdSnapshot(@NotNull List<ArtifactReleaseInfo> prodArtifactReleaseInfos) {
         try {
             return new Release(releaseService.createArtifactReleaseDiffs(prodArtifactReleaseInfos));
         } catch (GitLogParserFactory.InvalidRepositoryException ex) {
