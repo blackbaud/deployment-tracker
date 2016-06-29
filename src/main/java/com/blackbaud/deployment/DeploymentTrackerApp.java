@@ -1,5 +1,6 @@
 package com.blackbaud.deployment;
 
+import com.blackbaud.boot.config.CommonSpringConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.actuate.autoconfigure.ManagementWebSecurityAutoConfiguration;
@@ -12,7 +13,7 @@ import org.springframework.context.annotation.ComponentScan;
 @EntityScan({"com.blackbaud.deployment", "com.blackbaud.boot.converters"})
 @ComponentScan("com.blackbaud.deployment")
 @EnableAutoConfiguration(exclude = {SecurityAutoConfiguration.class, ManagementWebSecurityAutoConfiguration.class})
-public class DeploymentTrackerApp {
+public class DeploymentTrackerApp extends CommonSpringConfig {
 
     public static void main(String[] args) {
         SpringApplication.run(DeploymentTrackerApp.class, args);
