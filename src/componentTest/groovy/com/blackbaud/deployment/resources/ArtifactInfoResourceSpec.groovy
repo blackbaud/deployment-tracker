@@ -6,7 +6,10 @@ import com.blackbaud.deployment.ComponentTest
 import com.blackbaud.deployment.api.ArtifactInfo
 import com.blackbaud.deployment.client.ArtifactInfoClient
 import com.blackbaud.deployment.core.domain.ArtifactInfoEntity
+import com.blackbaud.deployment.core.domain.ArtifactInfoPrimaryKey
 import com.blackbaud.deployment.core.domain.ArtifactInfoRepository
+import org.apache.commons.lang3.StringUtils
+import org.codehaus.groovy.util.StringUtil
 import org.springframework.beans.factory.annotation.Autowired
 import spock.lang.Specification
 
@@ -19,10 +22,15 @@ class ArtifactInfoResourceSpec extends Specification {
     private ArtifactInfoClient artifactInfoClient
 
     @Autowired
-    private ArtifactInfoConverter converter;
+    private ArtifactInfoConverter converter
 
     @Autowired
-    private ArtifactInfoRepository artifactInfoRepository;
+    private ArtifactInfoRepository artifactInfoRepository
+
+    @Autowired
+    private ArtifactInfoResource artifactInfoResource
+
+    private final String artifactId = "deployment-tracker"
 
      def "Query sanity check (temporary)"() {
         given:
@@ -38,6 +46,7 @@ class ArtifactInfoResourceSpec extends Specification {
         artifactInfoRepository.save(oldEntity)
         artifactInfoRepository.save(middleEntity)
         artifactInfoRepository.save(newestEntity)
+
         and:
         List<ArtifactInfoEntity> artifactList = artifactInfoRepository.findByArtifactIdAndBuildVersionGreaterThanAndBuildVersionLessThanEqual(artifactId, '1', '3')
 
@@ -81,4 +90,42 @@ class ArtifactInfoResourceSpec extends Specification {
         assert artifactInfoUpdate == artifactInfoClient.find(artifactInfoInitial.artifactId, artifactInfoInitial.buildVersion)
     }
 
+    def "should update artifact with git information from previous artifact"() {
+        given:
+        ArtifactInfo old = aRandom.artifactInfo()
+                .artifactId(artifactId)
+                .buildVersion("1")
+                .gitSha("ab116cce4181a283a1fb32c2d300770e7dc8f08b")
+                .build()
+        artifactInfoRepository.save(converter.toEntity(old))
+
+        and:
+        ArtifactInfo newArtifact = aRandom.artifactInfo().artifactId(artifactId)
+            .buildVersion("2")
+            .gitSha("76cf98e70a739ced8c610999b8814b9b2556071e")
+            .build()
+
+        when:
+        artifactInfoResource.update(artifactId, newArtifact.buildVersion, newArtifact)
+
+        then:
+        ArtifactInfoEntity newArtifactInfoEntity = artifactInfoRepository.findOne(new ArtifactInfoPrimaryKey(artifactId, newArtifact.buildVersion))
+        newArtifactInfoEntity.storyIds == "LUM-7759,LUM-8045"
+        newArtifactInfoEntity.authors == "Di Huynh,Ryan McKay"
+    }
+
+    def "should get every stories and authors for brand new artifacts"(){
+        given:
+        ArtifactInfo newArtifact = aRandom.artifactInfo().artifactId(artifactId)
+                .buildVersion("2")
+                .gitSha("ab116cce4181a283a1fb32c2d300770e7dc8f08b")
+                .build()
+        when:
+        artifactInfoResource.update(artifactId, newArtifact.buildVersion, newArtifact)
+
+        then:
+        ArtifactInfoEntity newArtifactInfoEntity = artifactInfoRepository.findOne(new ArtifactInfoPrimaryKey(artifactId, newArtifact.buildVersion))
+        newArtifactInfoEntity.storyIds == "LUM-7759"
+        newArtifactInfoEntity.authors == "Blackbaud-DiHuynh,Mike Lueders,Ryan McKay"
+    }
 }

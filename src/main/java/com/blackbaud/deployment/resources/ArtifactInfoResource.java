@@ -46,9 +46,9 @@ public class ArtifactInfoResource {
         newArtifact.setBuildVersion(buildVersion);
 
         ArtifactInfoEntity lastArtifact = artifactInfoRepository.findFirstByArtifactIdOrderByBuildVersionDesc(artifactId);
-        GitLogParser parser = gitLogParserFactory.createParser(artifactId, lastArtifact.getGitSha(), newArtifact.getGitSha());
-
-        newArtifact.setAuthors(StringUtils.join(parser.getDevelopers(),","));
+        String oldSha = lastArtifact == null ? null : lastArtifact.getGitSha();
+        GitLogParser parser = gitLogParserFactory.createParser(artifactId, oldSha, newArtifact.getGitSha());
+        newArtifact.setAuthors(StringUtils.join(parser.getDevelopers(), ","));
         newArtifact.setStoryIds(StringUtils.join(parser.getStories(), ","));
 
         return converter.toApi(artifactInfoRepository.save(newArtifact));
