@@ -8,10 +8,12 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.Table;
+import java.util.List;
 
 @Entity(name = "artifact_info")
 @Table(name = "artifact_info")
@@ -35,7 +37,9 @@ public class ArtifactInfoEntity {
     private String gitSha;
 
     @Column(name = "story_ids")
-    private String storyIds;
+    @Convert(converter=StringDelimiterConverter.class)
+    private List<String> storyIds;
 
-    private String authors;
+    @Convert(converter=StringDelimiterConverter.class)
+    private List<String> authors;
 }
