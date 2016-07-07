@@ -28,8 +28,8 @@ class ArtifactInfoResourceSpec extends Specification {
      def "Query sanity check (temporary)"() {
         given:
         String artifactId = 'arbitrary'
-        List<String> stories = StringUtils.split(aRandom.words(100), '');
-        List<String> authors = StringUtils.split(aRandom.words(100), '');
+        List<String> stories = StringUtils.split(aRandom.words(20));
+        List<String> authors = StringUtils.split(aRandom.words(20));
         ArtifactInfo oldestVersion = aRandom.artifactInfo().artifactId(artifactId).buildVersion('1').build();
         ArtifactInfo middleVersion = aRandom.artifactInfo().artifactId(artifactId).buildVersion('3').build();
         ArtifactInfo newestVersion = aRandom.artifactInfo().artifactId(artifactId).buildVersion('5').build();
@@ -51,7 +51,7 @@ class ArtifactInfoResourceSpec extends Specification {
         List<ArtifactInfoEntity> artifactList = artifactInfoRepository.findByArtifactIdAndBuildVersionGreaterThanAndBuildVersionLessThanEqual(artifactId, '1', '3')
 
         then:
-        artifactList != [middleEntity]
+        assert artifactList == [middleEntity]
     }
 
     def "should add new artifact info"() {
