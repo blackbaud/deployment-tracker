@@ -34,4 +34,8 @@ public class ArtifactInfoEntity {
     @Column(name = "git_sha")
     private String gitSha;
 
+    @Column(name = "story_ids")
+    private String storyIds;
+
+    private String authors;
 }
