@@ -1,9 +1,12 @@
 package com.blackbaud.deployment.resources
 
 import com.blackbaud.boot.exception.NotFoundException
+import com.blackbaud.deployment.ArtifactInfoConverter
 import com.blackbaud.deployment.ComponentTest
 import com.blackbaud.deployment.api.ArtifactInfo
 import com.blackbaud.deployment.client.ArtifactInfoClient
+import com.blackbaud.deployment.core.domain.ArtifactInfoEntity
+import com.blackbaud.deployment.core.domain.ArtifactInfoRepository
 import org.springframework.beans.factory.annotation.Autowired
 import spock.lang.Specification
 
@@ -14,6 +17,34 @@ class ArtifactInfoResourceSpec extends Specification {
 
     @Autowired
     private ArtifactInfoClient artifactInfoClient
+
+    @Autowired
+    private ArtifactInfoConverter converter;
+
+    @Autowired
+    private ArtifactInfoRepository artifactInfoRepository;
+
+     def "Query sanity check (temporary)"() {
+        given:
+        String artifactId = 'arbitrary'
+        ArtifactInfo oldestVersion = aRandom.artifactInfo().artifactId(artifactId).buildVersion('1').build();
+        ArtifactInfo middleVersion = aRandom.artifactInfo().artifactId(artifactId).buildVersion('3').build();
+        ArtifactInfo newestVersion = aRandom.artifactInfo().artifactId(artifactId).buildVersion('5').build();
+        ArtifactInfoEntity oldEntity = converter.toEntity(oldestVersion)
+        ArtifactInfoEntity middleEntity = converter.toEntity(middleVersion)
+        ArtifactInfoEntity newestEntity = converter.toEntity(newestVersion)
+
+        when:
+        artifactInfoRepository.save(oldEntity)
+        artifactInfoRepository.save(middleEntity)
+        artifactInfoRepository.save(newestEntity)
+        and:
+        List<ArtifactInfoEntity> artifactList = artifactInfoRepository.findByArtifactIdAndBuildVersionGreaterThanAndBuildVersionLessThanEqual(artifactId, '1', '3')
+
+        then:
+        print artifactList.size()
+        artifactList == [middleEntity]
+    }
 
     def "should add new artifact info"() {
         given:
