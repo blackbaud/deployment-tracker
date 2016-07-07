@@ -12,18 +12,17 @@ import java.util.List;
 import java.util.Set;
 
 @Converter
-public class StringDelimiterConverter implements AttributeConverter<Set<String>, String> {
-
+public class LinkedHashSetDelimitedStringConverter implements AttributeConverter<LinkedHashSet<String>, String> {
     @Override
-    public Set<String> convertToEntityAttribute(String attribute) {
+    public LinkedHashSet<String> convertToEntityAttribute(String attribute) {
         if(attribute == null) {
-            return Collections.emptySet();
+            return new LinkedHashSet<>();
         }
         return new LinkedHashSet<>(Arrays.asList(attribute.split(",")));
     }
 
     @Override
-    public String convertToDatabaseColumn(Set<String> dbData) {
+    public String convertToDatabaseColumn(LinkedHashSet<String> dbData) {
         if (dbData == null) {
             return null;
         }
