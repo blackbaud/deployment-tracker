@@ -47,6 +47,7 @@ class ArtifactInfoResourceSpec extends Specification {
         artifactInfoRepository.save(oldEntity)
         artifactInfoRepository.save(middleEntity)
         artifactInfoRepository.save(newestEntity)
+
         and:
         List<ArtifactInfoEntity> artifactList = artifactInfoRepository.findByArtifactIdAndBuildVersionGreaterThanAndBuildVersionLessThanEqual(artifactId, '1', '3')
 

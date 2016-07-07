@@ -6,21 +6,24 @@ import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 @Converter
-public class StringDelimiterConverter implements AttributeConverter<List<String>, String> {
+public class StringDelimiterConverter implements AttributeConverter<Set<String>, String> {
 
     @Override
-    public List<String> convertToEntityAttribute(String attribute) {
+    public Set<String> convertToEntityAttribute(String attribute) {
         if(attribute == null) {
-            return Collections.emptyList();
+            return Collections.emptySet();
         }
-        return Arrays.asList(attribute.split(","));
+        return new LinkedHashSet<>(Arrays.asList(attribute.split(",")));
     }
 
     @Override
-    public String convertToDatabaseColumn(List<String> dbData) {
+    public String convertToDatabaseColumn(Set<String> dbData) {
         if (dbData == null) {
             return null;
         }

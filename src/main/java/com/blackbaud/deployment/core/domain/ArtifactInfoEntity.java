@@ -13,7 +13,8 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.Table;
-import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 @Entity(name = "artifact_info")
 @Table(name = "artifact_info")
@@ -37,9 +38,9 @@ public class ArtifactInfoEntity {
     private String gitSha;
 
     @Column(name = "story_ids")
-    @Convert(converter=StringDelimiterConverter.class)
-    private List<String> storyIds;
+    @Convert(converter = StringDelimiterConverter.class)
+    private LinkedHashSet<String> storyIds;
 
-    @Convert(converter=StringDelimiterConverter.class)
-    private List<String> authors;
+    @Convert(converter = StringDelimiterConverter.class)
+    private LinkedHashSet<String> authors;
 }
