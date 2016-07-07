@@ -32,7 +32,7 @@ public class ReleaseService {
     private ArtifactReleaseInfoService artifactReleaseInfoService;
 
     @Autowired
-    ArtifactInfoRepository artifactInfoRepository;
+    ArtifactInfoService artifactInfoService;
 
     @Autowired
     private GitLogParserFactory gitLogParserFactory;
@@ -99,10 +99,10 @@ public class ReleaseService {
     private void addStoriesAndDevelopersFromDb(ArtifactReleaseDiff artifactReleaseDiff) {
         LinkedHashSet<String> stories = new LinkedHashSet<>();
         LinkedHashSet<String> developers = new LinkedHashSet<>();
-        List<ArtifactInfoEntity> artifactInfoEntities = artifactInfoRepository.findByArtifactIdAndBuildVersionGreaterThanAndBuildVersionLessThanEqual(
+        List<ArtifactInfoEntity> artifactInfoEntities = artifactInfoService.findBetweenBuildVersionsTolerateNull(
                 artifactReleaseDiff.getArtifactId(),
-                artifactReleaseDiff.getProd().getBuildVersion(),
-                artifactReleaseDiff.getDev().getBuildVersion()
+                artifactReleaseDiff.getProdBuildVersion(),
+                artifactReleaseDiff.getDevBuildVersion()
         );
         artifactInfoEntities.stream().forEach(artifactInfoEntity -> {
                                                   stories.addAll(artifactInfoEntity.getStoryIds());

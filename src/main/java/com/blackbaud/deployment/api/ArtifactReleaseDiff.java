@@ -35,8 +35,17 @@ public class ArtifactReleaseDiff {
     }
 
     @JsonIgnore
+    public String getDevBuildVersion() {
+        return dev == null ? null : dev.getBuildVersion();
+    }
+
+    @JsonIgnore
     public String getProdSha() {
         return prod == null ? null : prod.getGitSha();
     }
 
+    @JsonIgnore
+    public String getProdBuildVersion() {
+        return prod == null ? null : prod.getBuildVersion();
+    }
 }
