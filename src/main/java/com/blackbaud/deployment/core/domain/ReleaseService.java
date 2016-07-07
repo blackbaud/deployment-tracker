@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -31,20 +32,23 @@ public class ReleaseService {
     private ArtifactReleaseInfoService artifactReleaseInfoService;
 
     @Autowired
+    ArtifactInfoRepository artifactInfoRepository;
+
+    @Autowired
     private GitLogParserFactory gitLogParserFactory;
 
     public Map<String, ArtifactReleaseDiff> createArtifactReleaseDiffs() {
         List<ArtifactReleaseInfo> devInfos = artifactReleaseInfoService.findManyByFoundationAndSpace(DEV_FOUNDATION, DEV_SPACE);
         List<ArtifactReleaseInfo> prodInfos = artifactReleaseInfoService.findManyByFoundationAndSpace(PROD_FOUNDATION, PROD_SPACE);
         TreeMap<String, ArtifactReleaseDiff> releaseSummary = combineArtifactReleaseInfos(devInfos, prodInfos);
-        addStoriesAndDevelopers(releaseSummary);
+        addAllStoriesAndDevelopers(releaseSummary);
         return releaseSummary;
     }
 
     public Map<String, ArtifactReleaseDiff> createArtifactReleaseDiffs(List<ArtifactReleaseInfo> prodInfos) {
         List<ArtifactReleaseInfo> devInfos = artifactReleaseInfoService.findManyByFoundationAndSpace(DEV_FOUNDATION, DEV_SPACE);
         TreeMap<String, ArtifactReleaseDiff> releaseSummary = combineArtifactReleaseInfos(devInfos, prodInfos);
-        addStoriesAndDevelopers(releaseSummary);
+        addAllStoriesAndDevelopers(releaseSummary);
         return releaseSummary;
     }
 
@@ -57,11 +61,11 @@ public class ReleaseService {
 
     public void addDevArtifactReleaseInfos(List<ArtifactReleaseInfo> devInfos, Map<String, ArtifactReleaseDiff> allArtifactReleaseInfos) {
         for (ArtifactReleaseInfo devInfo : devInfos) {
-            if (isReleasable(devInfo)){
+            if (isReleasable(devInfo)) {
                 allArtifactReleaseInfos.put(devInfo.getArtifactId(),
-                                       ArtifactReleaseDiff.builder()
-                                               .dev(devInfo)
-                                               .build()
+                                            ArtifactReleaseDiff.builder()
+                                                    .dev(devInfo)
+                                                    .build()
                 );
             }
         }
@@ -76,22 +80,43 @@ public class ReleaseService {
             ArtifactReleaseDiff artifactReleaseDiff = allArtifactReleaseInfos.get(prodInfo.getArtifactId());
             if (artifactReleaseDiff == null) {
                 allArtifactReleaseInfos.put(prodInfo.getArtifactId(),
-                                       ArtifactReleaseDiff.builder()
-                                               .prod(prodInfo)
-                                               .build());
+                                            ArtifactReleaseDiff.builder()
+                                                    .prod(prodInfo)
+                                                    .build());
             } else {
                 artifactReleaseDiff.setProd(prodInfo);
             }
         }
     }
 
-    public void addStoriesAndDevelopers(TreeMap<String, ArtifactReleaseDiff> allArtifactReleaseInfos) {
-        for (String artifactId : allArtifactReleaseInfos.keySet()) {
-            ArtifactReleaseDiff artifactReleaseDiff = allArtifactReleaseInfos.get(artifactId);
-            GitLogParser parser = gitLogParserFactory.createParser(artifactId, artifactReleaseDiff);
-            artifactReleaseDiff.setStories(parser.getStories());
-            artifactReleaseDiff.setDevelopers(parser.getDevelopers());
+    public void addAllStoriesAndDevelopers(TreeMap<String, ArtifactReleaseDiff> allArtifactReleaseDiffs) {
+        for (ArtifactReleaseDiff artifactReleaseDiff : allArtifactReleaseDiffs.values()) {
+            addStoriesAndDevelopersFromDb(artifactReleaseDiff);
+            addStoriesAndDevelopersFromGit(artifactReleaseDiff);
         }
     }
 
+    private void addStoriesAndDevelopersFromDb(ArtifactReleaseDiff artifactReleaseDiff) {
+        LinkedHashSet<String> stories = new LinkedHashSet<>();
+        LinkedHashSet<String> developers = new LinkedHashSet<>();
+        List<ArtifactInfoEntity> artifactInfoEntities = artifactInfoRepository.findByArtifactIdAndBuildVersionGreaterThanAndBuildVersionLessThanEqual(
+                artifactReleaseDiff.getArtifactId(),
+                artifactReleaseDiff.getProd().getBuildVersion(),
+                artifactReleaseDiff.getDev().getBuildVersion()
+        );
+        artifactInfoEntities.stream().forEach(artifactInfoEntity -> {
+                                                  stories.addAll(artifactInfoEntity.getStoryIds());
+                                                  developers.addAll(artifactInfoEntity.getAuthors());
+                                              }
+        );
+    }
+
+    private void addStoriesAndDevelopersFromGit(ArtifactReleaseDiff artifactReleaseDiff) {
+        GitLogParser parser = gitLogParserFactory.createParser(
+                artifactReleaseDiff.getArtifactId(),
+                artifactReleaseDiff.getProdSha(),
+                artifactReleaseDiff.getDevSha());
+        artifactReleaseDiff.setStories(parser.getStories());
+        artifactReleaseDiff.setDevelopers(parser.getDevelopers());
+    }
 }
