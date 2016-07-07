@@ -49,15 +49,21 @@ class ArtifactInfoResourceSpec extends Specification {
 
         and:
         List<ArtifactInfoEntity> artifactList = artifactInfoRepository.findByArtifactIdAndBuildVersionGreaterThanAndBuildVersionLessThanEqual(artifactId, '1', '3')
+        ArtifactInfoEntity latestArtifact = artifactInfoRepository.findFirstByArtifactIdOrderByBuildVersionDesc(artifactId);
 
         then:
         print artifactList.size()
         artifactList == [middleEntity]
+        latestArtifact == newestEntity;
     }
 
     def "should add new artifact info"() {
         given:
-        ArtifactInfo artifactInfo = aRandom.artifactInfo().build();
+        ArtifactInfo artifactInfo = ArtifactInfo.builder()
+                .artifactId("deployment-tracker")
+                .buildVersion(aRandom.numberText(5))
+                .gitSha("23f044ea9ee162c4f48e670fcc80e209b4c3ea92")
+                .build();
 
         when:
         artifactInfoClient.find(artifactInfo.artifactId, artifactInfo.buildVersion)
@@ -74,10 +80,14 @@ class ArtifactInfoResourceSpec extends Specification {
 
     def "should update existing artifact info"() {
         given:
-        ArtifactInfo artifactInfoInitial = aRandom.artifactInfo().build();
+        ArtifactInfo artifactInfoInitial = aRandom.artifactInfo()
+                .artifactId("deployment-tracker")
+                .gitSha("23f044ea9ee162c4f48e670fcc80e209b4c3ea92").build();
+
         ArtifactInfo artifactInfoUpdate = aRandom.artifactInfo()
                 .artifactId(artifactInfoInitial.artifactId)
                 .buildVersion(artifactInfoInitial.buildVersion)
+                .gitSha("fb875ccafc4274edd2be556a391d4e074a3a350f")
                 .build();
 
         when:
