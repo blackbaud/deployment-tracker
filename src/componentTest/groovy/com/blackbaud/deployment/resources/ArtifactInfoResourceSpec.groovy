@@ -3,11 +3,13 @@ package com.blackbaud.deployment.resources
 import com.blackbaud.boot.exception.NotFoundException
 import com.blackbaud.deployment.ArtifactInfoConverter
 import com.blackbaud.deployment.ComponentTest
+import com.blackbaud.deployment.RealArtifacts
 import com.blackbaud.deployment.api.ArtifactInfo
 import com.blackbaud.deployment.client.ArtifactInfoClient
 import com.blackbaud.deployment.core.domain.ArtifactInfoEntity
+import com.blackbaud.deployment.core.domain.ArtifactInfoPrimaryKey
 import com.blackbaud.deployment.core.domain.ArtifactInfoRepository
-import org.apache.commons.lang3.StringUtils
+import org.apache.commons.lang.StringUtils
 import org.springframework.beans.factory.annotation.Autowired
 import spock.lang.Specification
 
@@ -20,12 +22,20 @@ class ArtifactInfoResourceSpec extends Specification {
     private ArtifactInfoClient artifactInfoClient
 
     @Autowired
-    private ArtifactInfoConverter converter;
+    private ArtifactInfoConverter converter
 
     @Autowired
-    private ArtifactInfoRepository artifactInfoRepository;
+    private ArtifactInfoRepository artifactInfoRepository
 
-     def "Query sanity check (temporary)"() {
+    @Autowired
+    private ArtifactInfoResource artifactInfoResource
+
+    private final String artifactId = "deployment-tracker"
+
+    private final ArtifactInfo newArtifact = RealArtifacts.getRecentDeploymentTrackerArtifact()
+    private final ArtifactInfo oldArtifact = RealArtifacts.getEarlyDeploymentTrackerArtifact()
+
+    def "Query sanity check (temporary)"() {
         given:
         String artifactId = 'arbitrary'
         List<String> stories = StringUtils.split(aRandom.words(20));
@@ -50,34 +60,36 @@ class ArtifactInfoResourceSpec extends Specification {
 
         and:
         List<ArtifactInfoEntity> artifactList = artifactInfoRepository.findByArtifactIdAndBuildVersionGreaterThanAndBuildVersionLessThanEqual(artifactId, '1', '3')
+        ArtifactInfoEntity latestArtifact = artifactInfoRepository.findFirstByArtifactIdOrderByBuildVersionDesc(artifactId);
 
         then:
-        assert artifactList == [middleEntity]
+        print artifactList.size()
+        artifactList == [middleEntity]
+        latestArtifact == newestEntity;
     }
 
     def "should add new artifact info"() {
-        given:
-        ArtifactInfo artifactInfo = aRandom.artifactInfo().build();
-
         when:
-        artifactInfoClient.find(artifactInfo.artifactId, artifactInfo.buildVersion)
+        artifactInfoClient.find(newArtifact.artifactId, newArtifact.buildVersion)
 
         then:
         thrown(NotFoundException)
 
         when:
-        artifactInfoClient.update(artifactInfo.artifactId, artifactInfo.buildVersion, artifactInfo)
+        artifactInfoClient.update(newArtifact.artifactId, newArtifact.buildVersion, newArtifact)
 
         then:
-        assert artifactInfo == artifactInfoClient.find(artifactInfo.artifactId, artifactInfo.buildVersion)
+        assert newArtifact == artifactInfoClient.find(newArtifact.artifactId, newArtifact.buildVersion)
     }
 
     def "should update existing artifact info"() {
         given:
-        ArtifactInfo artifactInfoInitial = aRandom.artifactInfo().build();
+        ArtifactInfo artifactInfoInitial = RealArtifacts.getEarlyDeploymentTrackerArtifact()
+
         ArtifactInfo artifactInfoUpdate = aRandom.artifactInfo()
                 .artifactId(artifactInfoInitial.artifactId)
                 .buildVersion(artifactInfoInitial.buildVersion)
+                .gitSha("fb875ccafc4274edd2be556a391d4e074a3a350f")
                 .build();
 
         when:
@@ -90,4 +102,26 @@ class ArtifactInfoResourceSpec extends Specification {
         assert artifactInfoUpdate == artifactInfoClient.find(artifactInfoInitial.artifactId, artifactInfoInitial.buildVersion)
     }
 
+    def "should update artifact with git information from previous artifact"() {
+        given:
+        artifactInfoRepository.save(converter.toEntity(oldArtifact))
+
+        when:
+        artifactInfoResource.put(artifactId, newArtifact.buildVersion, newArtifact)
+
+        then:
+        ArtifactInfoEntity newArtifactInfoEntity = artifactInfoRepository.findOne(new ArtifactInfoPrimaryKey(artifactId, newArtifact.buildVersion))
+        newArtifactInfoEntity.storyIds == ["LUM-7759", "LUM-8045"] as Set
+        newArtifactInfoEntity.authors == ["Blackbaud-JohnHolland", "Ryan McKay"] as Set
+    }
+
+    def "should get every stories and authors for brand new artifacts"() {
+        when:
+        artifactInfoResource.put(artifactId, newArtifact.buildVersion, newArtifact)
+
+        then:
+        ArtifactInfoEntity newArtifactInfoEntity = artifactInfoRepository.findOne(new ArtifactInfoPrimaryKey(artifactId, newArtifact.buildVersion))
+        newArtifactInfoEntity.storyIds == ["LUM-7759", "LUM-8045"] as Set
+        newArtifactInfoEntity.authors == ["Blackbaud-DiHuynh", "Blackbaud-JohnHolland", "Di Huynh", "Mike Lueders", "Ryan McKay"] as Set
+    }
 }
