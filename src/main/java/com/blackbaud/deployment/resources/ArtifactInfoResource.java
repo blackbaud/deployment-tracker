@@ -6,6 +6,9 @@ import com.blackbaud.deployment.api.ResourcePaths;
 import com.blackbaud.deployment.core.domain.ArtifactInfoEntity;
 import com.blackbaud.deployment.core.domain.ArtifactInfoPrimaryKey;
 import com.blackbaud.deployment.core.domain.ArtifactInfoRepository;
+import com.blackbaud.deployment.core.domain.GitLogParser;
+import com.blackbaud.deployment.core.domain.GitLogParserFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -30,16 +33,25 @@ public class ArtifactInfoResource {
     @Autowired
     private ArtifactInfoRepository artifactInfoRepository;
 
+    @Autowired
+    private GitLogParserFactory gitLogParserFactory;
+
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("{artifactId}/{buildVersion}")
     public ArtifactInfo update(@PathParam("artifactId") String artifactId, @PathParam("buildVersion") String buildVersion,
                                @Valid ArtifactInfo artifactInfo) {
-        ArtifactInfoEntity entity = converter.toEntity(artifactInfo);
-        entity.setArtifactId(artifactId);
-        entity.setBuildVersion(buildVersion);
+        ArtifactInfoEntity newArtifact = converter.toEntity(artifactInfo);
+        newArtifact.setArtifactId(artifactId);
+        newArtifact.setBuildVersion(buildVersion);
 
-        return converter.toApi(artifactInfoRepository.save(entity));
+        ArtifactInfoEntity lastArtifact = artifactInfoRepository.findFirstByArtifactIdOrderByBuildVersionDesc(artifactId);
+        GitLogParser parser = gitLogParserFactory.createParser(artifactId, lastArtifact.getGitSha(), newArtifact.getGitSha());
+
+        newArtifact.setAuthors(StringUtils.join(parser.getDevelopers(),","));
+        newArtifact.setStoryIds(StringUtils.join(parser.getStories(), ","));
+
+        return converter.toApi(artifactInfoRepository.save(newArtifact));
     }
 
     @GET
