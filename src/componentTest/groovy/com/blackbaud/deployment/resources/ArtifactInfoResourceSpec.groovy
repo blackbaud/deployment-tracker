@@ -8,8 +8,6 @@ import com.blackbaud.deployment.client.ArtifactInfoClient
 import com.blackbaud.deployment.core.domain.ArtifactInfoEntity
 import com.blackbaud.deployment.core.domain.ArtifactInfoPrimaryKey
 import com.blackbaud.deployment.core.domain.ArtifactInfoRepository
-import org.apache.commons.lang3.StringUtils
-import org.codehaus.groovy.util.StringUtil
 import org.springframework.beans.factory.annotation.Autowired
 import spock.lang.Specification
 
@@ -32,7 +30,19 @@ class ArtifactInfoResourceSpec extends Specification {
 
     private final String artifactId = "deployment-tracker"
 
-     def "Query sanity check (temporary)"() {
+    private final ArtifactInfo newArtifact = aRandom.artifactInfo()
+            .artifactId(artifactId)
+            .buildVersion("2")
+            .gitSha("76cf98e70a739ced8c610999b8814b9b2556071e")
+            .build()
+
+    private ArtifactInfo oldArtifact = aRandom.artifactInfo()
+            .artifactId(artifactId)
+            .buildVersion("1")
+            .gitSha("ab116cce4181a283a1fb32c2d300770e7dc8f08b")
+            .build()
+
+    def "Query sanity check (temporary)"() {
         given:
         String artifactId = 'arbitrary'
         ArtifactInfo oldestVersion = aRandom.artifactInfo().artifactId(artifactId).buildVersion('1').build();
@@ -60,7 +70,7 @@ class ArtifactInfoResourceSpec extends Specification {
     def "should add new artifact info"() {
         given:
         ArtifactInfo artifactInfo = ArtifactInfo.builder()
-                .artifactId("deployment-tracker")
+                .artifactId(artifactId)
                 .buildVersion(aRandom.numberText(5))
                 .gitSha("23f044ea9ee162c4f48e670fcc80e209b4c3ea92")
                 .build();
@@ -81,7 +91,7 @@ class ArtifactInfoResourceSpec extends Specification {
     def "should update existing artifact info"() {
         given:
         ArtifactInfo artifactInfoInitial = aRandom.artifactInfo()
-                .artifactId("deployment-tracker")
+                .artifactId(artifactId)
                 .gitSha("23f044ea9ee162c4f48e670fcc80e209b4c3ea92").build();
 
         ArtifactInfo artifactInfoUpdate = aRandom.artifactInfo()
@@ -102,18 +112,7 @@ class ArtifactInfoResourceSpec extends Specification {
 
     def "should update artifact with git information from previous artifact"() {
         given:
-        ArtifactInfo old = aRandom.artifactInfo()
-                .artifactId(artifactId)
-                .buildVersion("1")
-                .gitSha("ab116cce4181a283a1fb32c2d300770e7dc8f08b")
-                .build()
-        artifactInfoRepository.save(converter.toEntity(old))
-
-        and:
-        ArtifactInfo newArtifact = aRandom.artifactInfo().artifactId(artifactId)
-            .buildVersion("2")
-            .gitSha("76cf98e70a739ced8c610999b8814b9b2556071e")
-            .build()
+        artifactInfoRepository.save(converter.toEntity(oldArtifact))
 
         when:
         artifactInfoResource.update(artifactId, newArtifact.buildVersion, newArtifact)
@@ -124,18 +123,13 @@ class ArtifactInfoResourceSpec extends Specification {
         newArtifactInfoEntity.authors == "Di Huynh,Ryan McKay"
     }
 
-    def "should get every stories and authors for brand new artifacts"(){
-        given:
-        ArtifactInfo newArtifact = aRandom.artifactInfo().artifactId(artifactId)
-                .buildVersion("2")
-                .gitSha("ab116cce4181a283a1fb32c2d300770e7dc8f08b")
-                .build()
+    def "should get every stories and authors for brand new artifacts"() {
         when:
         artifactInfoResource.update(artifactId, newArtifact.buildVersion, newArtifact)
 
         then:
         ArtifactInfoEntity newArtifactInfoEntity = artifactInfoRepository.findOne(new ArtifactInfoPrimaryKey(artifactId, newArtifact.buildVersion))
-        newArtifactInfoEntity.storyIds == "LUM-7759"
-        newArtifactInfoEntity.authors == "Blackbaud-DiHuynh,Mike Lueders,Ryan McKay"
+        newArtifactInfoEntity.storyIds == "LUM-7759,LUM-8045"
+        newArtifactInfoEntity.authors == "Blackbaud-DiHuynh,Di Huynh,Mike Lueders,Ryan McKay"
     }
 }
