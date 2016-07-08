@@ -6,6 +6,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.LinkedHashSet;
+
 @Component
 public class ArtifactInfoService {
 
@@ -25,9 +27,8 @@ public class ArtifactInfoService {
         ArtifactInfoEntity lastArtifact = artifactInfoRepository.findFirstByArtifactIdOrderByBuildVersionDesc(artifactId);
         String oldSha = lastArtifact == null ? null : lastArtifact.getGitSha();
         GitLogParser parser = gitLogParserFactory.createParser(artifactId, oldSha, newArtifact.getGitSha());
-        LinkedHashSetDelimitedStringConverter linkedHashSetConverter = new LinkedHashSetDelimitedStringConverter();
-        newArtifact.setAuthors(linkedHashSetConverter.convertToEntityAttribute(StringUtils.join(parser.getDevelopers(), ",")));
-        newArtifact.setStoryIds(linkedHashSetConverter.convertToEntityAttribute(StringUtils.join(parser.getStories(), ",")));
+        newArtifact.setAuthors(new LinkedHashSet<>(parser.getDevelopers()));
+        newArtifact.setStoryIds(new LinkedHashSet<>(parser.getStories()));
         return converter.toApi(artifactInfoRepository.save(newArtifact));
     }
 }
