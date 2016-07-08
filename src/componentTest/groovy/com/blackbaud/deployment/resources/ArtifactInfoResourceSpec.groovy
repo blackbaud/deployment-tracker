@@ -51,7 +51,7 @@ class ArtifactInfoResourceSpec extends Specification {
         ArtifactInfoEntity latestArtifact = artifactInfoRepository.findFirstByArtifactIdOrderByBuildVersionDesc(artifactId);
 
         then:
-        assert artifactList != [middleEntity]
+        assert artifactList == [middleEntity]
     }
 
     def "should add new artifact info"() {

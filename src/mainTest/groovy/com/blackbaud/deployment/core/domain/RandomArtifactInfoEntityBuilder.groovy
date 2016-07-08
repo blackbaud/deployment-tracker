@@ -1,6 +1,6 @@
 package com.blackbaud.deployment.core.domain
 
-import org.apache.commons.lang.StringUtils
+import org.apache.commons.lang3.StringUtils
 
 import static com.blackbaud.deployment.api.ClientARandom.aRandom
 

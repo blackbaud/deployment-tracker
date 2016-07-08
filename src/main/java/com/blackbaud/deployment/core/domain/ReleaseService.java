@@ -94,7 +94,6 @@ public class ReleaseService {
     public void addAllStoriesAndDevelopers(TreeMap<String, ArtifactReleaseDiff> allArtifactReleaseDiffs) {
         for (ArtifactReleaseDiff artifactReleaseDiff : allArtifactReleaseDiffs.values()) {
             addStoriesAndDevelopersFromDb(artifactReleaseDiff);
-            addStoriesAndDevelopersFromGit(artifactReleaseDiff);
         }
     }
 
@@ -112,15 +111,5 @@ public class ReleaseService {
                                               }
         );
         log.debug("addStoriesAndDevelopersFromDb got stories={} and developers={}", stories, developers);
-    }
-
-    private void addStoriesAndDevelopersFromGit(ArtifactReleaseDiff artifactReleaseDiff) {
-        GitLogParser parser = gitLogParserFactory.createParser(
-                artifactReleaseDiff.getArtifactId(),
-                artifactReleaseDiff.getProdSha(),
-                artifactReleaseDiff.getDevSha());
-        artifactReleaseDiff.setStories(parser.getStories());
-        artifactReleaseDiff.setDevelopers(parser.getDevelopers());
-        log.debug("addStoriesAndDevelopersFromGit got stories={} and developers={}", parser.getStories(), parser.getDevelopers());
     }
 }
