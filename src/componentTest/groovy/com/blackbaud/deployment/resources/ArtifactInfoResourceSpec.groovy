@@ -3,6 +3,7 @@ package com.blackbaud.deployment.resources
 import com.blackbaud.boot.exception.NotFoundException
 import com.blackbaud.deployment.ArtifactInfoConverter
 import com.blackbaud.deployment.ComponentTest
+import com.blackbaud.deployment.RealArtifacts
 import com.blackbaud.deployment.api.ArtifactInfo
 import com.blackbaud.deployment.client.ArtifactInfoClient
 import com.blackbaud.deployment.core.domain.ArtifactInfoEntity
@@ -31,17 +32,8 @@ class ArtifactInfoResourceSpec extends Specification {
 
     private final String artifactId = "deployment-tracker"
 
-    private final ArtifactInfo newArtifact = aRandom.artifactInfo()
-            .artifactId(artifactId)
-            .buildVersion("2")
-            .gitSha("76cf98e70a739ced8c610999b8814b9b2556071e")
-            .build()
-
-    private ArtifactInfo oldArtifact = aRandom.artifactInfo()
-            .artifactId(artifactId)
-            .buildVersion("1")
-            .gitSha("ab116cce4181a283a1fb32c2d300770e7dc8f08b")
-            .build()
+    private final ArtifactInfo newArtifact = RealArtifacts.getRecentDeploymentTrackerArtifact()
+    private final ArtifactInfo oldArtifact = RealArtifacts.getEarlyDeploymentTrackerArtifact()
 
     def "Query sanity check (temporary)"() {
         given:
@@ -74,31 +66,22 @@ class ArtifactInfoResourceSpec extends Specification {
     }
 
     def "should add new artifact info"() {
-        given:
-        ArtifactInfo artifactInfo = ArtifactInfo.builder()
-                .artifactId(artifactId)
-                .buildVersion(aRandom.numberText(5))
-                .gitSha("23f044ea9ee162c4f48e670fcc80e209b4c3ea92")
-                .build();
-
         when:
-        artifactInfoClient.find(artifactInfo.artifactId, artifactInfo.buildVersion)
+        artifactInfoClient.find(newArtifact.artifactId, newArtifact.buildVersion)
 
         then:
         thrown(NotFoundException)
 
         when:
-        artifactInfoClient.update(artifactInfo.artifactId, artifactInfo.buildVersion, artifactInfo)
+        artifactInfoClient.update(newArtifact.artifactId, newArtifact.buildVersion, newArtifact)
 
         then:
-        assert artifactInfo == artifactInfoClient.find(artifactInfo.artifactId, artifactInfo.buildVersion)
+        assert newArtifact == artifactInfoClient.find(newArtifact.artifactId, newArtifact.buildVersion)
     }
 
     def "should update existing artifact info"() {
         given:
-        ArtifactInfo artifactInfoInitial = aRandom.artifactInfo()
-                .artifactId(artifactId)
-                .gitSha("23f044ea9ee162c4f48e670fcc80e209b4c3ea92").build();
+        ArtifactInfo artifactInfoInitial = RealArtifacts.getEarlyDeploymentTrackerArtifact()
 
         ArtifactInfo artifactInfoUpdate = aRandom.artifactInfo()
                 .artifactId(artifactInfoInitial.artifactId)
@@ -125,8 +108,8 @@ class ArtifactInfoResourceSpec extends Specification {
 
         then:
         ArtifactInfoEntity newArtifactInfoEntity = artifactInfoRepository.findOne(new ArtifactInfoPrimaryKey(artifactId, newArtifact.buildVersion))
-        newArtifactInfoEntity.storyIds == ["LUM-7759","LUM-8045"] as Set
-        newArtifactInfoEntity.authors == ["Di Huynh","Ryan McKay"] as Set
+        newArtifactInfoEntity.storyIds == ["LUM-7759", "LUM-8045"] as Set
+        newArtifactInfoEntity.authors == ["Blackbaud-JohnHolland", "Ryan McKay"] as Set
     }
 
     def "should get every stories and authors for brand new artifacts"() {
@@ -135,7 +118,7 @@ class ArtifactInfoResourceSpec extends Specification {
 
         then:
         ArtifactInfoEntity newArtifactInfoEntity = artifactInfoRepository.findOne(new ArtifactInfoPrimaryKey(artifactId, newArtifact.buildVersion))
-        newArtifactInfoEntity.storyIds == ["LUM-7759","LUM-8045"] as Set
-        newArtifactInfoEntity.authors == ["Blackbaud-DiHuynh","Di Huynh","Mike Lueders","Ryan McKay"] as Set
+        newArtifactInfoEntity.storyIds == ["LUM-7759", "LUM-8045"] as Set
+        newArtifactInfoEntity.authors == ["Blackbaud-DiHuynh", "Blackbaud-JohnHolland", "Di Huynh", "Mike Lueders", "Ryan McKay"] as Set
     }
 }
