@@ -2,11 +2,14 @@ package com.blackbaud.deployment.resources;
 
 import com.blackbaud.deployment.api.ArtifactReleaseInfo;
 import com.blackbaud.deployment.api.ResourcePaths;
+import com.blackbaud.deployment.core.domain.ArtifactInfoService;
 import com.blackbaud.deployment.core.domain.ArtifactReleaseInfoService;
+import com.blackbaud.deployment.core.domain.GitLogParserFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.validation.Valid;
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
@@ -34,7 +37,11 @@ public class ArtifactReleaseInfoResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public ArtifactReleaseInfo update(@PathParam("foundation") String foundation, @PathParam("space") String space,
                                       @Valid ArtifactReleaseInfo artifactReleaseInfo) {
-        return artifactReleaseInfoService.save(artifactReleaseInfo, foundation, space);
+        try{
+            return artifactReleaseInfoService.save(artifactReleaseInfo, foundation, space);
+        } catch (GitLogParserFactory.InvalidRepositoryException ex){
+            throw new BadRequestException(ex.getMessage());
+        }
     }
 
     @GET

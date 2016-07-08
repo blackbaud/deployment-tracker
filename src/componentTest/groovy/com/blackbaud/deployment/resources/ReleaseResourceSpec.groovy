@@ -2,6 +2,7 @@ package com.blackbaud.deployment.resources
 
 import com.blackbaud.boot.exception.BadRequestException
 import com.blackbaud.deployment.ComponentTest
+import com.blackbaud.deployment.RealArtifacts
 import com.blackbaud.deployment.api.ArtifactReleaseDiff
 import com.blackbaud.deployment.api.ArtifactReleaseInfo
 import com.blackbaud.deployment.client.ArtifactReleaseInfoClient
@@ -28,17 +29,9 @@ class ReleaseResourceSpec extends Specification {
 
     private String artifactId = "deployment-tracker"
 
-    private ArtifactReleaseInfo earlyInfo = aRandom.artifactReleaseInfo()
-            .artifactId(artifactId)
-            .buildVersion("0.20160525.221050")
-            .gitSha("bb0ce6f142d3c52e48c914768f3174278bfa035b")
-            .build()
+    private ArtifactReleaseInfo earlyInfo = RealArtifacts.getEarlyDeploymentTrackerRelease()
 
-    private ArtifactReleaseInfo recentInfo = aRandom.artifactReleaseInfo()
-            .artifactId(artifactId)
-            .buildVersion("0.20160606.194525")
-            .gitSha("e36ec0e653bb77dd20a6ac2c200d4a82a962e6e7")
-            .build()
+    private ArtifactReleaseInfo recentInfo = RealArtifacts.getRecentDeploymentTrackerRelease()
 
     def "getCurrentRelease returns empty Release when there is no data"() {
         expect:
@@ -68,13 +61,12 @@ class ReleaseResourceSpec extends Specification {
         nothingStoredInDev()
 
         and:
-        ArtifactReleaseInfo prodInfo = aRandom.artifactReleaseInfo().build()
-        storeInProd(prodInfo)
+        storeInProd(earlyInfo)
 
-        String artifactId = prodInfo.artifactId
+        String artifactId = earlyInfo.artifactId
         ArtifactReleaseDiff expected = ArtifactReleaseDiff.builder()
                 .dev(null)
-                .prod(prodInfo)
+                .prod(earlyInfo)
                 .stories([] as Set)
                 .developers([] as Set)
                 .build();
@@ -127,13 +119,6 @@ class ReleaseResourceSpec extends Specification {
         and: "A different version in prod snapshot"
         def prodSnapshot = null
 
-        ArtifactReleaseDiff expected = ArtifactReleaseDiff.builder()
-                .dev(recentInfo)
-                .prod(earlyInfo)
-                .stories(["LUM-7759", "LUM-8045"] as Set)
-                .developers(["Ryan McKay", "Blackbaud-JohnHolland"] as Set)
-                .build();
-
         when:
         releaseClient.getCurrentReleaseForProdSnapshot(prodSnapshot)
 
@@ -143,7 +128,7 @@ class ReleaseResourceSpec extends Specification {
 
     def "getCurrentRelease does not return non-releasable artifacts"() {
         given:
-        ArtifactReleaseInfo artifactReleaseInfo = aRandom.artifactReleaseInfo().artifactId("bluemoon-dojo").build();
+        ArtifactReleaseInfo artifactReleaseInfo = RealArtifacts.getBluemoonDojoRelease()
         storeInDev(artifactReleaseInfo)
 
         expect:
@@ -157,10 +142,9 @@ class ReleaseResourceSpec extends Specification {
                 .buildVersion("0.20160606.194525")
                 .gitSha("3e176dced48f7b888707337261ba5b97902cf5b8")
                 .build()
-        storeInDev(dev)
 
         when:
-        releaseClient.getCurrentReleaseForProdSnapshot([earlyInfo])
+        storeInDev(dev)
 
         then:
         WebApplicationException ex = thrown()
@@ -169,10 +153,9 @@ class ReleaseResourceSpec extends Specification {
     def "Invalid github repo throws exception"() {
         given:
         ArtifactReleaseInfo artifactReleaseInfo = aRandom.artifactReleaseInfo().build();
-        storeInDev(artifactReleaseInfo)
 
         when:
-        releaseClient.getCurrentRelease()
+        storeInDev(artifactReleaseInfo)
 
         then:
         BadRequestException ex = thrown()

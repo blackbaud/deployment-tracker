@@ -6,6 +6,7 @@ import com.blackbaud.deployment.api.ResourcePaths;
 import com.blackbaud.deployment.core.domain.ArtifactInfoEntity;
 import com.blackbaud.deployment.core.domain.ArtifactInfoPrimaryKey;
 import com.blackbaud.deployment.core.domain.ArtifactInfoRepository;
+import com.blackbaud.deployment.core.domain.ArtifactInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -30,16 +31,15 @@ public class ArtifactInfoResource {
     @Autowired
     private ArtifactInfoRepository artifactInfoRepository;
 
+    @Autowired
+    private ArtifactInfoService artifactInfoService;
+
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("{artifactId}/{buildVersion}")
-    public ArtifactInfo update(@PathParam("artifactId") String artifactId, @PathParam("buildVersion") String buildVersion,
-                               @Valid ArtifactInfo artifactInfo) {
-        ArtifactInfoEntity entity = converter.toEntity(artifactInfo);
-        entity.setArtifactId(artifactId);
-        entity.setBuildVersion(buildVersion);
-
-        return converter.toApi(artifactInfoRepository.save(entity));
+    public ArtifactInfo put(@PathParam("artifactId") String artifactId, @PathParam("buildVersion") String buildVersion,
+                            @Valid ArtifactInfo artifactInfo) {
+         return artifactInfoService.create(artifactId, buildVersion, converter.toEntity(artifactInfo));
     }
 
     @GET
@@ -51,5 +51,4 @@ public class ArtifactInfoResource {
         }
         return converter.toApi(artifactInfoEntity);
     }
-
 }

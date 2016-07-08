@@ -88,9 +88,10 @@ public class ReleaseService {
     public void addStoriesAndDevelopers(TreeMap<String, ArtifactReleaseDiff> allArtifactReleaseInfos) {
         for (String artifactId : allArtifactReleaseInfos.keySet()) {
             ArtifactReleaseDiff artifactReleaseDiff = allArtifactReleaseInfos.get(artifactId);
-            GitLogParser parser = gitLogParserFactory.createParser(artifactId, artifactReleaseDiff.getProdSha(), artifactReleaseDiff.getDevSha());
+            GitLogParser parser = gitLogParserFactory.createParser(artifactId, artifactReleaseDiff);
             artifactReleaseDiff.setStories(parser.getStories());
             artifactReleaseDiff.setDevelopers(parser.getDevelopers());
         }
     }
+
 }

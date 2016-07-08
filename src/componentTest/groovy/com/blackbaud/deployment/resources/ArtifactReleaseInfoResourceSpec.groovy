@@ -2,9 +2,9 @@ package com.blackbaud.deployment.resources
 
 import com.blackbaud.boot.exception.NotFoundException
 import com.blackbaud.deployment.ComponentTest
+import com.blackbaud.deployment.RealArtifacts
 import com.blackbaud.deployment.api.ArtifactInfo
 import com.blackbaud.deployment.api.ArtifactReleaseInfo
-import com.blackbaud.deployment.api.RandomArtifactReleaseInfoBuilder
 import com.blackbaud.deployment.client.ArtifactInfoClient
 import com.blackbaud.deployment.client.ArtifactReleaseInfoClient
 import org.springframework.beans.factory.annotation.Autowired
@@ -23,28 +23,30 @@ class ArtifactReleaseInfoResourceSpec extends Specification {
     private String foundation = "pivotal"
     private String space = "dev"
 
-    def "should add new deployment info"() {
-        given:
-        ArtifactReleaseInfo artifactReleaseInfo = aRandom.artifactReleaseInfo().build()
+    private final ArtifactReleaseInfo newArtifact = RealArtifacts.getRecentDeploymentTrackerRelease()
 
+    def "should add new deployment info"() {
         when:
-        artifactReleaseInfoClient.find(foundation, space, artifactReleaseInfo.artifactId)
+        artifactReleaseInfoClient.find(foundation, space, newArtifact.artifactId)
 
         then:
         thrown(NotFoundException)
 
         when:
-        artifactReleaseInfoClient.update(foundation, space, artifactReleaseInfo)
+        artifactReleaseInfoClient.update(foundation, space, newArtifact)
 
         then:
-        assert artifactReleaseInfo == artifactReleaseInfoClient.find(foundation, space, artifactReleaseInfo.artifactId)
+        assert newArtifact == artifactReleaseInfoClient.find(foundation, space, newArtifact.artifactId)
     }
 
     def "should replace deployment info on update"() {
         given:
-        RandomArtifactReleaseInfoBuilder deploymentStatusBuilder = aRandom.artifactReleaseInfo()
-        ArtifactReleaseInfo initialStatus = deploymentStatusBuilder.build()
-        ArtifactReleaseInfo updatedStatus = deploymentStatusBuilder.buildVersion("updated-version").build()
+        ArtifactReleaseInfo initialStatus = newArtifact
+        ArtifactReleaseInfo updatedStatus = aRandom.artifactReleaseInfo()
+                .artifactId(newArtifact.artifactId)
+                .gitSha(newArtifact.gitSha)
+                .buildVersion("updated-version")
+                .build()
 
         when:
         artifactReleaseInfoClient.update(foundation, space, initialStatus)
@@ -58,9 +60,9 @@ class ArtifactReleaseInfoResourceSpec extends Specification {
 
     def "should track distinct deployment info by foundation and space"() {
         given:
-        ArtifactReleaseInfo artifactReleaseInfo1 = aRandom.artifactReleaseInfo().artifactId("app").build()
-        ArtifactReleaseInfo artifactReleaseInfo2 = aRandom.artifactReleaseInfo().artifactId("app").build()
-        ArtifactReleaseInfo artifactReleaseInfo3 = aRandom.artifactReleaseInfo().artifactId("app").build()
+        ArtifactReleaseInfo artifactReleaseInfo1 = RealArtifacts.getRecentDeploymentTrackerRelease()
+        ArtifactReleaseInfo artifactReleaseInfo2 = RealArtifacts.getRecentNotificationsRelease()
+        ArtifactReleaseInfo artifactReleaseInfo3 = RealArtifacts.getBluemoonDojoRelease()
 
         when:
         artifactReleaseInfoClient.update(foundation, space, artifactReleaseInfo1)
@@ -68,16 +70,16 @@ class ArtifactReleaseInfoResourceSpec extends Specification {
         artifactReleaseInfoClient.update("foundation-three", space, artifactReleaseInfo3)
 
         then:
-        assert artifactReleaseInfo1 == artifactReleaseInfoClient.find(foundation, space, "app")
-        assert artifactReleaseInfo2 == artifactReleaseInfoClient.find(foundation, "space-two", "app")
-        assert artifactReleaseInfo3 == artifactReleaseInfoClient.find("foundation-three", space, "app")
+        assert artifactReleaseInfo1 == artifactReleaseInfoClient.find(foundation, space, artifactReleaseInfo1.artifactId)
+        assert artifactReleaseInfo2 == artifactReleaseInfoClient.find(foundation, "space-two", artifactReleaseInfo2.artifactId)
+        assert artifactReleaseInfo3 == artifactReleaseInfoClient.find("foundation-three", space, artifactReleaseInfo3.artifactId)
     }
 
     def "should retrieve all app deployment info objects for a space"() {
         given:
-        ArtifactReleaseInfo app1Status = aRandom.artifactReleaseInfo().artifactId("app1").build()
-        ArtifactReleaseInfo app2Status = aRandom.artifactReleaseInfo().artifactId("app2").build()
-        ArtifactReleaseInfo otherSpaceApp = aRandom.artifactReleaseInfo().artifactId("other-space").build()
+        ArtifactReleaseInfo app1Status = RealArtifacts.getRecentDeploymentTrackerRelease()
+        ArtifactReleaseInfo app2Status = RealArtifacts.getRecentNotificationsRelease()
+        ArtifactReleaseInfo otherSpaceApp = RealArtifacts.getRecentNotificationsRelease()
 
         when:
         artifactReleaseInfoClient.update(foundation, space, app1Status)
@@ -90,7 +92,7 @@ class ArtifactReleaseInfoResourceSpec extends Specification {
 
     def "should populate artifact info resource" (){
         given:
-        ArtifactReleaseInfo artifactReleaseInfo = aRandom.artifactReleaseInfo().build()
+        ArtifactReleaseInfo artifactReleaseInfo = RealArtifacts.getEarlyDeploymentTrackerRelease()
         ArtifactInfo matchingArtifactInfo = ArtifactInfo.builder()
                 .artifactId(artifactReleaseInfo.artifactId)
                 .buildVersion(artifactReleaseInfo.buildVersion)
@@ -103,5 +105,4 @@ class ArtifactReleaseInfoResourceSpec extends Specification {
         then:
         assert artifactInfoClient.find(artifactReleaseInfo.artifactId, artifactReleaseInfo.buildVersion) == matchingArtifactInfo
     }
-
 }
