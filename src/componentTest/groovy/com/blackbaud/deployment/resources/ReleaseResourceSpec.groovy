@@ -40,10 +40,10 @@ class ReleaseResourceSpec extends Specification {
 
     def "getCurrentRelease returns artifact with different versions in dev and prod"() {
         given:
-        storeInDev(recentInfo)
+        storeInProd(earlyInfo)
 
         and:
-        storeInProd(earlyInfo)
+        storeInDev(recentInfo)
 
         ArtifactReleaseDiff expected = ArtifactReleaseDiff.builder()
                 .dev(recentInfo)
@@ -58,10 +58,10 @@ class ReleaseResourceSpec extends Specification {
 
     def "getCurrentRelease returns artifact that is in prod but not dev"() {
         given:
-        nothingStoredInDev()
+        storeInProd(earlyInfo)
 
         and:
-        storeInProd(earlyInfo)
+        nothingStoredInDev()
 
         String artifactId = earlyInfo.artifactId
         ArtifactReleaseDiff expected = ArtifactReleaseDiff.builder()
@@ -77,10 +77,10 @@ class ReleaseResourceSpec extends Specification {
 
     def "getCurrentRelease returns artifact that is in dev but not prod"() {
         given:
-        storeInDev(earlyInfo)
+        nothingStoredInProd()
 
         and:
-        nothingStoredInProd()
+        storeInDev(earlyInfo)
 
         String artifactId = earlyInfo.artifactId
         ArtifactReleaseDiff expected = ArtifactReleaseDiff.builder()
@@ -95,10 +95,11 @@ class ReleaseResourceSpec extends Specification {
     }
 
     def "getCurrentReleaseForProdSnapshot returns artifact with different versions in stored dev and provided prod"() {
-        given: "A version stored in dev"
+        given:
+        storeInDev(earlyInfo)
         storeInDev(recentInfo)
 
-        and: "A different version in prod snapshot"
+        and:
         def prodSnapshot = [earlyInfo]
 
         ArtifactReleaseDiff expected = ArtifactReleaseDiff.builder()
@@ -113,10 +114,10 @@ class ReleaseResourceSpec extends Specification {
     }
 
     def "getCurrentReleaseForProdSnapshot returns user error when prod info is null"() {
-        given: "A version stored in dev"
+        given:
         storeInDev(recentInfo)
 
-        and: "A different version in prod snapshot"
+        and:
         def prodSnapshot = null
 
         when:

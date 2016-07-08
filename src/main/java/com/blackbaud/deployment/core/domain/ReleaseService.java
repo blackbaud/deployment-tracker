@@ -110,6 +110,8 @@ public class ReleaseService {
                                                   developers.addAll(artifactInfoEntity.getAuthors());
                                               }
         );
+        artifactReleaseDiff.setStories(stories);
+        artifactReleaseDiff.setDevelopers(developers);
         log.debug("addStoriesAndDevelopersFromDb got stories={} and developers={}", stories, developers);
     }
 }
