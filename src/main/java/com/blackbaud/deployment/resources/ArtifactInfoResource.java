@@ -6,8 +6,10 @@ import com.blackbaud.deployment.api.ResourcePaths;
 import com.blackbaud.deployment.core.domain.ArtifactInfoEntity;
 import com.blackbaud.deployment.core.domain.ArtifactInfoPrimaryKey;
 import com.blackbaud.deployment.core.domain.ArtifactInfoRepository;
+import com.blackbaud.deployment.core.domain.ArtifactInfoService;
 import com.blackbaud.deployment.core.domain.GitLogParser;
 import com.blackbaud.deployment.core.domain.GitLogParserFactory;
+import com.blackbaud.deployment.core.domain.LinkedHashSetDelimitedStringConverter;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -34,24 +36,14 @@ public class ArtifactInfoResource {
     private ArtifactInfoRepository artifactInfoRepository;
 
     @Autowired
-    private GitLogParserFactory gitLogParserFactory;
+    private ArtifactInfoService artifactInfoService;
 
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("{artifactId}/{buildVersion}")
-    public ArtifactInfo update(@PathParam("artifactId") String artifactId, @PathParam("buildVersion") String buildVersion,
-                               @Valid ArtifactInfo artifactInfo) {
-        ArtifactInfoEntity newArtifact = converter.toEntity(artifactInfo);
-        newArtifact.setArtifactId(artifactId);
-        newArtifact.setBuildVersion(buildVersion);
-
-        ArtifactInfoEntity lastArtifact = artifactInfoRepository.findFirstByArtifactIdOrderByBuildVersionDesc(artifactId);
-        String oldSha = lastArtifact == null ? null : lastArtifact.getGitSha();
-        GitLogParser parser = gitLogParserFactory.createParser(artifactId, oldSha, newArtifact.getGitSha());
-        newArtifact.setAuthors(StringUtils.join(parser.getDevelopers(), ","));
-        newArtifact.setStoryIds(StringUtils.join(parser.getStories(), ","));
-
-        return converter.toApi(artifactInfoRepository.save(newArtifact));
+    public ArtifactInfo put(@PathParam("artifactId") String artifactId, @PathParam("buildVersion") String buildVersion,
+                            @Valid ArtifactInfo artifactInfo) {
+         return artifactInfoService.put(artifactId, buildVersion, converter.toEntity(artifactInfo));
     }
 
     @GET
@@ -63,5 +55,4 @@ public class ArtifactInfoResource {
         }
         return converter.toApi(artifactInfoEntity);
     }
-
 }

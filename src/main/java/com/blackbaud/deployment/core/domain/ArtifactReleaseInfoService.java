@@ -1,5 +1,6 @@
 package com.blackbaud.deployment.core.domain;
 
+import com.blackbaud.deployment.ArtifactInfoConverter;
 import com.blackbaud.deployment.ArtifactReleaseInfoConverter;
 import com.blackbaud.deployment.api.ArtifactReleaseInfo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,10 +19,13 @@ public class ArtifactReleaseInfoService {
     @Autowired
     private ArtifactReleaseInfoConverter converter;
 
+    @Autowired
+    private ArtifactInfoService artifactInfoService;
+
     @Transactional
     public ArtifactReleaseInfo save(ArtifactReleaseInfo artifactReleaseInfo, String foundation, String space) {
         ArtifactReleaseInfoEntity entity = converter.toEntity(artifactReleaseInfo, foundation, space);
-        artifactInfoRepository.save(extractArtifactInfo(entity));
+        artifactInfoService.put(artifactReleaseInfo.getArtifactId(), artifactReleaseInfo.getBuildVersion(), extractArtifactInfo(entity));
         return converter.toApi(artifactReleaseInfoRepository.save(entity));
     }
 

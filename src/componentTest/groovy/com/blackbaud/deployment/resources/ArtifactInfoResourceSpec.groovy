@@ -6,7 +6,9 @@ import com.blackbaud.deployment.ComponentTest
 import com.blackbaud.deployment.api.ArtifactInfo
 import com.blackbaud.deployment.client.ArtifactInfoClient
 import com.blackbaud.deployment.core.domain.ArtifactInfoEntity
+import com.blackbaud.deployment.core.domain.ArtifactInfoPrimaryKey
 import com.blackbaud.deployment.core.domain.ArtifactInfoRepository
+import org.apache.commons.lang.StringUtils
 import org.springframework.beans.factory.annotation.Autowired
 import spock.lang.Specification
 
@@ -119,21 +121,21 @@ class ArtifactInfoResourceSpec extends Specification {
         artifactInfoRepository.save(converter.toEntity(oldArtifact))
 
         when:
-        artifactInfoResource.update(artifactId, newArtifact.buildVersion, newArtifact)
+        artifactInfoResource.put(artifactId, newArtifact.buildVersion, newArtifact)
 
         then:
         ArtifactInfoEntity newArtifactInfoEntity = artifactInfoRepository.findOne(new ArtifactInfoPrimaryKey(artifactId, newArtifact.buildVersion))
-        newArtifactInfoEntity.storyIds == "LUM-7759,LUM-8045"
-        newArtifactInfoEntity.authors == "Di Huynh,Ryan McKay"
+        newArtifactInfoEntity.storyIds == ["LUM-7759","LUM-8045"] as Set
+        newArtifactInfoEntity.authors == ["Di Huynh","Ryan McKay"] as Set
     }
 
     def "should get every stories and authors for brand new artifacts"() {
         when:
-        artifactInfoResource.update(artifactId, newArtifact.buildVersion, newArtifact)
+        artifactInfoResource.put(artifactId, newArtifact.buildVersion, newArtifact)
 
         then:
         ArtifactInfoEntity newArtifactInfoEntity = artifactInfoRepository.findOne(new ArtifactInfoPrimaryKey(artifactId, newArtifact.buildVersion))
-        newArtifactInfoEntity.storyIds == "LUM-7759,LUM-8045"
-        newArtifactInfoEntity.authors == "Blackbaud-DiHuynh,Di Huynh,Mike Lueders,Ryan McKay"
+        newArtifactInfoEntity.storyIds == ["LUM-7759","LUM-8045"] as Set
+        newArtifactInfoEntity.authors == ["Blackbaud-DiHuynh","Di Huynh","Mike Lueders","Ryan McKay"] as Set
     }
 }
