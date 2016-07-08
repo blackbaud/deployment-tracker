@@ -22,11 +22,10 @@ public class ArtifactInfoService {
     private GitLogParserFactory gitLogParserFactory;
 
     public ArtifactInfo put(String artifactId, String buildVersion, ArtifactInfoEntity newArtifact){
+        ArtifactInfoEntity lastArtifact = artifactInfoRepository.findFirstByArtifactIdOrderByBuildVersionDesc(artifactId);
+        GitLogParser parser = gitLogParserFactory.createParser(lastArtifact, newArtifact);
         newArtifact.setArtifactId(artifactId);
         newArtifact.setBuildVersion(buildVersion);
-        ArtifactInfoEntity lastArtifact = artifactInfoRepository.findFirstByArtifactIdOrderByBuildVersionDesc(artifactId);
-        String oldSha = lastArtifact == null ? null : lastArtifact.getGitSha();
-        GitLogParser parser = gitLogParserFactory.createParser(artifactId, oldSha, newArtifact.getGitSha());
         newArtifact.setAuthors(new LinkedHashSet<>(parser.getDevelopers()));
         newArtifact.setStoryIds(new LinkedHashSet<>(parser.getStories()));
         return converter.toApi(artifactInfoRepository.save(newArtifact));

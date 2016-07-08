@@ -1,5 +1,6 @@
 package com.blackbaud.deployment.core.domain;
 
+import com.blackbaud.deployment.api.ArtifactReleaseDiff;
 import lombok.SneakyThrows;
 import org.eclipse.egit.github.core.Repository;
 import org.eclipse.egit.github.core.client.GitHubClient;
@@ -48,31 +49,45 @@ public class GitLogParserFactory {
         throw new InvalidRepositoryException("Cannot find repository with name " + projectName);
     }
 
-    private GitLogParser getGitLogParser(String projectName, String fromSha, String toSha) {
+    public GitLogParser createParser(ArtifactInfoEntity oldArtifact, ArtifactInfoEntity newArtifact) {
+        if (oldArtifact == null) {
+            return createGitLogParserForNewProject(newArtifact.getArtifactId(), newArtifact.getGitSha());
+        } else {
+            return createGitLogParser(newArtifact.getArtifactId(), oldArtifact.getGitSha(), newArtifact.getGitSha());
+        }
+    }
+
+    public GitLogParser createParser(String artifactId, ArtifactReleaseDiff diff) {
+        if (hasBeenPreviouslyDeployed(diff)) {
+            return createGitLogParser(artifactId, diff.getProdSha(), diff.getDevSha());
+        } else if (isNewProject(diff)) {
+            return createGitLogParserForNewProject(artifactId, diff.getDevSha());
+        }
+        return createEmptyGitLogParser();
+    }
+
+    private boolean hasBeenPreviouslyDeployed(ArtifactReleaseDiff diff) {
+        return diff.getDevSha() != null && diff.getProdSha() != null && diff.getProdSha().equals(diff.getDevSha()) == false;
+    }
+
+    private boolean isNewProject(ArtifactReleaseDiff diff) {
+        return diff.getDevSha() != null && diff.getProdSha() == null;
+    }
+
+    private GitLogParser createGitLogParser(String projectName, String fromSha, String toSha) {
         GithubRepository repo = getRepository(projectName);
         List<RevCommit> commits = repo.getCommits(fromSha, toSha);
         return new GitLogParser(commits);
     }
 
-    private GitLogParser getGitLogParserForNewProject(String projectName, String toSha) {
+    private GitLogParser createGitLogParserForNewProject(String projectName, String toSha) {
         GithubRepository repo = getRepository(projectName);
         List<RevCommit> commits = repo.getCommitsUntil(toSha);
         return new GitLogParser(commits);
     }
 
-    private GitLogParser getEmptyGitLogParser() {
+    private GitLogParser createEmptyGitLogParser() {
         return new GitLogParser(Collections.emptyList());
-    }
-
-    public GitLogParser createParser(String artifactId, String prodSha, String devSha) {
-        if (prodSha != null && devSha != null) {
-            if (!prodSha.equals(devSha)) {
-                return getGitLogParser(artifactId, prodSha, devSha);
-            }
-        } else if (devSha != null) {
-            return getGitLogParserForNewProject(artifactId, devSha);
-        }
-        return getEmptyGitLogParser();
     }
 
     public class InvalidRepositoryException extends RuntimeException {
