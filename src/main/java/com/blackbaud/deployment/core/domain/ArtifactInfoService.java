@@ -21,7 +21,7 @@ public class ArtifactInfoService {
     @Autowired
     private GitLogParserFactory gitLogParserFactory;
 
-    public ArtifactInfo put(String artifactId, String buildVersion, ArtifactInfoEntity newArtifact){
+    public ArtifactInfo create(String artifactId, String buildVersion, ArtifactInfoEntity newArtifact){
         ArtifactInfoEntity lastArtifact = artifactInfoRepository.findFirstByArtifactIdOrderByBuildVersionDesc(artifactId);
         GitLogParser parser = gitLogParserFactory.createParser(lastArtifact, newArtifact);
         newArtifact.setArtifactId(artifactId);

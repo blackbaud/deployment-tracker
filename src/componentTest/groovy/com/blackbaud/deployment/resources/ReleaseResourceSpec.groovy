@@ -150,6 +150,18 @@ class ReleaseResourceSpec extends Specification {
         WebApplicationException ex = thrown()
     }
 
+    def "Invalid github repo throws exception"() {
+        given:
+        ArtifactReleaseInfo artifactReleaseInfo = aRandom.artifactReleaseInfo().build();
+
+        when:
+        storeInDev(artifactReleaseInfo)
+
+        then:
+        BadRequestException ex = thrown()
+        ex.errorEntity.message == "Cannot find repository with name " + artifactReleaseInfo.artifactId
+    }
+
     def storeInDev(ArtifactReleaseInfo artifactReleaseInfo) {
         artifactReleaseInfoClient.update(ReleaseService.DEV_FOUNDATION, ReleaseService.DEV_SPACE, artifactReleaseInfo)
     }

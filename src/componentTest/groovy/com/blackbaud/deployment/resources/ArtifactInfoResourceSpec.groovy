@@ -90,7 +90,7 @@ class ArtifactInfoResourceSpec extends Specification {
                 .artifactId(artifactInfoInitial.artifactId)
                 .buildVersion(artifactInfoInitial.buildVersion)
                 .gitSha("fb875ccafc4274edd2be556a391d4e074a3a350f")
-                .build();
+                .build()
 
         when:
         artifactInfoClient.update(artifactInfoInitial.artifactId, artifactInfoInitial.buildVersion, artifactInfoInitial)
@@ -102,7 +102,7 @@ class ArtifactInfoResourceSpec extends Specification {
         assert artifactInfoUpdate == artifactInfoClient.find(artifactInfoInitial.artifactId, artifactInfoInitial.buildVersion)
     }
 
-    def "should update artifact with git information from previous artifact"() {
+    def "should update artifact with git information since previous artifact"() {
         given:
         artifactInfoRepository.save(converter.toEntity(oldArtifact))
 

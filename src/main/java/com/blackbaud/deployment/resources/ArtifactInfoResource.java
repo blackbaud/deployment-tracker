@@ -7,10 +7,6 @@ import com.blackbaud.deployment.core.domain.ArtifactInfoEntity;
 import com.blackbaud.deployment.core.domain.ArtifactInfoPrimaryKey;
 import com.blackbaud.deployment.core.domain.ArtifactInfoRepository;
 import com.blackbaud.deployment.core.domain.ArtifactInfoService;
-import com.blackbaud.deployment.core.domain.GitLogParser;
-import com.blackbaud.deployment.core.domain.GitLogParserFactory;
-import com.blackbaud.deployment.core.domain.LinkedHashSetDelimitedStringConverter;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -43,7 +39,7 @@ public class ArtifactInfoResource {
     @Path("{artifactId}/{buildVersion}")
     public ArtifactInfo put(@PathParam("artifactId") String artifactId, @PathParam("buildVersion") String buildVersion,
                             @Valid ArtifactInfo artifactInfo) {
-         return artifactInfoService.put(artifactId, buildVersion, converter.toEntity(artifactInfo));
+         return artifactInfoService.create(artifactId, buildVersion, converter.toEntity(artifactInfo));
     }
 
     @GET
