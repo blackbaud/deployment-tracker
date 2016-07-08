@@ -2,6 +2,7 @@ package com.blackbaud.deployment.core.domain;
 
 import com.blackbaud.deployment.api.ArtifactReleaseDiff;
 import com.blackbaud.deployment.api.ArtifactReleaseInfo;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -12,6 +13,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 @Component
+@Slf4j
 public class ReleaseService {
 
     public static final String DEV_FOUNDATION = "pivotal-dev";
@@ -109,6 +111,7 @@ public class ReleaseService {
                                                   developers.addAll(artifactInfoEntity.getAuthors());
                                               }
         );
+        log.debug("addStoriesAndDevelopersFromDb got stories={} and developers={}", stories, developers);
     }
 
     private void addStoriesAndDevelopersFromGit(ArtifactReleaseDiff artifactReleaseDiff) {
@@ -118,5 +121,6 @@ public class ReleaseService {
                 artifactReleaseDiff.getDevSha());
         artifactReleaseDiff.setStories(parser.getStories());
         artifactReleaseDiff.setDevelopers(parser.getDevelopers());
+        log.debug("addStoriesAndDevelopersFromGit got stories={} and developers={}", parser.getStories(), parser.getDevelopers());
     }
 }
