@@ -34,26 +34,6 @@ class ArtifactInfoResourceSpec extends Specification {
     private final ArtifactInfo newArtifact = RealArtifacts.getRecentDeploymentTrackerArtifact()
     private final ArtifactInfo oldArtifact = RealArtifacts.getEarlyDeploymentTrackerArtifact()
 
-    def "Query sanity check (temporary)"() {
-        given:
-        String artifactId = 'arbitrary'
-        ArtifactInfoEntity oldestEntity = aRandom.artifactInfoEntity().artifactId(artifactId).buildVersion('1').build();
-        ArtifactInfoEntity middleEntity = aRandom.artifactInfoEntity().artifactId(artifactId).buildVersion('3').build();
-        ArtifactInfoEntity newestEntity = aRandom.artifactInfoEntity().artifactId(artifactId).buildVersion('5').build();
-
-        when:
-        artifactInfoRepository.save(oldestEntity)
-        artifactInfoRepository.save(middleEntity)
-        artifactInfoRepository.save(newestEntity)
-
-        and:
-        List<ArtifactInfoEntity> artifactList = artifactInfoRepository.findByArtifactIdAndBuildVersionGreaterThanAndBuildVersionLessThanEqual(artifactId, '1', '3')
-        ArtifactInfoEntity latestArtifact = artifactInfoRepository.findFirstByArtifactIdOrderByBuildVersionDesc(artifactId);
-
-        then:
-        assert artifactList == [middleEntity]
-    }
-
     def "should add new artifact info"() {
         when:
         artifactInfoClient.find(newArtifact.artifactId, newArtifact.buildVersion)
