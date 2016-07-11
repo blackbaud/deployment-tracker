@@ -1,5 +1,6 @@
 package com.blackbaud.deployment.resources
 
+import com.blackbaud.boot.exception.BadRequestException
 import com.blackbaud.boot.exception.NotFoundException
 import com.blackbaud.deployment.ComponentTest
 import com.blackbaud.deployment.RealArtifacts
@@ -7,8 +8,11 @@ import com.blackbaud.deployment.api.ArtifactInfo
 import com.blackbaud.deployment.api.ArtifactReleaseInfo
 import com.blackbaud.deployment.client.ArtifactInfoClient
 import com.blackbaud.deployment.client.ArtifactReleaseInfoClient
+import com.blackbaud.deployment.core.domain.ReleaseService
 import org.springframework.beans.factory.annotation.Autowired
 import spock.lang.Specification
+
+import javax.ws.rs.WebApplicationException
 
 import static com.blackbaud.deployment.core.CoreARandom.aRandom
 
@@ -104,5 +108,32 @@ class ArtifactReleaseInfoResourceSpec extends Specification {
 
         then:
         assert artifactInfoClient.find(artifactReleaseInfo.artifactId, artifactReleaseInfo.buildVersion) == matchingArtifactInfo
+    }
+
+    def "Missing commits throws exception"() {
+        given:
+        ArtifactReleaseInfo dev = aRandom.artifactReleaseInfo()
+                .artifactId("deployment-tracker")
+                .buildVersion("0.20160606.194525")
+                .gitSha("3e176dced48f7b888707337261ba5b97902cf5b8")
+                .build()
+
+        when:
+        artifactReleaseInfoClient.update(ReleaseService.DEV_FOUNDATION, ReleaseService.DEV_SPACE, dev)
+
+        then:
+        WebApplicationException ex = thrown()
+    }
+
+    def "Invalid github repo throws exception"() {
+        given:
+        ArtifactReleaseInfo artifactReleaseInfo = aRandom.artifactReleaseInfo().build();
+
+        when:
+        artifactReleaseInfoClient.update(ReleaseService.DEV_FOUNDATION, ReleaseService.DEV_SPACE, artifactReleaseInfo)
+
+        then:
+        BadRequestException ex = thrown()
+        ex.errorEntity.message == "Cannot find repository with name " + artifactReleaseInfo.artifactId
     }
 }
