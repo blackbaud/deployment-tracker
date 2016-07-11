@@ -12,6 +12,7 @@ import java.util.List;
 public class ArtifactReleaseInfoService {
     @Autowired
     ArtifactReleaseInfoRepository artifactReleaseInfoRepository;
+
     @Autowired
     ArtifactInfoRepository artifactInfoRepository;
 

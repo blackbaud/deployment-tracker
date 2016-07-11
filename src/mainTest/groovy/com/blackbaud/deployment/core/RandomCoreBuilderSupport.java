@@ -1,4 +1,5 @@
 package com.blackbaud.deployment.core;
+
 import com.blackbaud.deployment.core.domain.RandomArtifactReleaseInfoEntityBuilder;
 
 public class RandomCoreBuilderSupport {
