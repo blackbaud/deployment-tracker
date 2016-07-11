@@ -135,33 +135,6 @@ class ReleaseResourceSpec extends Specification {
         expect:
         releaseClient.getCurrentRelease().artifactReleaseDiffs == [:]
     }
-    
-    def "Missing commits throws exception"() {
-        given:
-        ArtifactReleaseInfo dev = aRandom.artifactReleaseInfo()
-                .artifactId(artifactId)
-                .buildVersion("0.20160606.194525")
-                .gitSha("3e176dced48f7b888707337261ba5b97902cf5b8")
-                .build()
-
-        when:
-        storeInDev(dev)
-
-        then:
-        WebApplicationException ex = thrown()
-    }
-
-    def "Invalid github repo throws exception"() {
-        given:
-        ArtifactReleaseInfo artifactReleaseInfo = aRandom.artifactReleaseInfo().build();
-
-        when:
-        storeInDev(artifactReleaseInfo)
-
-        then:
-        BadRequestException ex = thrown()
-        ex.errorEntity.message == "Cannot find repository with name " + artifactReleaseInfo.artifactId
-    }
 
     def storeInDev(ArtifactReleaseInfo artifactReleaseInfo) {
         artifactReleaseInfoClient.update(ReleaseService.DEV_FOUNDATION, ReleaseService.DEV_SPACE, artifactReleaseInfo)
