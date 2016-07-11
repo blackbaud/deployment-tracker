@@ -36,6 +36,9 @@ public class ReleaseService {
     @Autowired
     ArtifactInfoService artifactInfoService;
 
+    @Autowired
+    private GitLogParserFactory gitLogParserFactory;
+
     public Map<String, ArtifactReleaseDiff> createArtifactReleaseDiffs() {
         List<ArtifactReleaseInfo> devInfos = artifactReleaseInfoService.findManyByFoundationAndSpace(DEV_FOUNDATION, DEV_SPACE);
         List<ArtifactReleaseInfo> prodInfos = artifactReleaseInfoService.findManyByFoundationAndSpace(PROD_FOUNDATION, PROD_SPACE);

@@ -57,6 +57,23 @@ public class GitLogParserFactory {
         }
     }
 
+    public GitLogParser createParser(String artifactId, ArtifactReleaseDiff diff) {
+        if (hasBeenPreviouslyDeployed(diff)) {
+            return createGitLogParser(artifactId, diff.getProdSha(), diff.getDevSha());
+        } else if (isNewProject(diff)) {
+            return createGitLogParserForNewProject(artifactId, diff.getDevSha());
+        }
+        return createEmptyGitLogParser();
+    }
+
+    private boolean hasBeenPreviouslyDeployed(ArtifactReleaseDiff diff) {
+        return diff.getDevSha() != null && diff.getProdSha() != null && diff.getProdSha().equals(diff.getDevSha()) == false;
+    }
+
+    private boolean isNewProject(ArtifactReleaseDiff diff) {
+        return diff.getDevSha() != null && diff.getProdSha() == null;
+    }
+
     private GitLogParser createGitLogParser(String projectName, String fromSha, String toSha) {
         GithubRepository repo = getRepository(projectName);
         List<RevCommit> commits = repo.getCommits(fromSha, toSha);
@@ -67,6 +84,10 @@ public class GitLogParserFactory {
         GithubRepository repo = getRepository(projectName);
         List<RevCommit> commits = repo.getCommitsUntil(toSha);
         return new GitLogParser(commits);
+    }
+
+    private GitLogParser createEmptyGitLogParser() {
+        return new GitLogParser(Collections.emptyList());
     }
 
     public class InvalidRepositoryException extends RuntimeException {
