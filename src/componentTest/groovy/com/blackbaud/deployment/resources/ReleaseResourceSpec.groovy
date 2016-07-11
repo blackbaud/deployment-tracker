@@ -11,10 +11,6 @@ import com.blackbaud.deployment.core.domain.ReleaseService
 import org.springframework.beans.factory.annotation.Autowired
 import spock.lang.Specification
 
-import javax.ws.rs.WebApplicationException
-
-import static com.blackbaud.deployment.core.CoreARandom.aRandom
-
 @ComponentTest
 class ReleaseResourceSpec extends Specification {
 
