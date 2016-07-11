@@ -7,10 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
-import java.util.LinkedHashSet;
+import java.util.SortedSet;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 @Component
 @Slf4j
@@ -37,7 +38,11 @@ public class ReleaseService {
     ArtifactInfoService artifactInfoService;
 
     @Autowired
-    private GitLogParserFactory gitLogParserFactory;
+    GitLogParserFactory gitLogParserFactory;
+
+    @Autowired
+    private ArtifactInfoRepository artifactInfoRepository;
+
 
     public Map<String, ArtifactReleaseDiff> createArtifactReleaseDiffs() {
         List<ArtifactReleaseInfo> devInfos = artifactReleaseInfoService.findManyByFoundationAndSpace(DEV_FOUNDATION, DEV_SPACE);
@@ -91,15 +96,24 @@ public class ReleaseService {
         }
     }
 
+    public void temporarilyPersistGitInfo(ArtifactReleaseDiff artifactReleaseDiff){
+        GitLogParser parser = gitLogParserFactory.createParser(artifactReleaseDiff.getArtifactId(), artifactReleaseDiff);
+        ArtifactInfoEntity mostRecent = artifactInfoRepository.findFirstByArtifactIdOrderByBuildVersionDesc(artifactReleaseDiff.getArtifactId());
+        mostRecent.setAuthors(new TreeSet<>(parser.getDevelopers()));
+        mostRecent.setStoryIds(new TreeSet<>(parser.getStories()));
+        artifactInfoRepository.save(mostRecent);
+    }
+
     public void addAllStoriesAndDevelopers(TreeMap<String, ArtifactReleaseDiff> allArtifactReleaseDiffs) {
         for (ArtifactReleaseDiff artifactReleaseDiff : allArtifactReleaseDiffs.values()) {
+            temporarilyPersistGitInfo(artifactReleaseDiff);
             addStoriesAndDevelopersFromDb(artifactReleaseDiff);
         }
     }
 
     private void addStoriesAndDevelopersFromDb(ArtifactReleaseDiff artifactReleaseDiff) {
-        LinkedHashSet<String> stories = new LinkedHashSet<>();
-        LinkedHashSet<String> developers = new LinkedHashSet<>();
+        SortedSet<String> stories = new TreeSet<>();
+        SortedSet<String> developers = new TreeSet<>();
         List<ArtifactInfoEntity> artifactInfoEntities = artifactInfoService.findBetweenBuildVersions(
                 artifactReleaseDiff.getArtifactId(),
                 artifactReleaseDiff.getProdBuildVersion(),

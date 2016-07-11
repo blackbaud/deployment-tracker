@@ -9,6 +9,7 @@ import com.blackbaud.deployment.client.ArtifactInfoClient
 import com.blackbaud.deployment.core.domain.ArtifactInfoEntity
 import com.blackbaud.deployment.core.domain.ArtifactInfoPrimaryKey
 import com.blackbaud.deployment.core.domain.ArtifactInfoRepository
+import org.hibernate.annotations.Sort
 import org.springframework.beans.factory.annotation.Autowired
 import spock.lang.Specification
 
@@ -45,7 +46,7 @@ class ArtifactInfoResourceSpec extends Specification {
         artifactInfoClient.update(newArtifact.artifactId, newArtifact.buildVersion, newArtifact)
 
         then:
-        assert newArtifact == artifactInfoClient.find(newArtifact.artifactId, newArtifact.buildVersion)
+        assert artifactInfoClient.find(newArtifact.artifactId, newArtifact.buildVersion) == newArtifact
     }
 
     def "should update existing artifact info"() {
@@ -56,6 +57,8 @@ class ArtifactInfoResourceSpec extends Specification {
                 .artifactId(artifactInfoInitial.artifactId)
                 .buildVersion(artifactInfoInitial.buildVersion)
                 .gitSha("fb875ccafc4274edd2be556a391d4e074a3a350f")
+                .storyIds([] as SortedSet<String>)
+                .authors([] as SortedSet<String>)
                 .build()
 
         when:

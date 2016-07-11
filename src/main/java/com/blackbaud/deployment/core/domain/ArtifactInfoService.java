@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.TreeSet;
 
 @Component
 public class ArtifactInfoService {
@@ -26,8 +27,8 @@ public class ArtifactInfoService {
         GitLogParser parser = gitLogParserFactory.createParser(lastArtifact, newArtifact);
         newArtifact.setArtifactId(artifactId);
         newArtifact.setBuildVersion(buildVersion);
-        newArtifact.setAuthors(new LinkedHashSet<>(parser.getDevelopers()));
-        newArtifact.setStoryIds(new LinkedHashSet<>(parser.getStories()));
+        newArtifact.setAuthors(new TreeSet<>(parser.getDevelopers()));
+        newArtifact.setStoryIds(new TreeSet<>(parser.getStories()));
         return converter.toApi(artifactInfoRepository.save(newArtifact));
 
     }
