@@ -32,7 +32,7 @@ public class ArtifactInfoService {
 
     }
 
-    public List<ArtifactInfoEntity> findBetweenBuildVersionsTolerateNull(String artifactId, String fromVersion, String toVersion) {
+    public List<ArtifactInfoEntity> findBetweenBuildVersions(String artifactId, String fromVersion, String toVersion) {
         if (fromVersion == null) {
             return artifactInfoRepository.findByArtifactIdAndBuildVersionLessThanEqual(artifactId, toVersion);
         }

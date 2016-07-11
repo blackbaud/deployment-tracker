@@ -100,7 +100,7 @@ public class ReleaseService {
     private void addStoriesAndDevelopersFromDb(ArtifactReleaseDiff artifactReleaseDiff) {
         LinkedHashSet<String> stories = new LinkedHashSet<>();
         LinkedHashSet<String> developers = new LinkedHashSet<>();
-        List<ArtifactInfoEntity> artifactInfoEntities = artifactInfoService.findBetweenBuildVersionsTolerateNull(
+        List<ArtifactInfoEntity> artifactInfoEntities = artifactInfoService.findBetweenBuildVersions(
                 artifactReleaseDiff.getArtifactId(),
                 artifactReleaseDiff.getProdBuildVersion(),
                 artifactReleaseDiff.getDevBuildVersion()
