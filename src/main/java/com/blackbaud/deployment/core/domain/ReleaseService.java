@@ -37,11 +37,7 @@ public class ReleaseService {
     ArtifactInfoService artifactInfoService;
 
     @Autowired
-    GitLogParserFactory gitLogParserFactory;
-
-    @Autowired
-    private ArtifactInfoRepository artifactInfoRepository;
-
+    private GitLogParserFactory gitLogParserFactory;
 
     public Map<String, ArtifactReleaseDiff> createArtifactReleaseDiffs() {
         List<ArtifactReleaseInfo> devInfos = artifactReleaseInfoService.findManyByFoundationAndSpace(DEV_FOUNDATION, DEV_SPACE);
@@ -95,17 +91,8 @@ public class ReleaseService {
         }
     }
 
-    public void temporarilyPersistGitInfo(ArtifactReleaseDiff artifactReleaseDiff){
-        GitLogParser parser = gitLogParserFactory.createParser(artifactReleaseDiff.getArtifactId(), artifactReleaseDiff);
-        ArtifactInfoEntity mostRecent = artifactInfoRepository.findFirstByArtifactIdOrderByBuildVersionDesc(artifactReleaseDiff.getArtifactId());
-        mostRecent.setAuthors(new LinkedHashSet<>(parser.getDevelopers()));
-        mostRecent.setStoryIds(new LinkedHashSet<>(parser.getStories()));
-        artifactInfoRepository.save(mostRecent);
-    }
-
     public void addAllStoriesAndDevelopers(TreeMap<String, ArtifactReleaseDiff> allArtifactReleaseDiffs) {
         for (ArtifactReleaseDiff artifactReleaseDiff : allArtifactReleaseDiffs.values()) {
-            temporarilyPersistGitInfo(artifactReleaseDiff);
             addStoriesAndDevelopersFromDb(artifactReleaseDiff);
         }
     }
