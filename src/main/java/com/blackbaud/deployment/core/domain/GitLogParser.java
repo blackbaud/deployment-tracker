@@ -2,6 +2,7 @@ package com.blackbaud.deployment.core.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import lombok.extern.log4j.Log4j;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 import java.util.Collections;
@@ -13,17 +14,20 @@ import java.util.regex.Pattern;
 
 @AllArgsConstructor
 @NoArgsConstructor
+@Log4j
 public class GitLogParser {
     private List<RevCommit> commits;
     private static final Pattern pattern = Pattern.compile("(lum|lo)[^0-9]?(\\d+)");
 
     public Set<String> getStories() {
+        log.debug("Commit list size: " + commits.size());
         if (commits.isEmpty()) {
             return Collections.emptySet();
         }
 
         Set<String> storyUrls = new TreeSet<>();
         for (RevCommit commit : commits) {
+            log.debug("checking commit " + commit.getId().getName() + " - " + commit.getFullMessage());
             String storyId = parseStoryId(commit.getFullMessage());
             if (storyId != null) {
                 storyUrls.add(storyId);
@@ -43,6 +47,7 @@ public class GitLogParser {
         }
         Set<String> developers = new TreeSet<>();
         for (RevCommit commit : commits) {
+            log.debug("checking commit " + commit.getId().getName() + " - " + commit.getAuthorIdent().getName());
             developers.add(commit.getAuthorIdent().getName());
         }
         return developers;
