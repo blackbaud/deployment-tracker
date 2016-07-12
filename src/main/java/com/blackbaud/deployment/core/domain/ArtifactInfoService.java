@@ -5,7 +5,6 @@ import com.blackbaud.deployment.api.ArtifactInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.TreeSet;
 
@@ -23,7 +22,7 @@ public class ArtifactInfoService {
     private GitLogParserFactory gitLogParserFactory;
 
     public ArtifactInfo create(String artifactId, String buildVersion, ArtifactInfoEntity newArtifact) {
-        ArtifactInfoEntity lastArtifact = artifactInfoRepository.findFirstByArtifactIdOrderByBuildVersionDesc(artifactId);
+        ArtifactInfoEntity lastArtifact = artifactInfoRepository.findFirstByArtifactIdAndBuildVersionLessThanOrderByBuildVersionDesc(artifactId, buildVersion);
         GitLogParser parser = gitLogParserFactory.createParser(lastArtifact, newArtifact);
         newArtifact.setArtifactId(artifactId);
         newArtifact.setBuildVersion(buildVersion);
