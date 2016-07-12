@@ -49,34 +49,12 @@ class ArtifactInfoResourceSpec extends Specification {
         assert artifactInfoClient.find(newArtifact.artifactId, newArtifact.buildVersion) == newArtifact
     }
 
-    def "should update existing artifact info"() {
-        given:
-        ArtifactInfo artifactInfoInitial = RealArtifacts.getEarlyDeploymentTrackerArtifact()
-
-        ArtifactInfo artifactInfoUpdate = aRandom.artifactInfo()
-                .artifactId(artifactInfoInitial.artifactId)
-                .buildVersion(artifactInfoInitial.buildVersion)
-                .gitSha("fb875ccafc4274edd2be556a391d4e074a3a350f")
-                .storyIds([] as SortedSet<String>)
-                .authors([] as SortedSet<String>)
-                .build()
-
-        when:
-        artifactInfoClient.update(artifactInfoInitial.artifactId, artifactInfoInitial.buildVersion, artifactInfoInitial)
-
-        and:
-        artifactInfoClient.update(artifactInfoUpdate.artifactId, artifactInfoUpdate.buildVersion, artifactInfoUpdate)
-
-        then:
-        assert artifactInfoUpdate == artifactInfoClient.find(artifactInfoInitial.artifactId, artifactInfoInitial.buildVersion)
-    }
-
     def "should update artifact with git information since previous artifact"() {
         given:
         artifactInfoRepository.save(converter.toEntity(oldArtifact))
 
         when:
-        artifactInfoResource.put(artifactId, newArtifact.buildVersion, newArtifact)
+        artifactInfoClient.update(artifactId, newArtifact.buildVersion, newArtifact)
 
         then:
         ArtifactInfoEntity newArtifactInfoEntity = artifactInfoRepository.findOne(new ArtifactInfoPrimaryKey(artifactId, newArtifact.buildVersion))
@@ -86,11 +64,34 @@ class ArtifactInfoResourceSpec extends Specification {
 
     def "should get every stories and authors for brand new artifacts"() {
         when:
-        artifactInfoResource.put(artifactId, newArtifact.buildVersion, newArtifact)
+        artifactInfoClient.update(artifactId, newArtifact.buildVersion, newArtifact)
 
         then:
         ArtifactInfoEntity newArtifactInfoEntity = artifactInfoRepository.findOne(new ArtifactInfoPrimaryKey(artifactId, newArtifact.buildVersion))
         newArtifactInfoEntity.storyIds == ["LUM-7759", "LUM-8045"] as Set
         newArtifactInfoEntity.authors == ["Blackbaud-DiHuynh", "Blackbaud-JohnHolland", "Di Huynh", "Mike Lueders", "Ryan McKay"] as Set
+    }
+
+    def "should update git info for any version"(){
+        given:
+        ArtifactInfo oldArtifact = ArtifactInfo.builder().artifactId("bluemoon-admin-ui")
+                .buildVersion("1")
+                .gitSha("5a615a7933a40e06b4f0e6a54ef496414d932eb7")
+                .build()
+        artifactInfoRepository.save(converter.toEntity(oldArtifact))
+
+        and: "latest artifact with no git info"
+        ArtifactInfo latestArtifact = ArtifactInfo.builder().artifactId("bluemoon-admin-ui")
+                .buildVersion("2")
+                .gitSha("453c5834d4d9f791d8600e9fc4698e9f5805c34f")
+                .build()
+        artifactInfoRepository.save(converter.toEntity(latestArtifact))
+
+        when: "update the latest artifact again through the api"
+        ArtifactInfo updatedInfo = artifactInfoClient.update("bluemoon-admin-ui", latestArtifact.buildVersion, latestArtifact)
+
+        then:
+        assert updatedInfo.authors == ["Di Huynh"] as SortedSet
+        assert updatedInfo.storyIds == ["LUM-8853"] as SortedSet
     }
 }
