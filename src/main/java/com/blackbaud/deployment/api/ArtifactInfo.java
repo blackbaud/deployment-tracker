@@ -5,6 +5,11 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.SortedSet;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -14,5 +19,6 @@ public class ArtifactInfo {
     private String artifactId;
     private String buildVersion;
     private String gitSha;
-
+    private SortedSet<String> storyIds;
+    private SortedSet<String> authors;
 }

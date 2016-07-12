@@ -3,6 +3,7 @@ package com.blackbaud.deployment.resources
 import com.blackbaud.boot.exception.BadRequestException
 import com.blackbaud.deployment.ComponentTest
 import com.blackbaud.deployment.RealArtifacts
+import com.blackbaud.deployment.api.ArtifactInfo
 import com.blackbaud.deployment.api.ArtifactReleaseDiff
 import com.blackbaud.deployment.api.ArtifactReleaseInfo
 import com.blackbaud.deployment.client.ArtifactReleaseInfoClient
@@ -134,33 +135,6 @@ class ReleaseResourceSpec extends Specification {
 
         expect:
         releaseClient.getCurrentRelease().artifactReleaseDiffs == [:]
-    }
-    
-    def "Missing commits throws exception"() {
-        given:
-        ArtifactReleaseInfo dev = aRandom.artifactReleaseInfo()
-                .artifactId(artifactId)
-                .buildVersion("0.20160606.194525")
-                .gitSha("3e176dced48f7b888707337261ba5b97902cf5b8")
-                .build()
-
-        when:
-        storeInDev(dev)
-
-        then:
-        WebApplicationException ex = thrown()
-    }
-
-    def "Invalid github repo throws exception"() {
-        given:
-        ArtifactReleaseInfo artifactReleaseInfo = aRandom.artifactReleaseInfo().build();
-
-        when:
-        storeInDev(artifactReleaseInfo)
-
-        then:
-        BadRequestException ex = thrown()
-        ex.errorEntity.message == "Cannot find repository with name " + artifactReleaseInfo.artifactId
     }
 
     def storeInDev(ArtifactReleaseInfo artifactReleaseInfo) {
