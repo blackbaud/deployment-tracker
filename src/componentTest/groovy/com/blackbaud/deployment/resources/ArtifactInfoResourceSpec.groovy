@@ -9,11 +9,8 @@ import com.blackbaud.deployment.client.ArtifactInfoClient
 import com.blackbaud.deployment.core.domain.ArtifactInfoEntity
 import com.blackbaud.deployment.core.domain.ArtifactInfoPrimaryKey
 import com.blackbaud.deployment.core.domain.ArtifactInfoRepository
-import org.hibernate.annotations.Sort
 import org.springframework.beans.factory.annotation.Autowired
 import spock.lang.Specification
-
-import static com.blackbaud.deployment.core.CoreARandom.aRandom
 
 @ComponentTest
 class ArtifactInfoResourceSpec extends Specification {
@@ -47,6 +44,19 @@ class ArtifactInfoResourceSpec extends Specification {
 
         then:
         assert artifactInfoClient.find(newArtifact.artifactId, newArtifact.buildVersion) == newArtifact
+    }
+
+    def "should return all infos for artifact id"() {
+        given:
+        artifactInfoRepository.save(converter.toEntity(oldArtifact))
+        artifactInfoRepository.save(converter.toEntity(newArtifact))
+
+        when:
+        List<ArtifactInfo> artifactInfoList = artifactInfoClient.findMany(artifactId)
+
+        then:
+        artifactInfoList.size() == 2
+        artifactInfoList.containsAll([oldArtifact, newArtifact])
     }
 
     def "should update artifact with git information since previous artifact"() {
