@@ -40,7 +40,7 @@ public class ArtifactInfoResource {
     @Path("{artifactId}/{buildVersion}")
     public ArtifactInfo put(@PathParam("artifactId") String artifactId, @PathParam("buildVersion") String buildVersion,
                             @Valid ArtifactInfo artifactInfo) {
-         return artifactInfoService.create(artifactId, buildVersion, converter.toEntity(artifactInfo));
+        return artifactInfoService.create(artifactId, buildVersion, converter.toEntity(artifactInfo));
     }
 
     @GET
@@ -56,10 +56,11 @@ public class ArtifactInfoResource {
     @GET
     @Path("{artifactId}/{buildVersion}")
     public ArtifactInfo find(@PathParam("artifactId") String artifactId, @PathParam("buildVersion") String buildVersion) {
-        ArtifactInfoEntity artifactInfoEntity = artifactInfoRepository.findOne(new ArtifactInfoPrimaryKey(artifactId, buildVersion));
-        if (artifactInfoEntity == null) {
+        ArtifactInfoEntity requestedArtifact = artifactInfoRepository.findOne(new ArtifactInfoPrimaryKey(artifactId, buildVersion));
+        if (requestedArtifact == null) {
             throw new NotFoundException();
         }
-        return converter.toApi(artifactInfoEntity);
+        return converter.toApi(requestedArtifact);
+
     }
 }

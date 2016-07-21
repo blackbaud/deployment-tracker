@@ -87,8 +87,8 @@ class ReleaseResourceSpec extends Specification {
         ArtifactReleaseDiff expected = ArtifactReleaseDiff.builder()
                 .dev(earlyInfo)
                 .prod(null)
-                .stories(["LUM-7759"] as Set)
-                .developers(["Ryan McKay", "Mike Lueders", "Blackbaud-DiHuynh", "Di Huynh"] as Set)
+                .stories(["LUM-7759"] as SortedSet)
+                .developers(["Ryan McKay", "Di Huynh", "Blackbaud-DiHuynh", "Mike Lueders"] as SortedSet)
                 .build();
 
         expect:

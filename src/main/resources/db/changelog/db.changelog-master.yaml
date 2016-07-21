@@ -5,3 +5,6 @@ databaseChangeLog:
 
   - include:
       file: db/create_artifact_info.sql
+
+  - include:
+      file: db/create_git_log.sql

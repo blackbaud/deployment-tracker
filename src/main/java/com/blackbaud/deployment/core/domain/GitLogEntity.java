@@ -12,26 +12,33 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.Table;
+import java.time.ZonedDateTime;
 
-@Entity(name = "artifact_info")
-@Table(name = "artifact_info")
-@IdClass(ArtifactInfoPrimaryKey.class)
+@Entity
+@Table(name = "git_log")
+@IdClass(GitLogPrimaryKey.class)
 @Data
-@EqualsAndHashCode(of = {"artifactId", "buildVersion"})
+@EqualsAndHashCode(of = {"artifactId", "gitSha", "author", "storyId", "commitTime"})
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class ArtifactInfoEntity {
+public class GitLogEntity {
 
     @Id
     @Column(name = "artifact_id")
-    private String artifactId;
+    String artifactId;
 
     @Id
-    @Column(name = "build_version")
-    private String buildVersion;
-
     @Column(name = "git_sha")
-    private String gitSha;
+    String gitSha;
+
+    @Column(name = "author")
+    String author;
+
+    @Column(name = "story_id")
+    String storyId;
+
+    @Column(name = "commit_time")
+    ZonedDateTime commitTime;
 
 }

@@ -49,6 +49,7 @@ public class GithubRepository {
             log.error("Could not retrieve commits between from=" + fromSha + " to=" + toSha + " for repo=" + repository.getName()+". This is a temporary workaround for cf message limit ", e);
             throw new CannotRetrieveCommitsException("Cannot retrieve commits between from=" + fromSha + " to=" + toSha + " for repo=" + repository.getName(), e);
         }
+
         return (List<RevCommit>) IteratorUtils.toList(commits.iterator());
     }
 

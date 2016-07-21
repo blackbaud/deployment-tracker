@@ -13,3 +13,7 @@ alter table artifact_info add column authors varchar(255);
 alter table artifact_info drop constraint artifact_info_pk;
 create index artifact_index on artifact_info(artifact_id, build_version);
 --rollback drop table artifact_info
+
+--changeset blackbaud:3
+alter table artifact_info drop column story_ids;
+alter table artifact_info drop column authors;

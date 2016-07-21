@@ -101,8 +101,6 @@ class ArtifactReleaseInfoResourceSpec extends Specification {
                 .artifactId(artifactReleaseInfo.artifactId)
                 .buildVersion(artifactReleaseInfo.buildVersion)
                 .gitSha(artifactReleaseInfo.gitSha)
-                .storyIds(["LUM-7759"] as SortedSet)
-                .authors(["Blackbaud-DiHuynh", "Di Huynh", "Mike Lueders", "Ryan McKay"] as SortedSet)
                 .build()
 
         when:

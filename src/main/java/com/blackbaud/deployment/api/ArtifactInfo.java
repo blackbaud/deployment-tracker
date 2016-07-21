@@ -19,6 +19,5 @@ public class ArtifactInfo {
     private String artifactId;
     private String buildVersion;
     private String gitSha;
-    private SortedSet<String> storyIds;
-    private SortedSet<String> authors;
+
 }
