@@ -29,7 +29,8 @@ public class ReleaseService {
                                                                     "data-pipeline-performance-consumer",
                                                                     "data-pipeline-performance-producer",
                                                                     "data-pipeline-tests-endpoints",
-                                                                    "mock-data-sync-api");
+                                                                    "mock-data-sync-api",
+                                                                    "kafka-oauth-sasl-provider");
 
     @Autowired
     private ArtifactReleaseInfoService artifactReleaseInfoService;
