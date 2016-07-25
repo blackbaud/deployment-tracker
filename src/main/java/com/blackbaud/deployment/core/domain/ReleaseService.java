@@ -1,13 +1,17 @@
 package com.blackbaud.deployment.core.domain;
 
+import com.blackbaud.deployment.ArtifactInfoConverter;
 import com.blackbaud.deployment.api.ArtifactReleaseDiff;
 import com.blackbaud.deployment.api.ArtifactReleaseInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.SortedSet;
+import java.util.Collections;
+import java.util.Set;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -37,6 +41,15 @@ public class ReleaseService {
 
     @Autowired
     ArtifactInfoService artifactInfoService;
+
+    @Autowired
+    ArtifactInfoConverter artifactInfoConverter;
+
+    @Autowired
+    ArtifactInfoRepository artifactInfoRepository;
+
+    @Autowired
+    GitLogRepository gitLogRepository;
 
     public Map<String, ArtifactReleaseDiff> createArtifactReleaseDiffs() {
         List<ArtifactReleaseInfo> devInfos = artifactReleaseInfoService.findManyByFoundationAndSpace(DEV_FOUNDATION, DEV_SPACE);
@@ -97,20 +110,30 @@ public class ReleaseService {
     }
 
     private void addStoriesAndDevelopersFromDb(ArtifactReleaseDiff artifactReleaseDiff) {
-        SortedSet<String> stories = new TreeSet<>();
-        SortedSet<String> developers = new TreeSet<>();
-        List<ArtifactInfoEntity> artifactInfoEntities = artifactInfoService.findBetweenBuildVersions(
-                artifactReleaseDiff.getArtifactId(),
-                artifactReleaseDiff.getProdBuildVersion(),
-                artifactReleaseDiff.getDevBuildVersion()
-        );
-        artifactInfoEntities.stream().forEach(artifactInfoEntity -> {
-                                                  stories.addAll(artifactInfoEntity.getStoryIds());
-                                                  developers.addAll(artifactInfoEntity.getAuthors());
-                                              }
-        );
+        Set<String> stories = new TreeSet<>();
+        Set<String> developers = new TreeSet<>();
+
+        fetchGitLogEntries(artifactReleaseDiff.getDevSha(), artifactReleaseDiff.getProdSha()).forEach(gitLog -> {
+            developers.add(gitLog.author);
+            if (gitLog.storyId != null) {
+                stories.add(gitLog.storyId);
+            }
+        });
+
         artifactReleaseDiff.setStories(stories);
         artifactReleaseDiff.setDevelopers(developers);
+
         log.debug("addStoriesAndDevelopersFromDb got stories={} and developers={}", stories, developers);
     }
+
+    private List<GitLogEntity> fetchGitLogEntries(String devSha, String prodSha) {
+        if (devSha == null) {
+            return Collections.emptyList();
+        } else if (prodSha == null) {
+            return gitLogRepository.fetchGitLogSinceSha(devSha);
+        } else {
+            return gitLogRepository.fetchGitLogForCurrentAndPreviousGitShas(devSha, prodSha);
+        }
+    }
+
 }

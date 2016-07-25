@@ -1,21 +1,23 @@
 package com.blackbaud.deployment.core.domain;
 
-import com.blackbaud.deployment.api.ArtifactReleaseDiff;
 import lombok.SneakyThrows;
 import org.eclipse.egit.github.core.Repository;
 import org.eclipse.egit.github.core.client.GitHubClient;
 import org.eclipse.egit.github.core.service.RepositoryService;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
 import java.util.List;
 
 @Component
 public class GitLogParserFactory {
+
+    @Autowired
+    private GitLogRepository gitLogRepository;
 
     private RepositoryService repositoryService;
     private String githubUsername = "Blackbaud-OdsDeploy";
@@ -49,29 +51,13 @@ public class GitLogParserFactory {
         throw new InvalidRepositoryException("Cannot find repository with name " + projectName);
     }
 
-    public GitLogParser createParser(ArtifactInfoEntity oldArtifact, ArtifactInfoEntity newArtifact) {
-        if (oldArtifact == null) {
-            return createGitLogParserForNewProject(newArtifact.getArtifactId(), newArtifact.getGitSha());
+    public GitLogParser createParser(ArtifactInfoEntity artifact) {
+        String mostRecentSha = gitLogRepository.getMostRecentShaForArtifact(artifact.getArtifactId());
+        if (mostRecentSha == null) {
+            return createGitLogParserForNewProject(artifact.getArtifactId(), artifact.getGitSha());
         } else {
-            return createGitLogParser(newArtifact.getArtifactId(), oldArtifact.getGitSha(), newArtifact.getGitSha());
+            return createGitLogParser(artifact.getArtifactId(), mostRecentSha, artifact.getGitSha());
         }
-    }
-
-    public GitLogParser createParser(String artifactId, ArtifactReleaseDiff diff) {
-        if (hasBeenPreviouslyDeployed(diff)) {
-            return createGitLogParser(artifactId, diff.getProdSha(), diff.getDevSha());
-        } else if (isNewProject(diff)) {
-            return createGitLogParserForNewProject(artifactId, diff.getDevSha());
-        }
-        return createEmptyGitLogParser();
-    }
-
-    private boolean hasBeenPreviouslyDeployed(ArtifactReleaseDiff diff) {
-        return diff.getDevSha() != null && diff.getProdSha() != null && diff.getProdSha().equals(diff.getDevSha()) == false;
-    }
-
-    private boolean isNewProject(ArtifactReleaseDiff diff) {
-        return diff.getDevSha() != null && diff.getProdSha() == null;
     }
 
     private GitLogParser createGitLogParser(String projectName, String fromSha, String toSha) {
@@ -84,10 +70,6 @@ public class GitLogParserFactory {
         GithubRepository repo = getRepository(projectName);
         List<RevCommit> commits = repo.getCommitsUntil(toSha);
         return new GitLogParser(commits);
-    }
-
-    private GitLogParser createEmptyGitLogParser() {
-        return new GitLogParser(Collections.emptyList());
     }
 
     public class InvalidRepositoryException extends RuntimeException {
