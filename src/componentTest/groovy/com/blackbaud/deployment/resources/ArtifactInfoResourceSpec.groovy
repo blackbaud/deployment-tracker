@@ -72,7 +72,7 @@ class ArtifactInfoResourceSpec extends Specification {
         gitLogEntities == gitLogRepository.fetchOrderedGitLogForArtifactId(artifactId)
     }
 
-    def "if i add a new artifact the git history is filled in since the most recent sha in the database"() {
+    def "if i add a new version of an existing artifact the git history is filled in since the most recent sha in the database"() {
         when:
         artifactInfoClient.update(artifactId, oldArtifact.buildVersion, oldArtifact)
 

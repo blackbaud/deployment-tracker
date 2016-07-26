@@ -6,5 +6,6 @@ public class ResourcePaths {
     public static final String ARTIFACT_RELEASE_INFO_PATH = DEPLOYMENT_TRACKER_PATH + "/artifact-release-info";
     public static final String RELEASE_PATH = DEPLOYMENT_TRACKER_PATH + "/release";
     public static final String CURRENT_PATH = "current";
+    public static final String BACKFILL_GIT_LOG_PATH = "/backfill-gitlog";
 
 }
