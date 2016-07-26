@@ -2,6 +2,7 @@ package com.blackbaud.deployment;
 
 import com.blackbaud.deployment.client.ArtifactInfoClient;
 import com.blackbaud.deployment.client.ArtifactReleaseInfoClient;
+import com.blackbaud.deployment.client.BackfillGitLogClient;
 import com.blackbaud.deployment.client.ReleaseClient;
 import com.blackbaud.testsupport.BaseTestConfig;
 import com.blackbaud.testsupport.TestTokenSupport;
@@ -29,6 +30,12 @@ public class TestConfig extends BaseTestConfig {
     @Bean
     public ArtifactInfoClient artifactInfoClient() {
         return new ArtifactInfoClient(hostUri)
+                .header(testTokenSupport.createTestTokenHeader());
+    }
+
+    @Bean
+    public BackfillGitLogClient backfillGitLogClient() {
+        return new BackfillGitLogClient(hostUri)
                 .header(testTokenSupport.createTestTokenHeader());
     }
 

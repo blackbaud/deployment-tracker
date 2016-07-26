@@ -61,5 +61,13 @@ class RealArtifacts {
                 .build()
     }
 
+    def static getBluemoonCoreArtifact() {
+        ArtifactInfo.builder()
+                .artifactId("bluemoon-core")
+                .buildVersion("1")
+                .gitSha("b92937bcc183cb92f3f64abeca54a997d3de0c54")
+                .build()
+    }
+
 
 }
