@@ -111,7 +111,7 @@ public class ReleaseService {
         Set<String> stories = new TreeSet<>();
         Set<String> developers = new TreeSet<>();
 
-        fetchGitLogEntries(artifactReleaseDiff.getDevSha(), artifactReleaseDiff.getProdSha()).forEach(gitLog -> {
+        fetchGitLogEntries(artifactReleaseDiff.getArtifactId(), artifactReleaseDiff.getDevSha(), artifactReleaseDiff.getProdSha()).forEach(gitLog -> {
             developers.add(gitLog.author);
             if (gitLog.storyId != null) {
                 stories.add(gitLog.storyId);
@@ -124,13 +124,13 @@ public class ReleaseService {
         log.debug("addStoriesAndDevelopersFromDb got stories={} and developers={}", stories, developers);
     }
 
-    private List<GitLogEntity> fetchGitLogEntries(String devSha, String prodSha) {
+    private List<GitLogEntity> fetchGitLogEntries(String artifactId, String devSha, String prodSha) {
         if (devSha == null) {
             return Collections.emptyList();
         } else if (prodSha == null) {
-            return gitLogRepository.fetchGitLogUntilSha(devSha);
+            return gitLogRepository.fetchGitLogUntilSha(artifactId, devSha);
         } else {
-            return gitLogRepository.fetchGitLogForCurrentAndPreviousGitShas(devSha, prodSha);
+            return gitLogRepository.fetchGitLogForCurrentAndPreviousGitShas(artifactId, devSha, prodSha);
         }
     }
 

@@ -48,5 +48,6 @@ public class BackfillGitLogResource {
         GitLogParser parser = gitLogParserFactory.createParser(artifactInfoEntity);
         gitLogRepository.save(parser.getGitLogEntities(artifactInfoEntity.getArtifactId()));
     }
+
 }
 
