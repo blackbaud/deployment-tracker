@@ -2,9 +2,11 @@ package com.blackbaud.deployment.resources
 
 import com.blackbaud.deployment.ArtifactInfoConverter
 import com.blackbaud.deployment.ComponentTest
+import com.blackbaud.deployment.GitLogConverter
 import com.blackbaud.deployment.RealArtifacts
 import com.blackbaud.deployment.api.ArtifactInfo
-import com.blackbaud.deployment.client.BackfillGitLogClient
+import com.blackbaud.deployment.api.GitLogInfo
+import com.blackbaud.deployment.client.GitLogInfoClient
 import com.blackbaud.deployment.core.domain.ArtifactInfoRepository
 import com.blackbaud.deployment.core.domain.GitLogEntity
 import com.blackbaud.deployment.core.domain.GitLogRepository
@@ -12,13 +14,13 @@ import org.springframework.beans.factory.annotation.Autowired
 import spock.lang.Specification
 
 @ComponentTest
-class BackfillGitLogResourceSpec extends Specification {
+class GitLogInfoResourceSpec extends Specification {
 
     @Autowired
     GitLogRepository gitLogRepository;
 
     @Autowired
-    BackfillGitLogClient backfillGitLogClient;
+    GitLogInfoClient gitLogInfoClient;
 
     @Autowired
     ArtifactInfoRepository artifactInfoRepository;
@@ -26,8 +28,22 @@ class BackfillGitLogResourceSpec extends Specification {
     @Autowired
     ArtifactInfoConverter converter;
 
+    @Autowired
+    GitLogConverter gitLogConverter;
+
     private final ArtifactInfo deploymentTrackerArtifact = RealArtifacts.getEarlyDeploymentTrackerArtifact()
     private final ArtifactInfo bluemoonCoreArtifact = RealArtifacts.getBluemoonCoreArtifact()
+
+    def "should return git logs for an artifact"() {
+        given:
+        artifactInfoRepository.save(converter.toEntity(deploymentTrackerArtifact));
+
+        when:
+        List<GitLogInfo> infos = gitLogInfoClient.find(deploymentTrackerArtifact.artifactId)
+
+        then:
+        infos == gitLogConverter.toApiList(gitLogRepository.fetchOrderedGitLogForArtifactId(deploymentTrackerArtifact.artifactId))
+    }
 
     def "should backfill git log up to latest sha stored for artifact"() {
         given:
@@ -40,7 +56,7 @@ class BackfillGitLogResourceSpec extends Specification {
         gitLogEntities.isEmpty()
 
         when:
-        backfillGitLogClient.post(deploymentTrackerArtifact.artifactId)
+        gitLogInfoClient.post(deploymentTrackerArtifact.artifactId)
 
         and:
         gitLogEntities = gitLogRepository.fetchOrderedGitLogForArtifactId(deploymentTrackerArtifact.artifactId)
@@ -64,7 +80,7 @@ class BackfillGitLogResourceSpec extends Specification {
         bluemoonCoreGitLog.isEmpty()
 
         when:
-        backfillGitLogClient.post()
+        gitLogInfoClient.post()
 
         and:
         deploymentTrackerGitLog = gitLogRepository.fetchOrderedGitLogForArtifactId(deploymentTrackerArtifact.artifactId)
