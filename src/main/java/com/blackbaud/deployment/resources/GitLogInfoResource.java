@@ -39,7 +39,7 @@ public class GitLogInfoResource {
 
     @GET
     @Path("{artifactId}")
-    public List<GitLogInfo> get(@PathParam("artifactId") String artifactId) {
+    public List<GitLogInfo> findMany(@PathParam("artifactId") String artifactId) {
         return gitLogConverter.toApiList(gitLogRepository.fetchOrderedGitLogForArtifactId(artifactId));
     }
 
