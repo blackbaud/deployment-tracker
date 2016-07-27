@@ -6,6 +6,7 @@ import com.blackbaud.deployment.GitLogConverter
 import com.blackbaud.deployment.RealArtifacts
 import com.blackbaud.deployment.api.ArtifactInfo
 import com.blackbaud.deployment.api.GitLogInfo
+import com.blackbaud.deployment.client.ArtifactInfoClient
 import com.blackbaud.deployment.client.GitLogInfoClient
 import com.blackbaud.deployment.core.domain.ArtifactInfoRepository
 import com.blackbaud.deployment.core.domain.GitLogEntity
@@ -26,6 +27,9 @@ class GitLogInfoResourceSpec extends Specification {
     ArtifactInfoRepository artifactInfoRepository;
 
     @Autowired
+    ArtifactInfoClient artifactInfoClient;
+
+    @Autowired
     ArtifactInfoConverter converter;
 
     @Autowired
@@ -36,7 +40,7 @@ class GitLogInfoResourceSpec extends Specification {
 
     def "should return git logs for an artifact"() {
         given:
-        artifactInfoRepository.save(converter.toEntity(deploymentTrackerArtifact));
+        artifactInfoClient.update(deploymentTrackerArtifact.artifactId, deploymentTrackerArtifact.buildVersion, deploymentTrackerArtifact)
 
         when:
         List<GitLogInfo> infos = gitLogInfoClient.find(deploymentTrackerArtifact.artifactId)
