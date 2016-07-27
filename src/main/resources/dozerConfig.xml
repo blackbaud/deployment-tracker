@@ -8,6 +8,9 @@
             <copy-by-reference>
                 java.util.UUID
             </copy-by-reference>
+            <copy-by-reference>
+                java.time.ZonedDateTime
+            </copy-by-reference>
         </copy-by-references>
     </configuration>
 </mappings>
