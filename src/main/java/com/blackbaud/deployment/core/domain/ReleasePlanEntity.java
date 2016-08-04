@@ -11,9 +11,13 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import java.time.ZonedDateTime;
+import java.util.List;
 
 @Entity(name = "release_plan")
 @Table(name = "release_plan")
@@ -31,4 +35,15 @@ public class ReleasePlanEntity {
     private ZonedDateTime created;
     private ZonedDateTime closed;
     private String notes;
+
+    @ManyToMany
+    @JoinTable(
+            name = "release_plan_artifact",
+            joinColumns = @JoinColumn(name = "release_plan_id", referencedColumnName = "id"),
+            inverseJoinColumns = {
+                    @JoinColumn(name = "artifact_id", referencedColumnName = "artifact_id"),
+                    @JoinColumn(name = "build_version", referencedColumnName = "build_version")
+            }
+    )
+    private List<ArtifactInfoEntity> artifacts;
 }
