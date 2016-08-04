@@ -1,7 +1,7 @@
 --liquibase formatted sql
 
 --changeset blackbaud:1
-create sequence release_plan_seq
+create sequence release_plan_seq;
 --rollback drop sequence release_plan_seq
 
 --changeset blackbaud:2

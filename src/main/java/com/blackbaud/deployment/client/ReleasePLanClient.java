@@ -1,16 +1,14 @@
 package com.blackbaud.deployment.client;
 
-import com.blackbaud.deployment.api.ArtifactReleaseInfo;
-import com.blackbaud.deployment.api.Release;
+import com.blackbaud.deployment.api.ReleasePlan;
 import com.blackbaud.deployment.api.ResourcePaths;
 import com.blackbaud.rest.client.CrudClient;
 
-import java.util.List;
-
-public class ReleasePlanClient extends CrudClient<Release, ReleasePlanClient> {
+public class ReleasePlanClient extends CrudClient<ReleasePlan, ReleasePlanClient> {
 
     public ReleasePlanClient(String baseUrl) {
-        super(baseUrl, ResourcePaths.RELEASE_PATH, Release.class);
+        super(baseUrl, ResourcePaths.RELEASE_PLAN_PATH, ReleasePlan.class);
     }
+
 
 }
