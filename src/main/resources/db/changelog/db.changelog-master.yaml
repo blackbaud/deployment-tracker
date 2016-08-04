@@ -8,3 +8,6 @@ databaseChangeLog:
 
   - include:
       file: db/create_git_log.sql
+
+  - include:
+      file: db/create_release_plan.sql
