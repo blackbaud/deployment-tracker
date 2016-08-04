@@ -1,9 +1,14 @@
 --liquibase formatted sql
 
 --changeset blackbaud:1
+create sequence release_plan_seq
+--rollback drop sequence release_plan_seq
+
+--changeset blackbaud:2
 create table release_plan (
   id int constraint release_plan_pk primary key,
-  create_date DATE,
-  close_date DATE,
+  created timestamp without time zone,
+  closed timestamp without time zone,
   notes TEXT
 )
+--rollback drop table release_plan

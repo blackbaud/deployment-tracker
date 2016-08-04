@@ -7,11 +7,13 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.IdClass;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import java.time.ZonedDateTime;
 
 @Entity(name = "release_plan")
 @Table(name = "release_plan")
@@ -21,7 +23,12 @@ import javax.persistence.Table;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ReleasePlanEntity {
-
     @Id
-    private int id;
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "release_plan_seq_gen")
+    @SequenceGenerator(name = "release_plan_seq_gen", sequenceName = "release_plan_seq")
+    private Long id;
+
+    private ZonedDateTime created;
+    private ZonedDateTime closed;
+    private String notes;
 }
