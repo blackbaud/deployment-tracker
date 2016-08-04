@@ -1,6 +1,7 @@
 package com.blackbaud.deployment.resources
 
 import com.blackbaud.deployment.ComponentTest
+import com.blackbaud.deployment.ReleasePlanConverter
 import com.blackbaud.deployment.api.ReleasePlan
 import com.blackbaud.deployment.client.ReleasePlanClient
 import com.blackbaud.deployment.core.domain.ReleasePlanEntity
@@ -21,6 +22,9 @@ class ReleasePlanResourceSpec extends Specification {
     @Inject
     private ReleasePlanRepository releasePlanRepository
 
+    @Inject
+    private ReleasePlanConverter converter
+
 
     def "can create a new release plan"() {
         given:
@@ -37,10 +41,7 @@ class ReleasePlanResourceSpec extends Specification {
 
     def "can NOT create a new release plan if there is already an active one"() {
         given:
-        ReleasePlanEntity activeReleasePlan = aRandom.releasePlanEntity()
-                .closed(null)
-                .build()
-        releasePlanRepository.save(activeReleasePlan)
+        createActiveReleasePlan()
 
         and:
         ReleasePlan newPlan = aRandom.releasePlan().build()
@@ -53,6 +54,23 @@ class ReleasePlanResourceSpec extends Specification {
         exception instanceof BadRequestException
     }
 
-    
 
+    def "can get active release plan if one exists"(){
+        given:
+        ReleasePlanEntity active = createActiveReleasePlan()
+
+        when:
+        ReleasePlanEntity releasePlan = releasePlanRepository.findByClosedNull()
+
+        then:
+        active == releasePlan
+    }
+
+    def createActiveReleasePlan() {
+        ReleasePlanEntity activeReleasePlan = aRandom.releasePlanEntity()
+                .closed(null)
+                .build()
+        releasePlanRepository.save(activeReleasePlan)
+        releasePlanRepository.findByClosedNull()
+    }
 }

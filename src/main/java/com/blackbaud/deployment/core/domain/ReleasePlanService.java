@@ -21,10 +21,10 @@ public class ReleasePlanService {
         if (activeReleasePlanExists()) {
             throw new BadRequestException("An active release plan already exists");
         }
-        return createNewReplacePlan(releasePlan);
+        return createNewReleasePlan(releasePlan);
     }
 
-    private ReleasePlan createNewReplacePlan(ReleasePlan releasePlan) {
+    private ReleasePlan createNewReleasePlan(ReleasePlan releasePlan) {
         ReleasePlanEntity entity = ReleasePlanEntity.builder()
                 .notes(releasePlan.getNotes())
                 .created(ZonedDateTime.now())
@@ -34,7 +34,10 @@ public class ReleasePlanService {
     }
 
     private boolean activeReleasePlanExists() {
-        ReleasePlanEntity activeReleasePlan = releasePlanRepository.findByClosedNull();
-        return activeReleasePlan != null;
+        return getActiveReleasePlan() != null;
+    }
+
+    public ReleasePlanEntity getActiveReleasePlan(){
+        return releasePlanRepository.findByClosedNull();
     }
 }
