@@ -5,6 +5,7 @@ import com.blackbaud.deployment.api.ReleasePlan;
 import com.blackbaud.deployment.api.ResourcePaths;
 import com.blackbaud.deployment.core.domain.ReleasePlanEntity;
 import com.blackbaud.deployment.core.domain.ReleasePlanRepository;
+import com.blackbaud.deployment.core.domain.ReleasePlanService;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
@@ -20,21 +21,17 @@ import java.time.ZonedDateTime;
 @Produces(MediaType.APPLICATION_JSON)
 public class ReleasePlanResource {
 
-    @Inject
-    private ReleasePlanRepository releasePlanRepository;
 
     @Inject
     private ReleasePlanConverter converter;
 
+    @Inject
+    private ReleasePlanService releasePlanService;
+
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public ReleasePlan createReleasePlan(ReleasePlan releasePlan) {
-        ReleasePlanEntity entity = ReleasePlanEntity.builder()
-                .notes(releasePlan.getNotes())
-                .created(ZonedDateTime.now())
-                .build();
-        releasePlanRepository.save(entity);
-        return converter.toApi(entity);
+        return releasePlanService.createReleasePlan(releasePlan);
     }
 
 }
