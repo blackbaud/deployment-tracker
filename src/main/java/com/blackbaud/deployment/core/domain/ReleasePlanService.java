@@ -18,8 +18,8 @@ public class ReleasePlanService {
     private ReleasePlanRepository releasePlanRepository;
 
     public ReleasePlan createReleasePlan(ReleasePlan releasePlan) {
-        if (activeReleasePlanExists()) {
-            throw new BadRequestException("An active release plan already exists");
+        if (currentReleasePlanExists()) {
+            throw new BadRequestException("A current release plan already exists");
         }
         return createNewReleasePlan(releasePlan);
     }
@@ -33,11 +33,11 @@ public class ReleasePlanService {
         return converter.toApi(entity);
     }
 
-    private boolean activeReleasePlanExists() {
-        return getActiveReleasePlan() != null;
+    private boolean currentReleasePlanExists() {
+        return getCurrentReleasePlan() != null;
     }
 
-    public ReleasePlanEntity getActiveReleasePlan(){
+    public ReleasePlanEntity getCurrentReleasePlan(){
         return releasePlanRepository.findByClosedNull();
     }
 }

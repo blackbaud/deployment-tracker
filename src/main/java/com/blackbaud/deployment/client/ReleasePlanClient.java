@@ -10,7 +10,11 @@ public class ReleasePlanClient extends CrudClient<ReleasePlan, ReleasePlanClient
         super(baseUrl, ResourcePaths.RELEASE_PLAN_PATH, ReleasePlan.class);
     }
 
-    public ReleasePlan getActiveReleasePlan() {
-        return crudClientRequest.path(ResourcePaths.ACTIVE_PATH).find();
+    public ReleasePlan getCurrentReleasePlan() {
+        return crudClientRequest.path(ResourcePaths.CURRENT_PATH).find();
+    }
+
+    public void updateNotes(Long id, String notes) {
+        getUntypedCrudClientRequest().path(id).path(ResourcePaths.NOTES_PATH).updateWithPut(notes);
     }
 }

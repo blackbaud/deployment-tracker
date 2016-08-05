@@ -8,5 +8,5 @@ public class ResourcePaths {
     public static final String GIT_LOG_INFO_PATH = DEPLOYMENT_TRACKER_PATH + "/gitlog";
     public static final String CURRENT_PATH = "current";
     public static final String RELEASE_PLAN_PATH = DEPLOYMENT_TRACKER_PATH + "/release-plan";
-    public static final String ACTIVE_PATH = "active";
+    public static final String NOTES_PATH = "notes";
 }

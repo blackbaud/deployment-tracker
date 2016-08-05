@@ -9,13 +9,15 @@ import com.blackbaud.deployment.core.domain.ReleasePlanService;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.time.ZonedDateTime;
 
 @Component
 @Path(ResourcePaths.RELEASE_PLAN_PATH)
@@ -28,6 +30,9 @@ public class ReleasePlanResource {
     @Inject
     private ReleasePlanService releasePlanService;
 
+    @Inject
+    private ReleasePlanRepository releasePlanRepository;
+
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public ReleasePlan createReleasePlan(ReleasePlan releasePlan) {
@@ -35,8 +40,21 @@ public class ReleasePlanResource {
     }
 
     @GET
-    @Path(ResourcePaths.ACTIVE_PATH)
-    public ReleasePlan getActiveReleasePlan(){
-        return converter.toApi(releasePlanService.getActiveReleasePlan());
+    @Path(ResourcePaths.CURRENT_PATH)
+    public ReleasePlan getCurrentReleasePlan() {
+        ReleasePlan releasePlan = converter.toApi(releasePlanService.getCurrentReleasePlan());
+        if (releasePlan == null) {
+            throw new BadRequestException("No current release plan exists");
+        }
+        return releasePlan;
     }
+
+    @PUT
+    @Path("{id}/" + ResourcePaths.NOTES_PATH)
+    public void updateNotes(@PathParam("id") Long id, String notes) {
+        ReleasePlanEntity releasePlan = releasePlanRepository.findOne(id);
+        releasePlan.setNotes(notes);
+        releasePlanRepository.save(releasePlan);
+    }
+
 }

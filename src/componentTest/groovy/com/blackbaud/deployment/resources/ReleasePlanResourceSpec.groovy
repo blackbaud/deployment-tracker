@@ -39,7 +39,7 @@ class ReleasePlanResourceSpec extends Specification {
         createdPlan.closed == null
     }
 
-    def "can NOT create a new release plan if there is already an active one"() {
+    def "can NOT create a new release plan if there is already a current one"() {
         given:
         createActiveReleasePlan()
 
@@ -47,7 +47,7 @@ class ReleasePlanResourceSpec extends Specification {
         ReleasePlan newPlan = aRandom.releasePlan().build()
 
         when:
-        ReleasePlan createdPlan = releasePlanClient.create(newPlan)
+        releasePlanClient.create(newPlan)
 
         then:
         Exception exception = thrown()
@@ -55,22 +55,43 @@ class ReleasePlanResourceSpec extends Specification {
     }
 
 
-    def "can get active release plan if one exists"(){
+    def "can get current release plan if one exists"(){
         given:
-        ReleasePlanEntity active = createActiveReleasePlan()
+        createActiveReleasePlan()
 
         when:
-        ReleasePlanEntity releasePlan = releasePlanRepository.findByClosedNull()
+        ReleasePlan releasePlan = releasePlanClient.getCurrentReleasePlan()
 
         then:
-        active == releasePlan
+        releasePlan != null
     }
 
-    def createActiveReleasePlan() {
-        ReleasePlanEntity activeReleasePlan = aRandom.releasePlanEntity()
+    def "get an exception if no current release plan"() {
+        when:
+        releasePlanClient.getCurrentReleasePlan()
+
+        then:
+        Exception exception = thrown()
+        exception instanceof BadRequestException
+    }
+
+//    def "can update notes to existing release plan"() {
+//        given:
+//        ReleasePlanEntity existingPlan = createActiveReleasePlan()
+//        String newNotes = "new notes"
+//
+//        when:
+//        releasePlanClient.updateNotes(existingPlan.id, newNotes)
+//
+//        then:
+//        ReleasePlanEntity updatedReleasePlan = releasePlanRepository.findOne(existingPlan.id)
+//        updatedReleasePlan.notes == newNotes
+//    }
+
+    def ReleasePlanEntity createActiveReleasePlan() {
+        ReleasePlanEntity currentReleasePlan = aRandom.releasePlanEntity()
                 .closed(null)
                 .build()
-        releasePlanRepository.save(activeReleasePlan)
-        releasePlanRepository.findByClosedNull()
+        releasePlanRepository.save(currentReleasePlan)
     }
 }
