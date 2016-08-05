@@ -38,8 +38,8 @@ public class ReleasePlanResource {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    public ReleasePlan createReleasePlan(ReleasePlan releasePlan) {
-        return releasePlanService.createReleasePlan(releasePlan);
+    public ReleasePlan createReleasePlan() {
+        return releasePlanService.createReleasePlan();
     }
 
     @GET

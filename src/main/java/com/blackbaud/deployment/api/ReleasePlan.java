@@ -13,6 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ReleasePlan {
+    private Long id;
     private String notes;
     private ZonedDateTime created;
     private ZonedDateTime activated;

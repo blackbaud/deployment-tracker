@@ -17,16 +17,15 @@ public class ReleasePlanService {
     @Inject
     private ReleasePlanRepository releasePlanRepository;
 
-    public ReleasePlan createReleasePlan(ReleasePlan releasePlan) {
+    public ReleasePlan createReleasePlan() {
         if (currentReleasePlanExists()) {
             throw new BadRequestException("A current release plan already exists");
         }
-        return createNewReleasePlan(releasePlan);
+        return createNewReleasePlan();
     }
 
-    private ReleasePlan createNewReleasePlan(ReleasePlan releasePlan) {
+    private ReleasePlan createNewReleasePlan() {
         ReleasePlanEntity entity = ReleasePlanEntity.builder()
-                .notes(releasePlan.getNotes())
                 .created(ZonedDateTime.now())
                 .build();
         releasePlanRepository.save(entity);
