@@ -38,7 +38,16 @@ public class ReleasePlanService {
     }
 
     public ReleasePlanEntity getCurrentReleasePlan(){
-
         return releasePlanRepository.findByClosedNull();
     }
+
+    public ReleasePlanEntity getExistingReleasePlan(Long id) {
+        ReleasePlanEntity releasePlan = releasePlanRepository.findOne(id);
+        if (releasePlan == null) {
+            throw new BadRequestException("No release plan with id "+ id +" exists");
+        }
+        return releasePlan;
+    }
+
+
 }

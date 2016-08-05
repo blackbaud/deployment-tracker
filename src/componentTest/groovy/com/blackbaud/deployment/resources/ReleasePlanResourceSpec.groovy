@@ -103,11 +103,35 @@ class ReleasePlanResourceSpec extends Specification {
 
     def "cannot activate closed release plan"() {
         given:
-        ReleasePlanEntity closed = aRandom.releasePlanEntity().build()
-        closed = releasePlanRepository.save(closed)
+        ReleasePlanEntity closedReleasePlan = aRandom.releasePlanEntity().build()
+        closedReleasePlan = releasePlanRepository.save(closedReleasePlan)
 
         when:
-        releasePlanClient.activateReleasePlan(closed.id)
+        releasePlanClient.activateReleasePlan(closedReleasePlan.id)
+
+        then:
+        Exception exception = thrown()
+        exception instanceof BadRequestException
+    }
+
+    def "can close a release plan"() {
+        given:
+        ReleasePlanEntity releasePlan = createCurrentReleasePlan()
+
+        when:
+        releasePlanClient.archiveReleasePlan(releasePlan.id)
+
+        then:
+        ReleasePlanEntity closedReleasePlan = releasePlanRepository.findOne(releasePlan.id)
+        closedReleasePlan.closed != null
+    }
+
+    def "cannot active nonexistent release plan"(){
+        given:
+        ReleasePlanEntity closedReleasePlan = aRandom.releasePlanEntity().build()
+
+        when:
+        releasePlanClient.activateReleasePlan(closedReleasePlan.id)
 
         then:
         Exception exception = thrown()

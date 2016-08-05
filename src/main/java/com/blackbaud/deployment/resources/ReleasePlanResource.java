@@ -55,7 +55,7 @@ public class ReleasePlanResource {
     @PUT
     @Path("{id}/" + ResourcePaths.NOTES_PATH)
     public ReleasePlan updateNotes(@PathParam("id") Long id, String notes) {
-        ReleasePlanEntity releasePlan = releasePlanRepository.findOne(id);
+        ReleasePlanEntity releasePlan = releasePlanService.getExistingReleasePlan(id);
         releasePlan.setNotes(notes);
         releasePlanRepository.save(releasePlan);
         return converter.toApi(releasePlan);
@@ -64,11 +64,20 @@ public class ReleasePlanResource {
     @PUT
     @Path("{id}/" + ResourcePaths.ACTIVATE_PATH)
     public ReleasePlan activate(@PathParam("id") Long id) {
-        ReleasePlanEntity releasePlan = releasePlanRepository.findOne(id);
+        ReleasePlanEntity releasePlan = releasePlanService.getExistingReleasePlan(id);
         if(releasePlan.getClosed() != null){
             throw new BadRequestException("Cannot activate a closed release plan");
         }
         releasePlan.setActivated(ZonedDateTime.now());
+        releasePlanRepository.save(releasePlan);
+        return converter.toApi(releasePlan);
+    }
+
+    @PUT
+    @Path("{id}/" + ResourcePaths.ARCHIVE_PATH)
+    public ReleasePlan archive(@PathParam("id") Long id) {
+        ReleasePlanEntity releasePlan = releasePlanService.getExistingReleasePlan(id);
+        releasePlan.setClosed(ZonedDateTime.now());
         releasePlanRepository.save(releasePlan);
         return converter.toApi(releasePlan);
     }
