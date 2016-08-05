@@ -34,7 +34,7 @@ public class ReleasePlanEntity {
 
     private ZonedDateTime created;
     private ZonedDateTime activated;
-    private ZonedDateTime closed;
+    private ZonedDateTime archived;
     private String notes;
 
     @ManyToMany

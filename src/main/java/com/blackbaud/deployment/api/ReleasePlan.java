@@ -15,5 +15,5 @@ public class ReleasePlan {
     private String notes;
     private ZonedDateTime created;
     private ZonedDateTime activated;
-    private ZonedDateTime closed;
+    private ZonedDateTime archived;
 }

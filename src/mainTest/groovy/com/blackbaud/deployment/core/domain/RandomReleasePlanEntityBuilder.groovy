@@ -6,7 +6,7 @@ class RandomReleasePlanEntityBuilder extends ReleasePlanEntity.ReleasePlanEntity
     public RandomReleasePlanEntityBuilder() {
         id(aRandom.id())
         .created(aRandom.zonedDateTime())
-        .closed(aRandom.zonedDateTime())
+        .archived(aRandom.zonedDateTime())
         .notes(aRandom.text(20))
     }
 }

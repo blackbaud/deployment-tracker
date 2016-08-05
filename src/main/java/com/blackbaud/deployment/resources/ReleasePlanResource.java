@@ -65,8 +65,8 @@ public class ReleasePlanResource {
     @Path("{id}/" + ResourcePaths.ACTIVATE_PATH)
     public ReleasePlan activate(@PathParam("id") Long id) {
         ReleasePlanEntity releasePlan = releasePlanService.getExistingReleasePlan(id);
-        if(releasePlan.getClosed() != null){
-            throw new BadRequestException("Cannot activate a closed release plan");
+        if(releasePlan.getArchived() != null){
+            throw new BadRequestException("Cannot activate a archived release plan");
         }
         releasePlan.setActivated(ZonedDateTime.now());
         releasePlanRepository.save(releasePlan);
@@ -77,7 +77,7 @@ public class ReleasePlanResource {
     @Path("{id}/" + ResourcePaths.ARCHIVE_PATH)
     public ReleasePlan archive(@PathParam("id") Long id) {
         ReleasePlanEntity releasePlan = releasePlanService.getExistingReleasePlan(id);
-        releasePlan.setClosed(ZonedDateTime.now());
+        releasePlan.setArchived(ZonedDateTime.now());
         releasePlanRepository.save(releasePlan);
         return converter.toApi(releasePlan);
     }

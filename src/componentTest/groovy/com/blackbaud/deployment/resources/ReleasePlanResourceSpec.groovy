@@ -37,7 +37,7 @@ class ReleasePlanResourceSpec extends Specification {
         createdPlan.notes == newPlan.notes
         createdPlan.created != null
         createdPlan.activated == null
-        createdPlan.closed == null
+        createdPlan.archived == null
     }
 
     def "can NOT create a new release plan if there is already a current one"() {
@@ -101,13 +101,13 @@ class ReleasePlanResourceSpec extends Specification {
         updatedReleasePlan.activated != null
     }
 
-    def "cannot activate closed release plan"() {
+    def "cannot activate archived release plan"() {
         given:
-        ReleasePlanEntity closedReleasePlan = aRandom.releasePlanEntity().build()
-        closedReleasePlan = releasePlanRepository.save(closedReleasePlan)
+        ReleasePlanEntity archivedReleasePlan = aRandom.releasePlanEntity().build()
+        archivedReleasePlan = releasePlanRepository.save(archivedReleasePlan)
 
         when:
-        releasePlanClient.activateReleasePlan(closedReleasePlan.id)
+        releasePlanClient.activateReleasePlan(archivedReleasePlan.id)
 
         then:
         Exception exception = thrown()
@@ -122,16 +122,16 @@ class ReleasePlanResourceSpec extends Specification {
         releasePlanClient.archiveReleasePlan(releasePlan.id)
 
         then:
-        ReleasePlanEntity closedReleasePlan = releasePlanRepository.findOne(releasePlan.id)
-        closedReleasePlan.closed != null
+        ReleasePlanEntity archivedReleasePlan = releasePlanRepository.findOne(releasePlan.id)
+        archivedReleasePlan.archived != null
     }
 
     def "cannot active nonexistent release plan"(){
         given:
-        ReleasePlanEntity closedReleasePlan = aRandom.releasePlanEntity().build()
+        ReleasePlanEntity archivedReleasePlan = aRandom.releasePlanEntity().build()
 
         when:
-        releasePlanClient.activateReleasePlan(closedReleasePlan.id)
+        releasePlanClient.activateReleasePlan(archivedReleasePlan.id)
 
         then:
         Exception exception = thrown()
@@ -140,7 +140,7 @@ class ReleasePlanResourceSpec extends Specification {
 
     def ReleasePlanEntity createCurrentReleasePlan() {
         ReleasePlanEntity currentReleasePlan = aRandom.releasePlanEntity()
-                .closed(null)
+                .archived(null)
                 .build()
         releasePlanRepository.save(currentReleasePlan)
     }
