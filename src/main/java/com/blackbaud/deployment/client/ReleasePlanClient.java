@@ -1,5 +1,6 @@
 package com.blackbaud.deployment.client;
 
+import com.blackbaud.deployment.api.ArtifactInfo;
 import com.blackbaud.deployment.api.ReleasePlan;
 import com.blackbaud.deployment.api.ResourcePaths;
 import com.blackbaud.rest.client.CrudClient;
@@ -25,4 +26,6 @@ public class ReleasePlanClient extends CrudClient<ReleasePlan, ReleasePlanClient
     public void archiveReleasePlan(Long id) {
         getUntypedCrudClientRequest().path(id).path(ResourcePaths.ARCHIVE_PATH).updateWithPut(id);
     }
+
+    public void addArtifact(ArtifactInfo artifactInfo) {}
 }

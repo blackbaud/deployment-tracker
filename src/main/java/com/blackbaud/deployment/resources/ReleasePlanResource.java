@@ -81,4 +81,5 @@ public class ReleasePlanResource {
         releasePlanRepository.save(releasePlan);
         return converter.toApi(releasePlan);
     }
+
 }

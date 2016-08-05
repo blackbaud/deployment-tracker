@@ -4,6 +4,8 @@ import com.blackbaud.deployment.ComponentTest
 import com.blackbaud.deployment.ReleasePlanConverter
 import com.blackbaud.deployment.api.ReleasePlan
 import com.blackbaud.deployment.client.ReleasePlanClient
+import com.blackbaud.deployment.core.domain.ArtifactInfoEntity
+import com.blackbaud.deployment.core.domain.ArtifactInfoRepository
 import com.blackbaud.deployment.core.domain.ReleasePlanEntity
 import com.blackbaud.deployment.core.domain.ReleasePlanRepository
 import spock.lang.Specification
@@ -25,6 +27,8 @@ class ReleasePlanResourceSpec extends Specification {
     @Inject
     private ReleasePlanConverter converter
 
+    @Inject
+    private ArtifactInfoRepository artifactInfoRepository
 
     def "can create a new release plan"() {
         given:
@@ -56,7 +60,7 @@ class ReleasePlanResourceSpec extends Specification {
     }
 
 
-    def "can get current release plan if one exists"(){
+    def "can get current release plan if one exists"() {
         given:
         createCurrentReleasePlan()
 
@@ -114,7 +118,7 @@ class ReleasePlanResourceSpec extends Specification {
         exception instanceof BadRequestException
     }
 
-    def "can close a release plan"() {
+    def "can archive an existing release plan"() {
         given:
         ReleasePlanEntity releasePlan = createCurrentReleasePlan()
 
@@ -126,7 +130,7 @@ class ReleasePlanResourceSpec extends Specification {
         archivedReleasePlan.archived != null
     }
 
-    def "cannot active nonexistent release plan"(){
+    def "cannot activate nonexistent release plan"() {
         given:
         ReleasePlanEntity archivedReleasePlan = aRandom.releasePlanEntity().build()
 
@@ -136,6 +140,35 @@ class ReleasePlanResourceSpec extends Specification {
         then:
         Exception exception = thrown()
         exception instanceof BadRequestException
+    }
+
+    def "associate an artifact with an existing release plan"() {
+        given:
+        ReleasePlanEntity existingPlan = createCurrentReleasePlan()
+        ArtifactInfoEntity core = ArtifactInfoEntity.builder().artifactId("core").buildVersion("1").gitSha("asd").build()
+        core = artifactInfoRepository.save(core)
+        existingPlan.artifacts = [core]
+
+        when:
+        releasePlanRepository.save(existingPlan)
+
+        then:
+        ReleasePlanEntity updatedPlan = releasePlanRepository.findOne(existingPlan.id)
+        updatedPlan.artifacts == [core]
+    }
+
+    def "associate an artifact with a new release plan"() {
+        given:
+        ArtifactInfoEntity core = ArtifactInfoEntity.builder().artifactId("core").buildVersion("1").gitSha("asd").build()
+        core = artifactInfoRepository.save(core)
+        ReleasePlanEntity newPlan = ReleasePlanEntity.builder().artifacts([core]).build()
+
+        when:
+        newPlan = releasePlanRepository.save(newPlan)
+
+        then:
+        ReleasePlanEntity updatedPlan = releasePlanRepository.findOne(newPlan.id)
+        updatedPlan.artifacts == [core]
     }
 
     def ReleasePlanEntity createCurrentReleasePlan() {

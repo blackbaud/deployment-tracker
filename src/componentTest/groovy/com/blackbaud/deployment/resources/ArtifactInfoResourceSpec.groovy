@@ -110,5 +110,4 @@ class ArtifactInfoResourceSpec extends Specification {
         artifactInfoList.size() == 2
         artifactInfoList.containsAll([oldArtifact, newArtifact])
     }
-
 }

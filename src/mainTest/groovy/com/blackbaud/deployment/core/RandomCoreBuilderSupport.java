@@ -12,5 +12,4 @@ public class RandomCoreBuilderSupport {
     public RandomReleasePlanEntityBuilder releasePlanEntity() {
         return new RandomReleasePlanEntityBuilder();
     }
-
 }
