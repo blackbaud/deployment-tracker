@@ -9,4 +9,6 @@ public class ResourcePaths {
     public static final String CURRENT_PATH = "current";
     public static final String RELEASE_PLAN_PATH = DEPLOYMENT_TRACKER_PATH + "/release-plan";
     public static final String NOTES_PATH = "notes";
+    public static final String ACTIVATE_PATH = "activate";
+
 }

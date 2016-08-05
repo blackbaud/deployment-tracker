@@ -17,4 +17,8 @@ public class ReleasePlanClient extends CrudClient<ReleasePlan, ReleasePlanClient
     public void updateNotes(Long id, String notes) {
         getUntypedCrudClientRequest().path(id).path(ResourcePaths.NOTES_PATH).updateWithPut(notes);
     }
+
+    public void activateReleasePlan(Long id) {
+        getUntypedCrudClientRequest().path(id).path(ResourcePaths.ACTIVATE_PATH).updateWithPut(id);
+    }
 }

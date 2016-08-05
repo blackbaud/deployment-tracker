@@ -33,6 +33,7 @@ public class ReleasePlanEntity {
     private Long id;
 
     private ZonedDateTime created;
+    private ZonedDateTime activated;
     private ZonedDateTime closed;
     private String notes;
 

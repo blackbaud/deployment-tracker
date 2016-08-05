@@ -38,6 +38,7 @@ public class ReleasePlanService {
     }
 
     public ReleasePlanEntity getCurrentReleasePlan(){
+
         return releasePlanRepository.findByClosedNull();
     }
 }

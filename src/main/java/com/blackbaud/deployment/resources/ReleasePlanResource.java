@@ -6,6 +6,7 @@ import com.blackbaud.deployment.api.ResourcePaths;
 import com.blackbaud.deployment.core.domain.ReleasePlanEntity;
 import com.blackbaud.deployment.core.domain.ReleasePlanRepository;
 import com.blackbaud.deployment.core.domain.ReleasePlanService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
@@ -18,10 +19,12 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import java.time.ZonedDateTime;
 
 @Component
 @Path(ResourcePaths.RELEASE_PLAN_PATH)
 @Produces(MediaType.APPLICATION_JSON)
+@Slf4j
 public class ReleasePlanResource {
 
     @Inject
@@ -58,4 +61,15 @@ public class ReleasePlanResource {
         return converter.toApi(releasePlan);
     }
 
+    @PUT
+    @Path("{id}/" + ResourcePaths.ACTIVATE_PATH)
+    public ReleasePlan activate(@PathParam("id") Long id) {
+        ReleasePlanEntity releasePlan = releasePlanRepository.findOne(id);
+        if(releasePlan.getClosed() != null){
+            throw new BadRequestException("Cannot activate a closed release plan");
+        }
+        releasePlan.setActivated(ZonedDateTime.now());
+        releasePlanRepository.save(releasePlan);
+        return converter.toApi(releasePlan);
+    }
 }

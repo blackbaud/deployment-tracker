@@ -36,12 +36,13 @@ class ReleasePlanResourceSpec extends Specification {
         then:
         createdPlan.notes == newPlan.notes
         createdPlan.created != null
+        createdPlan.activated == null
         createdPlan.closed == null
     }
 
     def "can NOT create a new release plan if there is already a current one"() {
         given:
-        createActiveReleasePlan()
+        createCurrentReleasePlan()
 
         and:
         ReleasePlan newPlan = aRandom.releasePlan().build()
@@ -57,7 +58,7 @@ class ReleasePlanResourceSpec extends Specification {
 
     def "can get current release plan if one exists"(){
         given:
-        createActiveReleasePlan()
+        createCurrentReleasePlan()
 
         when:
         ReleasePlan releasePlan = releasePlanClient.getCurrentReleasePlan()
@@ -77,7 +78,7 @@ class ReleasePlanResourceSpec extends Specification {
 
     def "can update notes to existing release plan"() {
         given:
-        ReleasePlanEntity existingPlan = createActiveReleasePlan()
+        ReleasePlanEntity existingPlan = createCurrentReleasePlan()
         String newNotes = "new notes"
 
         when:
@@ -88,7 +89,32 @@ class ReleasePlanResourceSpec extends Specification {
         updatedReleasePlan.notes == newNotes
     }
 
-    def ReleasePlanEntity createActiveReleasePlan() {
+    def "can activate release plan"() {
+        given:
+        ReleasePlanEntity currentReleasePlan = createCurrentReleasePlan()
+
+        when:
+        releasePlanClient.activateReleasePlan(currentReleasePlan.id)
+
+        then:
+        ReleasePlanEntity updatedReleasePlan = releasePlanRepository.findOne(currentReleasePlan.id)
+        updatedReleasePlan.activated != null
+    }
+
+    def "cannot activate closed release plan"() {
+        given:
+        ReleasePlanEntity closed = aRandom.releasePlanEntity().build()
+        closed = releasePlanRepository.save(closed)
+
+        when:
+        releasePlanClient.activateReleasePlan(closed.id)
+
+        then:
+        Exception exception = thrown()
+        exception instanceof BadRequestException
+    }
+
+    def ReleasePlanEntity createCurrentReleasePlan() {
         ReleasePlanEntity currentReleasePlan = aRandom.releasePlanEntity()
                 .closed(null)
                 .build()
