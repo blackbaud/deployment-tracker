@@ -46,8 +46,7 @@ public class GithubRepository {
                     .addRange(ObjectId.fromString(fromSha), ObjectId.fromString(toSha))
                     .call();
         } catch (Exception e) {
-            log.error("Could not retrieve commits between from=" + fromSha + " to=" + toSha + " for repo=" + repository.getName()+". This is a temporary workaround for cf message limit ", e);
-            throw new CannotRetrieveCommitsException("Cannot retrieve commits between from=" + fromSha + " to=" + toSha + " for repo=" + repository.getName(), e);
+            throw new CannotRetrieveCommitsException("Failed to retrieve commits between from=" + fromSha + " to=" + toSha + " for repo=" + repository.getName(), e);
         }
 
         return (List<RevCommit>) IteratorUtils.toList(commits.iterator());
@@ -61,8 +60,7 @@ public class GithubRepository {
                     .add(ObjectId.fromString(toSha))
                     .call();
         } catch (Exception e) {
-            log.error("Could not retrieve commits to=" + toSha + " for repo=" + repository.getName()+". This is a temporary workaround for cf message limit ", e);
-            throw new CannotRetrieveCommitsException("Cannot retrieve commits to=" + toSha + " for repo=" + repository.getName(), e);
+            throw new CannotRetrieveCommitsException("Failed to retrieve commits to=" + toSha + " for repo=" + repository.getName(), e);
         }
         return (List<RevCommit>) IteratorUtils.toList(commits.iterator());
     }

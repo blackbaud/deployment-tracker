@@ -10,4 +10,8 @@ public class RandomClientBuilderSupport {
         return new RandomArtifactInfoBuilder();
     }
 
+    public RandomReleasePlanBuilder releasePlan() {
+        return new RandomReleasePlanBuilder();
+    }
+
 }

@@ -3,7 +3,6 @@ package com.blackbaud.deployment.resources
 import com.blackbaud.boot.exception.BadRequestException
 import com.blackbaud.deployment.ComponentTest
 import com.blackbaud.deployment.RealArtifacts
-import com.blackbaud.deployment.api.ArtifactInfo
 import com.blackbaud.deployment.api.ArtifactReleaseDiff
 import com.blackbaud.deployment.api.ArtifactReleaseInfo
 import com.blackbaud.deployment.client.ArtifactReleaseInfoClient
@@ -11,10 +10,6 @@ import com.blackbaud.deployment.client.ReleaseClient
 import com.blackbaud.deployment.core.domain.ReleaseService
 import org.springframework.beans.factory.annotation.Autowired
 import spock.lang.Specification
-
-import javax.ws.rs.WebApplicationException
-
-import static com.blackbaud.deployment.core.CoreARandom.aRandom
 
 @ComponentTest
 class ReleaseResourceSpec extends Specification {
