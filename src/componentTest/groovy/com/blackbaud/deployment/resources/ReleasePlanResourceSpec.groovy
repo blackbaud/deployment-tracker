@@ -75,18 +75,18 @@ class ReleasePlanResourceSpec extends Specification {
         exception instanceof BadRequestException
     }
 
-//    def "can update notes to existing release plan"() {
-//        given:
-//        ReleasePlanEntity existingPlan = createActiveReleasePlan()
-//        String newNotes = "new notes"
-//
-//        when:
-//        releasePlanClient.updateNotes(existingPlan.id, newNotes)
-//
-//        then:
-//        ReleasePlanEntity updatedReleasePlan = releasePlanRepository.findOne(existingPlan.id)
-//        updatedReleasePlan.notes == newNotes
-//    }
+    def "can update notes to existing release plan"() {
+        given:
+        ReleasePlanEntity existingPlan = createActiveReleasePlan()
+        String newNotes = "new notes"
+
+        when:
+        releasePlanClient.updateNotes(existingPlan.id, newNotes)
+
+        then:
+        ReleasePlanEntity updatedReleasePlan = releasePlanRepository.findOne(existingPlan.id)
+        updatedReleasePlan.notes == newNotes
+    }
 
     def ReleasePlanEntity createActiveReleasePlan() {
         ReleasePlanEntity currentReleasePlan = aRandom.releasePlanEntity()

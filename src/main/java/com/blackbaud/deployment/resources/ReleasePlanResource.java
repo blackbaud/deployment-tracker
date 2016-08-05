@@ -51,10 +51,11 @@ public class ReleasePlanResource {
 
     @PUT
     @Path("{id}/" + ResourcePaths.NOTES_PATH)
-    public void updateNotes(@PathParam("id") Long id, String notes) {
+    public ReleasePlan updateNotes(@PathParam("id") Long id, String notes) {
         ReleasePlanEntity releasePlan = releasePlanRepository.findOne(id);
         releasePlan.setNotes(notes);
         releasePlanRepository.save(releasePlan);
+        return converter.toApi(releasePlan);
     }
 
 }
