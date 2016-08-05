@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.ZonedDateTime;
+import java.util.List;
 
 @Data
 @Builder
@@ -16,4 +17,5 @@ public class ReleasePlan {
     private ZonedDateTime created;
     private ZonedDateTime activated;
     private ZonedDateTime archived;
+    private List<ArtifactInfo> artifacts;
 }

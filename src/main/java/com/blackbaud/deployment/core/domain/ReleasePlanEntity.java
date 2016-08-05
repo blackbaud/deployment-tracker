@@ -37,14 +37,14 @@ public class ReleasePlanEntity {
     private ZonedDateTime archived;
     private String notes;
 
-    @ManyToMany
-    @JoinTable(
-            name = "release_plan_artifact",
-            joinColumns = @JoinColumn(name = "release_plan_id", referencedColumnName = "id"),
-            inverseJoinColumns = {
-                    @JoinColumn(name = "artifact_id", referencedColumnName = "artifact_id"),
-                    @JoinColumn(name = "build_version", referencedColumnName = "build_version")
-            }
-    )
-    private List<ArtifactInfoEntity> artifacts;
+//    @ManyToMany
+//    @JoinTable(
+//            name = "release_plan_artifact",
+//            joinColumns = @JoinColumn(name = "release_plan_id", referencedColumnName = "id"),
+//            inverseJoinColumns = {
+//                    @JoinColumn(name = "artifact_id", referencedColumnName = "artifact_id"),
+//                    @JoinColumn(name = "build_version", referencedColumnName = "build_version")
+//            }
+//    )
+//    private List<ArtifactInfoEntity> artifacts;
 }
