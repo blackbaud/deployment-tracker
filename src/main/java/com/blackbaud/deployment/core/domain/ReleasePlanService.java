@@ -79,9 +79,6 @@ public class ReleasePlanService {
 
     public ReleasePlan addArtifact(Long id, ArtifactInfo newArtifact) {
         ReleasePlanEntity releasePlan = getExistingReleasePlan(id);
-        if (releasePlan.getArchived() == null) {
-            throw new BadRequestException("This release plan has not been activated. Please activate before adding artifacts.");
-        }
         releasePlan.addArtifact(artifactInfoConverter.toEntity(newArtifact));
         return converter.toApi(releasePlanRepository.save(releasePlan));
     }
