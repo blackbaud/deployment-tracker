@@ -25,7 +25,8 @@ public class ReleaseService {
     public static final String PROD_FOUNDATION = "pivotal-prod1";
     public static final String PROD_SPACE = "prod1-apps";
 
-    private static final List<String> nonReleasable = Arrays.asList("bluemoon-dojo",
+    private static final List<String> nonReleasable = Arrays.asList("bb-help",
+                                                                    "bluemoon-dojo",
                                                                     "bluemoon-dojo-ui",
                                                                     "data-pipeline-kafka-rest-proxy",
                                                                     "data-pipeline-performance-consumer",
