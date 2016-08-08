@@ -1,17 +1,14 @@
 package com.blackbaud.deployment.resources;
 
 import com.blackbaud.deployment.ReleasePlanConverter;
+import com.blackbaud.deployment.api.ArtifactInfo;
 import com.blackbaud.deployment.api.ReleasePlan;
 import com.blackbaud.deployment.api.ResourcePaths;
-import com.blackbaud.deployment.core.domain.ReleasePlanEntity;
-import com.blackbaud.deployment.core.domain.ReleasePlanRepository;
 import com.blackbaud.deployment.core.domain.ReleasePlanService;
 import lombok.extern.slf4j.Slf4j;
-import org.omg.CosNaming.NamingContextPackage.NotFound;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
-import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
@@ -21,7 +18,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.time.ZonedDateTime;
 
 @Component
 @Path(ResourcePaths.RELEASE_PLAN_PATH)
@@ -37,8 +33,8 @@ public class ReleasePlanResource {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    public ReleasePlan createReleasePlan(ReleasePlan releasePlan) {
-        return releasePlanService.createReleasePlan(releasePlan);
+    public ReleasePlan createReleasePlan() {
+        return releasePlanService.createReleasePlan();
     }
 
     @GET
@@ -67,5 +63,11 @@ public class ReleasePlanResource {
     @Path("{id}/" + ResourcePaths.ARCHIVE_PATH)
     public ReleasePlan archive(@PathParam("id") Long id) {
         return releasePlanService.archive(id);
+    }
+
+    @PUT
+    @Path("{id}/" + ResourcePaths.ARTIFACT_PATH)
+    public ReleasePlan addArtifact(@PathParam("id") Long id, ArtifactInfo newArtifact) {
+        return releasePlanService.addArtifact(id, newArtifact);
     }
 }

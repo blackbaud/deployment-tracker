@@ -27,5 +27,7 @@ public class ReleasePlanClient extends CrudClient<ReleasePlan, ReleasePlanClient
         getUntypedCrudClientRequest().path(id).path(ResourcePaths.ARCHIVE_PATH).updateWithPut(id);
     }
 
-    public void addArtifact(ArtifactInfo artifactInfo) {}
+    public void addArtifact(Long id, ArtifactInfo artifactInfo) {
+        getUntypedCrudClientRequest().path(id).path(ResourcePaths.ARTIFACT_PATH).updateWithPut(artifactInfo);
+    }
 }

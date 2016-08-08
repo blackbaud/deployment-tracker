@@ -1,5 +1,6 @@
 package com.blackbaud.deployment.resources
 
+import com.blackbaud.deployment.ArtifactInfoConverter
 import com.blackbaud.deployment.ComponentTest
 import com.blackbaud.deployment.ReleasePlanConverter
 import com.blackbaud.deployment.api.ReleasePlan
@@ -31,6 +32,9 @@ class ReleasePlanResourceSpec extends Specification {
     @Inject
     private ArtifactInfoRepository artifactInfoRepository
 
+    @Inject
+    private ArtifactInfoConverter artifactInfoConverter;
+
     def "can create a new release plan"() {
         given:
         ReleasePlan newPlan = aRandom.releasePlan().build()
@@ -39,7 +43,6 @@ class ReleasePlanResourceSpec extends Specification {
         ReleasePlan createdPlan = releasePlanClient.create(newPlan)
 
         then:
-        createdPlan.notes == newPlan.notes
         createdPlan.id != null
         createdPlan.created != null
         createdPlan.activated == null
@@ -171,6 +174,36 @@ class ReleasePlanResourceSpec extends Specification {
         then:
         ReleasePlanEntity updatedPlan = releasePlanRepository.findOne(newPlan.id)
         updatedPlan.artifacts == [core]
+    }
+
+    def "can post artifacts to an existing release plan"() {
+        given:
+        ReleasePlanEntity currentPlan = createCurrentReleasePlan()
+        ArtifactInfoEntity artifact1 = aRandom.artifactInfoEntity().build()
+        ArtifactInfoEntity artifact2 = aRandom.artifactInfoEntity().build()
+        artifactInfoRepository.save([artifact1, artifact2])
+
+        when:
+        releasePlanClient.addArtifact(currentPlan.id, artifactInfoConverter.toApi(artifact1))
+        releasePlanClient.addArtifact(currentPlan.id, artifactInfoConverter.toApi(artifact2))
+
+        then:
+        ReleasePlanEntity updatedPlan = releasePlanRepository.findOne(currentPlan.id)
+        updatedPlan.artifacts == [artifact1, artifact2] as List
+    }
+
+    def "cannot post artifacts to a non-activated release plan"() {
+        given:
+        ReleasePlanEntity currentPlan = createCurrentReleasePlan()
+        ArtifactInfoEntity artifact = aRandom.artifactInfoEntity().build()
+        artifactInfoRepository.save(artifact)
+
+        when:
+        releasePlanClient.addArtifact(currentPlan.id, artifactInfoConverter.toApi(artifact))
+
+        then:
+        Exception e = thrown()
+        e instanceof BadRequestException
     }
 
     def ReleasePlanEntity createCurrentReleasePlan() {
