@@ -1,7 +1,10 @@
 package com.blackbaud.deployment.core.domain;
 
+import com.blackbaud.deployment.ArtifactInfoConverter;
 import com.blackbaud.deployment.ReleasePlanConverter;
+import com.blackbaud.deployment.api.ArtifactInfo;
 import com.blackbaud.deployment.api.ReleasePlan;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
@@ -10,6 +13,7 @@ import javax.ws.rs.NotFoundException;
 import java.time.ZonedDateTime;
 
 @Component
+@Slf4j
 public class ReleasePlanService {
 
     @Inject
@@ -18,16 +22,18 @@ public class ReleasePlanService {
     @Inject
     private ReleasePlanRepository releasePlanRepository;
 
-    public ReleasePlan createReleasePlan(ReleasePlan releasePlan) {
+    @Inject
+    private ArtifactInfoConverter artifactInfoConverter;
+
+    public ReleasePlan createReleasePlan() {
         if (currentReleasePlanExists()) {
             throw new BadRequestException("A current release plan already exists");
         }
-        return createNewReleasePlan(releasePlan);
+        return createNewReleasePlan();
     }
 
-    private ReleasePlan createNewReleasePlan(ReleasePlan releasePlan) {
+    private ReleasePlan createNewReleasePlan() {
         ReleasePlanEntity entity = ReleasePlanEntity.builder()
-                .notes(releasePlan.getNotes())
                 .created(ZonedDateTime.now())
                 .build();
         releasePlanRepository.save(entity);
@@ -70,4 +76,14 @@ public class ReleasePlanService {
         releasePlan.setArchived(ZonedDateTime.now());
         return converter.toApi(releasePlanRepository.save(releasePlan));
     }
+
+    public ReleasePlan addArtifact(Long id, ArtifactInfo newArtifact) {
+        ReleasePlanEntity releasePlan = getExistingReleasePlan(id);
+        if (releasePlan.getArchived() == null) {
+            throw new BadRequestException("This release plan has not been activated. Please activate before adding artifacts.");
+        }
+        releasePlan.addArtifact(artifactInfoConverter.toEntity(newArtifact));
+        return converter.toApi(releasePlanRepository.save(releasePlan));
+    }
+
 }

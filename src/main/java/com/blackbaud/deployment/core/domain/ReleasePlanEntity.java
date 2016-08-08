@@ -1,5 +1,6 @@
 package com.blackbaud.deployment.core.domain;
 
+import com.blackbaud.deployment.api.ArtifactInfo;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,7 +18,9 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import java.time.Year;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity(name = "release_plan")
@@ -48,4 +51,11 @@ public class ReleasePlanEntity {
             }
     )
     private List<ArtifactInfoEntity> artifacts;
+
+    public void addArtifact(ArtifactInfoEntity newArtifact) {
+        if (artifacts == null) {
+            artifacts = new ArrayList<>();
+        }
+        artifacts.add(newArtifact);
+    }
 }
