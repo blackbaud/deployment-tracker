@@ -33,9 +33,6 @@ public class ReleasePlanResource {
     @Inject
     private ReleasePlanService releasePlanService;
 
-    @Inject
-    private ReleasePlanRepository releasePlanRepository;
-
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public ReleasePlan createReleasePlan(ReleasePlan releasePlan) {
@@ -55,31 +52,18 @@ public class ReleasePlanResource {
     @PUT
     @Path("{id}/" + ResourcePaths.NOTES_PATH)
     public ReleasePlan updateNotes(@PathParam("id") Long id, String notes) {
-        ReleasePlanEntity releasePlan = releasePlanService.getExistingReleasePlan(id);
-        releasePlan.setNotes(notes);
-        releasePlanRepository.save(releasePlan);
-        return converter.toApi(releasePlan);
+        return releasePlanService.updateNotes(id, notes);
     }
 
     @PUT
     @Path("{id}/" + ResourcePaths.ACTIVATE_PATH)
     public ReleasePlan activate(@PathParam("id") Long id) {
-        ReleasePlanEntity releasePlan = releasePlanService.getExistingReleasePlan(id);
-        if(releasePlan.getArchived() != null){
-            throw new BadRequestException("Cannot activate a archived release plan");
-        }
-        releasePlan.setActivated(ZonedDateTime.now());
-        releasePlanRepository.save(releasePlan);
-        return converter.toApi(releasePlan);
+        return releasePlanService.activate(id);
     }
 
     @PUT
     @Path("{id}/" + ResourcePaths.ARCHIVE_PATH)
     public ReleasePlan archive(@PathParam("id") Long id) {
-        ReleasePlanEntity releasePlan = releasePlanService.getExistingReleasePlan(id);
-        releasePlan.setArchived(ZonedDateTime.now());
-        releasePlanRepository.save(releasePlan);
-        return converter.toApi(releasePlan);
+        return releasePlanService.archive(id);
     }
-
 }

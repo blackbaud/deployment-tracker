@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.PathParam;
 import java.time.ZonedDateTime;
 
 @Component
@@ -49,5 +50,24 @@ public class ReleasePlanService {
         return releasePlan;
     }
 
+    public ReleasePlan updateNotes(Long id, String notes) {
+        ReleasePlanEntity releasePlan = getExistingReleasePlan(id);
+        releasePlan.setNotes(notes);
+        return converter.toApi(releasePlanRepository.save(releasePlan));
+    }
 
+    public ReleasePlan activate(Long id) {
+        ReleasePlanEntity releasePlan = getExistingReleasePlan(id);
+        if(releasePlan.getArchived() != null){
+            throw new BadRequestException("Cannot activate a archived release plan");
+        }
+        releasePlan.setActivated(ZonedDateTime.now());
+        return converter.toApi(releasePlanRepository.save(releasePlan));
+    }
+
+    public ReleasePlan archive(Long id) {
+        ReleasePlanEntity releasePlan = getExistingReleasePlan(id);
+        releasePlan.setArchived(ZonedDateTime.now());
+        return converter.toApi(releasePlanRepository.save(releasePlan));
+    }
 }
