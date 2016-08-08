@@ -1,6 +1,5 @@
 package com.blackbaud.deployment.resources
 
-import com.blackbaud.deployment.ArtifactInfoConverter
 import com.blackbaud.deployment.ComponentTest
 import com.blackbaud.deployment.ReleasePlanConverter
 import com.blackbaud.deployment.api.ReleasePlan
@@ -190,6 +189,20 @@ class ReleasePlanResourceSpec extends Specification {
         then:
         ReleasePlanEntity updatedPlan = releasePlanRepository.findOne(currentPlan.id)
         updatedPlan.artifacts == [artifact1, artifact2] as List
+    }
+
+    def "cannot post artifacts to a non-activated release plan"() {
+        given:
+        ReleasePlanEntity currentPlan = createCurrentReleasePlan()
+        ArtifactInfoEntity artifact = aRandom.artifactInfoEntity().build()
+        artifactInfoRepository.save(artifact)
+
+        when:
+        releasePlanClient.addArtifact(currentPlan.id, artifactInfoConverter.toApi(artifact))
+
+        then:
+        Exception e = thrown()
+        e instanceof BadRequestException
     }
 
     def ReleasePlanEntity createCurrentReleasePlan() {
