@@ -40,6 +40,7 @@ class ReleasePlanResourceSpec extends Specification {
 
         then:
         createdPlan.notes == newPlan.notes
+        createdPlan.id != null
         createdPlan.created != null
         createdPlan.activated == null
         createdPlan.archived == null
