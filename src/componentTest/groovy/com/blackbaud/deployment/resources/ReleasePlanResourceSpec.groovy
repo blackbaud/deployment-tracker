@@ -12,6 +12,7 @@ import spock.lang.Specification
 
 import javax.inject.Inject
 import javax.ws.rs.BadRequestException
+import javax.ws.rs.NotFoundException
 
 import static com.blackbaud.deployment.core.CoreARandom.aRandom
 
@@ -77,7 +78,7 @@ class ReleasePlanResourceSpec extends Specification {
 
         then:
         Exception exception = thrown()
-        exception instanceof BadRequestException
+        exception instanceof NotFoundException
     }
 
     def "can update notes to existing release plan"() {
@@ -139,7 +140,7 @@ class ReleasePlanResourceSpec extends Specification {
 
         then:
         Exception exception = thrown()
-        exception instanceof BadRequestException
+        exception instanceof NotFoundException
     }
 
     def "associate an artifact with an existing release plan"() {

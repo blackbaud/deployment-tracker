@@ -7,12 +7,14 @@ import com.blackbaud.deployment.core.domain.ReleasePlanEntity;
 import com.blackbaud.deployment.core.domain.ReleasePlanRepository;
 import com.blackbaud.deployment.core.domain.ReleasePlanService;
 import lombok.extern.slf4j.Slf4j;
+import org.omg.CosNaming.NamingContextPackage.NotFound;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -44,7 +46,7 @@ public class ReleasePlanResource {
     public ReleasePlan getCurrentReleasePlan() {
         ReleasePlan releasePlan = converter.toApi(releasePlanService.getCurrentReleasePlan());
         if (releasePlan == null) {
-            throw new BadRequestException("No current release plan exists");
+            throw new NotFoundException("No current release plan exists");
         }
         return releasePlan;
     }

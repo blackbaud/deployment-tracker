@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
-import javax.ws.rs.PathParam;
+import javax.ws.rs.NotFoundException;
 import java.time.ZonedDateTime;
 
 @Component
@@ -38,14 +38,14 @@ public class ReleasePlanService {
         return getCurrentReleasePlan() != null;
     }
 
-    public ReleasePlanEntity getCurrentReleasePlan(){
+    public ReleasePlanEntity getCurrentReleasePlan() {
         return releasePlanRepository.findByArchivedNull();
     }
 
     public ReleasePlanEntity getExistingReleasePlan(Long id) {
         ReleasePlanEntity releasePlan = releasePlanRepository.findOne(id);
         if (releasePlan == null) {
-            throw new BadRequestException("No release plan with id "+ id +" exists");
+            throw new NotFoundException("No release plan with id " + id + " exists");
         }
         return releasePlan;
     }
@@ -58,7 +58,7 @@ public class ReleasePlanService {
 
     public ReleasePlan activate(Long id) {
         ReleasePlanEntity releasePlan = getExistingReleasePlan(id);
-        if(releasePlan.getArchived() != null){
+        if (releasePlan.getArchived() != null) {
             throw new BadRequestException("Cannot activate a archived release plan");
         }
         releasePlan.setActivated(ZonedDateTime.now());
