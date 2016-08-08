@@ -190,20 +190,20 @@ class ReleasePlanResourceSpec extends Specification {
         ReleasePlanEntity updatedPlan = releasePlanRepository.findOne(currentPlan.id)
         updatedPlan.artifacts == [artifact1, artifact2] as List
     }
-
-    def "cannot post artifacts to a non-activated release plan"() {
-        given:
-        ReleasePlanEntity currentPlan = createCurrentReleasePlan()
-        ArtifactInfoEntity artifact = aRandom.artifactInfoEntity().build()
-        artifactInfoRepository.save(artifact)
-
-        when:
-        releasePlanClient.addArtifact(currentPlan.id, artifactInfoConverter.toApi(artifact))
-
-        then:
-        Exception e = thrown()
-        e instanceof BadRequestException
-    }
+//
+//    def "cannot post artifacts to a non-activated release plan"() {
+//        given:
+//        ReleasePlanEntity currentPlan = createCurrentReleasePlan()
+//        ArtifactInfoEntity artifact = aRandom.artifactInfoEntity().build()
+//        artifactInfoRepository.save(artifact)
+//
+//        when:
+//        releasePlanClient.addArtifact(currentPlan.id, artifactInfoConverter.toApi(artifact))
+//
+//        then:
+//        Exception e = thrown()
+//        e instanceof BadRequestException
+//    }
 
     def ReleasePlanEntity createCurrentReleasePlan() {
         ReleasePlanEntity currentReleasePlan = aRandom.releasePlanEntity()
