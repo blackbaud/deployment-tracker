@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
@@ -60,14 +61,14 @@ public class ReleasePlanResource {
     }
 
     @PUT
-    @Path("{id}/" + ResourcePaths.ARCHIVE_PATH)
-    public ReleasePlan archive(@PathParam("id") Long id) {
-        return releasePlanService.archive(id);
-    }
-
-    @PUT
     @Path("{id}/" + ResourcePaths.ARTIFACT_PATH)
     public ReleasePlan addArtifact(@PathParam("id") Long id, ArtifactInfo newArtifact) {
         return releasePlanService.addArtifact(id, newArtifact);
+    }
+
+    @DELETE
+    @Path("{id}")
+    public void deleteReleasePlan(@PathParam("id") Long id) {
+        releasePlanService.delete(id);
     }
 }

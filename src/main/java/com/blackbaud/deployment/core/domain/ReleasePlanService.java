@@ -5,6 +5,7 @@ import com.blackbaud.deployment.ReleasePlanConverter;
 import com.blackbaud.deployment.api.ArtifactInfo;
 import com.blackbaud.deployment.api.ReleasePlan;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
@@ -45,7 +46,7 @@ public class ReleasePlanService {
     }
 
     public ReleasePlanEntity getCurrentReleasePlan() {
-        return releasePlanRepository.findByArchivedNull();
+        return releasePlanRepository.findByActivatedNull();
     }
 
     public ReleasePlanEntity getExistingReleasePlan(Long id) {
@@ -64,23 +65,24 @@ public class ReleasePlanService {
 
     public ReleasePlan activate(Long id) {
         ReleasePlanEntity releasePlan = getExistingReleasePlan(id);
-        if (releasePlan.getActivated() != null) {
-            throw new BadRequestException("Cannot activate a archived release plan");
-        }
         releasePlan.setActivated(ZonedDateTime.now());
-        return converter.toApi(releasePlanRepository.save(releasePlan));
-    }
-
-    public ReleasePlan archive(Long id) {
-        ReleasePlanEntity releasePlan = getExistingReleasePlan(id);
-        releasePlan.setArchived(ZonedDateTime.now());
         return converter.toApi(releasePlanRepository.save(releasePlan));
     }
 
     public ReleasePlan addArtifact(Long id, ArtifactInfo newArtifact) {
         ReleasePlanEntity releasePlan = getExistingReleasePlan(id);
+        if (releasePlan.getActivated() != null) {
+            throw new BadRequestException("Release plan is already closed.");
+        }
         releasePlan.addArtifact(artifactInfoConverter.toEntity(newArtifact));
         return converter.toApi(releasePlanRepository.save(releasePlan));
     }
 
+    public void delete(Long id) {
+        try {
+            releasePlanRepository.delete(id);
+        } catch (EmptyResultDataAccessException ex) {
+            log.warn("Attempted to delete a deleted release plan");
+        }
+    }
 }
