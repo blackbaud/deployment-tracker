@@ -121,35 +121,6 @@ class ReleasePlanResourceSpec extends Specification {
         exception instanceof NotFoundException
     }
 
-    def "associate an artifact with an existing release plan"() {
-        given:
-        ReleasePlanEntity existingPlan = createCurrentReleasePlan()
-        ArtifactInfoEntity core = ArtifactInfoEntity.builder().artifactId("core").buildVersion("1").gitSha("asd").build()
-        core = artifactInfoRepository.save(core)
-        existingPlan.artifacts = [core]
-
-        when:
-        releasePlanRepository.save(existingPlan)
-
-        then:
-        ReleasePlanEntity updatedPlan = releasePlanRepository.findOne(existingPlan.id)
-        updatedPlan.artifacts == [core]
-    }
-
-    def "associate an artifact with a new release plan"() {
-        given:
-        ArtifactInfoEntity core = ArtifactInfoEntity.builder().artifactId("core").buildVersion("1").gitSha("asd").build()
-        core = artifactInfoRepository.save(core)
-        ReleasePlanEntity newPlan = ReleasePlanEntity.builder().artifacts([core]).build()
-
-        when:
-        newPlan = releasePlanRepository.save(newPlan)
-
-        then:
-        ReleasePlanEntity updatedPlan = releasePlanRepository.findOne(newPlan.id)
-        updatedPlan.artifacts == [core]
-    }
-
     def "can post artifacts to an existing release plan"() {
         given:
         ReleasePlanEntity currentPlan = createCurrentReleasePlan()
