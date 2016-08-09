@@ -17,6 +17,5 @@ public class ReleasePlan {
     private String notes;
     private ZonedDateTime created;
     private ZonedDateTime activated;
-    private ZonedDateTime archived;
     private List<ArtifactInfo> artifacts;
 }

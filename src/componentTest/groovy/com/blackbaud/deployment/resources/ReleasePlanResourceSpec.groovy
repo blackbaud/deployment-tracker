@@ -1,15 +1,19 @@
 package com.blackbaud.deployment.resources
 
+import com.blackbaud.deployment.ArtifactInfoConverter
 import com.blackbaud.deployment.ComponentTest
 import com.blackbaud.deployment.ReleasePlanConverter
 import com.blackbaud.deployment.api.ReleasePlan
 import com.blackbaud.deployment.client.ReleasePlanClient
+import com.blackbaud.deployment.core.domain.ArtifactInfoEntity
+import com.blackbaud.deployment.core.domain.ArtifactInfoRepository
 import com.blackbaud.deployment.core.domain.ReleasePlanEntity
 import com.blackbaud.deployment.core.domain.ReleasePlanRepository
 import spock.lang.Specification
 
 import javax.inject.Inject
 import javax.ws.rs.BadRequestException
+import javax.ws.rs.NotFoundException
 
 import static com.blackbaud.deployment.core.CoreARandom.aRandom
 
@@ -25,6 +29,11 @@ class ReleasePlanResourceSpec extends Specification {
     @Inject
     private ReleasePlanConverter converter
 
+    @Inject
+    private ArtifactInfoRepository artifactInfoRepository
+
+    @Inject
+    private ArtifactInfoConverter artifactInfoConverter;
 
     def "can create a new release plan"() {
         given:
@@ -37,7 +46,6 @@ class ReleasePlanResourceSpec extends Specification {
         createdPlan.id != null
         createdPlan.created != null
         createdPlan.activated == null
-        createdPlan.archived == null
     }
 
     def "can NOT create a new release plan if there is already a current one"() {
@@ -56,7 +64,7 @@ class ReleasePlanResourceSpec extends Specification {
     }
 
 
-    def "can get current release plan if one exists"(){
+    def "can get current release plan if one exists"() {
         given:
         createCurrentReleasePlan()
 
@@ -73,7 +81,7 @@ class ReleasePlanResourceSpec extends Specification {
 
         then:
         Exception exception = thrown()
-        exception instanceof BadRequestException
+        exception instanceof NotFoundException
     }
 
     def "can update notes to existing release plan"() {
@@ -101,46 +109,68 @@ class ReleasePlanResourceSpec extends Specification {
         updatedReleasePlan.activated != null
     }
 
-    def "cannot activate archived release plan"() {
+    def "cannot activate nonexistent release plan"() {
         given:
-        ReleasePlanEntity archivedReleasePlan = aRandom.releasePlanEntity().build()
-        archivedReleasePlan = releasePlanRepository.save(archivedReleasePlan)
+        ReleasePlanEntity releasePlan = aRandom.releasePlanEntity().build()
 
         when:
-        releasePlanClient.activateReleasePlan(archivedReleasePlan.id)
+        releasePlanClient.activateReleasePlan(releasePlan.id)
 
         then:
         Exception exception = thrown()
-        exception instanceof BadRequestException
+        exception instanceof NotFoundException
     }
 
-    def "can close a release plan"() {
+    def "can post artifacts to an existing release plan"() {
         given:
-        ReleasePlanEntity releasePlan = createCurrentReleasePlan()
+        ReleasePlanEntity currentPlan = createCurrentReleasePlan()
+        ArtifactInfoEntity artifact1 = aRandom.artifactInfoEntity().build()
+        ArtifactInfoEntity artifact2 = aRandom.artifactInfoEntity().build()
+        artifactInfoRepository.save([artifact1, artifact2])
 
         when:
-        releasePlanClient.archiveReleasePlan(releasePlan.id)
+        releasePlanClient.addArtifact(currentPlan.id, artifactInfoConverter.toApi(artifact1))
+        releasePlanClient.addArtifact(currentPlan.id, artifactInfoConverter.toApi(artifact2))
 
         then:
-        ReleasePlanEntity archivedReleasePlan = releasePlanRepository.findOne(releasePlan.id)
-        archivedReleasePlan.archived != null
+        ReleasePlanEntity updatedPlan = releasePlanRepository.findOne(currentPlan.id)
+        updatedPlan.artifacts.sort() == [artifact1, artifact2].sort()
     }
 
-    def "cannot active nonexistent release plan"(){
+    def "cannot post artifacts to an activated release plan"() {
         given:
-        ReleasePlanEntity archivedReleasePlan = aRandom.releasePlanEntity().build()
+        ReleasePlanEntity currentPlan = releasePlanRepository.save(aRandom.releasePlanEntity().build())
+        ArtifactInfoEntity artifact = aRandom.artifactInfoEntity().build()
+        artifactInfoRepository.save(artifact)
 
         when:
-        releasePlanClient.activateReleasePlan(archivedReleasePlan.id)
+        releasePlanClient.addArtifact(currentPlan.id, artifactInfoConverter.toApi(artifact))
 
         then:
-        Exception exception = thrown()
-        exception instanceof BadRequestException
+        Exception e = thrown()
+        e instanceof BadRequestException
+    }
+
+    def "can delete a release plan"() {
+        given:
+        ReleasePlanEntity plan = createCurrentReleasePlan()
+
+        when:
+        releasePlanClient.delete(plan.id)
+
+        then:
+        releasePlanRepository.findOne(plan.id) == null
+
+        when:
+        releasePlanClient.delete(plan.id)
+
+        then:
+        notThrown()
     }
 
     def ReleasePlanEntity createCurrentReleasePlan() {
         ReleasePlanEntity currentReleasePlan = aRandom.releasePlanEntity()
-                .archived(null)
+                .activated(null)
                 .build()
         releasePlanRepository.save(currentReleasePlan)
     }

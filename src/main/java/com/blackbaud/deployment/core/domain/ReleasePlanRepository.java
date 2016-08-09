@@ -4,5 +4,5 @@ import org.springframework.data.repository.CrudRepository;
 
 public interface ReleasePlanRepository extends CrudRepository<ReleasePlanEntity, Long> {
 
-    ReleasePlanEntity findByArchivedNull();
+    ReleasePlanEntity findByActivatedNull();
 }

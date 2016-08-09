@@ -10,5 +10,5 @@ public class ResourcePaths {
     public static final String RELEASE_PLAN_PATH = DEPLOYMENT_TRACKER_PATH + "/release-plan";
     public static final String NOTES_PATH = "notes";
     public static final String ACTIVATE_PATH = "activate";
-    public static final String ARCHIVE_PATH = "archive";
+    public static final String ARTIFACT_PATH = "artifacts";
 }

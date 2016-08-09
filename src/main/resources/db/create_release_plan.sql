@@ -11,5 +11,9 @@ create table release_plan (
   archived timestamp without time zone,
   activated timestamp without time zone,
   notes TEXT
-)
+);
 --rollback drop table release_plan
+
+--changeset blackbaud:3
+alter table release_plan drop column archived;
+

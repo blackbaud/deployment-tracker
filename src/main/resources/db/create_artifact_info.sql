@@ -17,3 +17,6 @@ create index artifact_index on artifact_info(artifact_id, build_version);
 --changeset blackbaud:3
 alter table artifact_info drop column story_ids;
 alter table artifact_info drop column authors;
+
+--changeset blackbaud:4
+alter table artifact_info add constraint artifact_info_pk primary key (artifact_id, build_version)

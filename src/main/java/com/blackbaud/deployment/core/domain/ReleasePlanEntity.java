@@ -1,5 +1,6 @@
 package com.blackbaud.deployment.core.domain;
 
+import com.blackbaud.deployment.api.ArtifactInfo;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,6 +9,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -16,7 +18,9 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import java.time.Year;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity(name = "release_plan")
@@ -34,17 +38,23 @@ public class ReleasePlanEntity {
 
     private ZonedDateTime created;
     private ZonedDateTime activated;
-    private ZonedDateTime archived;
     private String notes;
 
-//    @ManyToMany
-//    @JoinTable(
-//            name = "release_plan_artifact",
-//            joinColumns = @JoinColumn(name = "release_plan_id", referencedColumnName = "id"),
-//            inverseJoinColumns = {
-//                    @JoinColumn(name = "artifact_id", referencedColumnName = "artifact_id"),
-//                    @JoinColumn(name = "build_version", referencedColumnName = "build_version")
-//            }
-//    )
-//    private List<ArtifactInfoEntity> artifacts;
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "release_plan_artifact",
+            joinColumns = @JoinColumn(name = "release_plan_id", referencedColumnName = "id"),
+            inverseJoinColumns = {
+                    @JoinColumn(name = "artifact_id", referencedColumnName = "artifact_id"),
+                    @JoinColumn(name = "build_version", referencedColumnName = "build_version")
+            }
+    )
+    private List<ArtifactInfoEntity> artifacts;
+
+    public void addArtifact(ArtifactInfoEntity newArtifact) {
+        if (artifacts == null) {
+            artifacts = new ArrayList<>();
+        }
+        artifacts.add(newArtifact);
+    }
 }
