@@ -2,8 +2,11 @@ package com.blackbaud.deployment.resources
 
 import com.blackbaud.deployment.ArtifactInfoConverter
 import com.blackbaud.deployment.ComponentTest
+import com.blackbaud.deployment.RealArtifacts
 import com.blackbaud.deployment.ReleasePlanConverter
+import com.blackbaud.deployment.api.ArtifactInfo
 import com.blackbaud.deployment.api.ReleasePlan
+import com.blackbaud.deployment.client.ArtifactInfoClient
 import com.blackbaud.deployment.client.ReleasePlanClient
 import com.blackbaud.deployment.core.domain.ArtifactInfoEntity
 import com.blackbaud.deployment.core.domain.ArtifactInfoRepository
@@ -33,7 +36,13 @@ class ReleasePlanResourceSpec extends Specification {
     private ArtifactInfoRepository artifactInfoRepository
 
     @Inject
-    private ArtifactInfoConverter artifactInfoConverter;
+    private ArtifactInfoConverter artifactInfoConverter
+
+    @Inject
+    private ArtifactInfoClient artifactInfoClient
+
+    private final ArtifactInfo newArtifact = RealArtifacts.getRecentDeploymentTrackerArtifact()
+    private final ArtifactInfo oldArtifact = RealArtifacts.getEarlyDeploymentTrackerArtifact()
 
     def "can create a new release plan"() {
         given:
@@ -121,7 +130,7 @@ class ReleasePlanResourceSpec extends Specification {
         exception instanceof NotFoundException
     }
 
-    def "can post artifacts to an existing release plan"() {
+    def "can put artifacts to an existing release plan"() {
         given:
         ReleasePlanEntity currentPlan = createCurrentReleasePlan()
         ArtifactInfoEntity artifact1 = aRandom.artifactInfoEntity().build()
@@ -137,7 +146,28 @@ class ReleasePlanResourceSpec extends Specification {
         updatedPlan.artifacts.sort() == [artifact1, artifact2].sort()
     }
 
-    def "cannot post artifacts to an activated release plan"() {
+    def "can update an artifact for a release plan"() {
+        given: "a releasePlan"
+        ReleasePlanEntity currentPlan = createCurrentReleasePlan()
+
+        and: "create the original artifact info"
+        artifactInfoClient.update(oldArtifact.artifactId, oldArtifact.buildVersion, oldArtifact)
+
+        and: "create the newer artifact info to be updated on the release plan"
+        artifactInfoClient.update(newArtifact.artifactId, newArtifact.buildVersion, newArtifact)
+
+        and: "the original artifact version is added to the releasePlan"
+        releasePlanClient.addArtifact(currentPlan.id, oldArtifact)
+
+        when: "the updated artifact is added to the same releasePlan"
+        releasePlanClient.addArtifact(currentPlan.id, newArtifact)
+
+        then: "the releasePlan has the new artifact with the new version"
+        ReleasePlan releasePlan = releasePlanClient.getCurrentReleasePlan()
+        releasePlan.artifacts == [newArtifact]
+    }
+
+    def "cannot put artifacts to an activated release plan"() {
         given:
         ReleasePlanEntity currentPlan = releasePlanRepository.save(aRandom.releasePlanEntity().build())
         ArtifactInfoEntity artifact = aRandom.artifactInfoEntity().build()
