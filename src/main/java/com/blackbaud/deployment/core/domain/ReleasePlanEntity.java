@@ -22,6 +22,7 @@ import java.time.Year;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity(name = "release_plan")
 @Table(name = "release_plan")
@@ -55,6 +56,9 @@ public class ReleasePlanEntity {
         if (artifacts == null) {
             artifacts = new ArrayList<>();
         }
+        artifacts = artifacts.stream().filter(
+                artifact -> !artifact.getArtifactId().equals(newArtifact.getArtifactId())
+        ).collect(Collectors.toList());
         artifacts.add(newArtifact);
     }
 }
