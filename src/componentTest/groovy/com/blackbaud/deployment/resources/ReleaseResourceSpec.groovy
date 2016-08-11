@@ -160,7 +160,7 @@ class ReleaseResourceSpec extends Specification {
                 .dev(middleReleaseInfo)
                 .prod(earlyReleaseInfo)
                 .stories(["LUM-7759", "LUM-8045"] as Set)
-                .developers(["Ryan McKay", "Blackbaud-JohnHolland"] as Set)
+                .developers(["Ryan McKay"] as Set)
                 .build()
 
         expect:

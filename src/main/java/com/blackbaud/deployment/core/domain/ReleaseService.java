@@ -1,9 +1,10 @@
 package com.blackbaud.deployment.core.domain;
 
 import com.blackbaud.deployment.ArtifactInfoConverter;
+import com.blackbaud.deployment.ReleasePlanConverter;
+import com.blackbaud.deployment.api.ArtifactInfo;
 import com.blackbaud.deployment.api.ArtifactReleaseDiff;
 import com.blackbaud.deployment.api.ArtifactReleaseInfo;
-import com.blackbaud.deployment.api.ReleasePlan;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -36,6 +37,7 @@ public class ReleaseService {
                                                                     "data-pipeline-tests-endpoints",
                                                                     "mock-data-sync-api",
                                                                     "kafka-oauth-sasl-provider");
+    public static final String FAKE_RELEASE_VERSION = "12345";
 
     @Autowired
     private ArtifactReleaseInfoService artifactReleaseInfoService;
@@ -55,6 +57,9 @@ public class ReleaseService {
     @Autowired
     private ReleasePlanService releasePlanService;
 
+    @Autowired
+    private ReleasePlanConverter releasePlanConverter;
+
     public Map<String, ArtifactReleaseDiff> createArtifactReleaseDiffs() {
         List<ArtifactReleaseInfo> devInfos = artifactReleaseInfoService.findManyByFoundationAndSpace(DEV_FOUNDATION, DEV_SPACE);
         List<ArtifactReleaseInfo> prodInfos = artifactReleaseInfoService.findManyByFoundationAndSpace(PROD_FOUNDATION, PROD_SPACE);
@@ -72,8 +77,14 @@ public class ReleaseService {
 
     public Map<String, ArtifactReleaseDiff> createArtifactReleaseDiffsForReleasePlanArtifacts(List<ArtifactReleaseInfo> prodInfos) {
         ReleasePlanEntity releasePlan = releasePlanService.getCurrentReleasePlan();
-        List<String> releasePlanArtifactIds = releasePlan.getArtifacts().stream().map(artifactInfoEntity -> artifactInfoEntity.getArtifactId()).collect(Collectors.toList());
-        List<ArtifactReleaseInfo> devInfos = artifactReleaseInfoService.findManyByFoundationAndSpaceAndArtifactIdsIn(DEV_FOUNDATION, DEV_SPACE, releasePlanArtifactIds);
+        List<ArtifactInfo> releasePlanInfos = releasePlanConverter.toApi(releasePlan).getArtifacts();
+        List<ArtifactReleaseInfo> devInfos = releasePlanInfos.stream().map(
+                artifactInfo -> ArtifactReleaseInfo.builder()
+                        .buildVersion(artifactInfo.getBuildVersion())
+                        .artifactId(artifactInfo.getArtifactId())
+                        .gitSha(artifactInfo.getGitSha())
+                        .releaseVersion(FAKE_RELEASE_VERSION).build())
+                .collect(Collectors.toList());
         TreeMap<String, ArtifactReleaseDiff> releaseSummary = combineArtifactReleaseInfos(devInfos, prodInfos);
         addAllStoriesAndDevelopers(releaseSummary);
         return releaseSummary;

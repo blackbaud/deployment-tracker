@@ -2,6 +2,7 @@ package com.blackbaud.deployment
 
 import com.blackbaud.deployment.api.ArtifactInfo
 import com.blackbaud.deployment.api.ArtifactReleaseInfo
+import com.blackbaud.deployment.core.domain.ReleaseService
 
 class RealArtifacts {
 
@@ -19,9 +20,9 @@ class RealArtifacts {
     def static getMiddleDeploymentTrackerRelease() {
         ArtifactReleaseInfo.builder()
                 .artifactId("deployment-tracker")
-                .buildVersion("0.20160603.193021")
-                .gitSha("629e1734a9e6d44e83877d44cd15ffdbd99d27c8")
-                .releaseVersion("0.20160603.750143")
+                .buildVersion("0.20160603.161854")
+                .gitSha("9ecbbedb36e9e9bd39f1781b6e4dcc0523da3e23")
+                .releaseVersion(ReleaseService.FAKE_RELEASE_VERSION)
                 .build()
     }
 
@@ -65,8 +66,8 @@ class RealArtifacts {
     def static getMiddleDeploymentTrackerArtifact() {
         ArtifactInfo.builder()
                 .artifactId("deployment-tracker")
-                .buildVersion("0.20160603.750143")
-                .gitSha("629e1734a9e6d44e83877d44cd15ffdbd99d27c8")
+                .buildVersion("0.20160603.161854")
+                .gitSha("9ecbbedb36e9e9bd39f1781b6e4dcc0523da3e23")
                 .build()
     }
 
