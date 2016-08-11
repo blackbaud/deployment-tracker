@@ -11,4 +11,5 @@ public class ResourcePaths {
     public static final String NOTES_PATH = "notes";
     public static final String ACTIVATE_PATH = "activate";
     public static final String ARTIFACT_PATH = "artifacts";
+    public static final String RELEASE_PLAN_DIFF_PATH = CURRENT_PATH + "/release-plan-diff";
 }

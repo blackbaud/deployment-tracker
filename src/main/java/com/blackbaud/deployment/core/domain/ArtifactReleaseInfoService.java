@@ -33,6 +33,10 @@ public class ArtifactReleaseInfoService {
         return converter.toApi(artifactReleaseInfoRepository.findOneByFoundationAndSpaceAndArtifactId(foundation, space, artifactId));
     }
 
+    public List<ArtifactReleaseInfo> findManyByFoundationAndSpaceAndArtifactIdsIn(String foundation, String space, List<String> artifactIds) {
+        return converter.toApiList(artifactReleaseInfoRepository.findManyByArtifactIdInAndFoundationAndSpace(artifactIds, foundation, space));
+    }
+
     public List<ArtifactReleaseInfo> findManyByFoundationAndSpace(String foundation, String space) {
         return converter.toApiList(artifactReleaseInfoRepository.findManyByFoundationAndSpace(foundation, space));
     }

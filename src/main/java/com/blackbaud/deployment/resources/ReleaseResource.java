@@ -44,4 +44,14 @@ public class ReleaseResource {
             throw new BadRequestException(ex.getMessage());
         }
     }
+
+    @POST
+    @Path(ResourcePaths.RELEASE_PLAN_DIFF_PATH)
+    public Release getCurrentReleasePlanDiffForProdSnapshot(@NotNull List<ArtifactReleaseInfo> prodArtifactReleaseInfos) {
+        try {
+            return new Release(releaseService.createArtifactReleaseDiffsForReleasePlanArtifacts(prodArtifactReleaseInfos));
+        } catch (GitLogParserFactory.InvalidRepositoryException ex) {
+            throw new BadRequestException(ex.getMessage());
+        }
+    }
 }

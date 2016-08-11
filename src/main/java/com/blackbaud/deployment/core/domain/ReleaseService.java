@@ -1,6 +1,8 @@
 package com.blackbaud.deployment.core.domain;
 
 import com.blackbaud.deployment.ArtifactInfoConverter;
+import com.blackbaud.deployment.ReleasePlanConverter;
+import com.blackbaud.deployment.api.ArtifactInfo;
 import com.blackbaud.deployment.api.ArtifactReleaseDiff;
 import com.blackbaud.deployment.api.ArtifactReleaseInfo;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -34,6 +37,7 @@ public class ReleaseService {
                                                                     "data-pipeline-tests-endpoints",
                                                                     "mock-data-sync-api",
                                                                     "kafka-oauth-sasl-provider");
+    public static final String FAKE_RELEASE_VERSION = "12345";
 
     @Autowired
     private ArtifactReleaseInfoService artifactReleaseInfoService;
@@ -50,6 +54,12 @@ public class ReleaseService {
     @Autowired
     GitLogRepository gitLogRepository;
 
+    @Autowired
+    private ReleasePlanService releasePlanService;
+
+    @Autowired
+    private ReleasePlanConverter releasePlanConverter;
+
     public Map<String, ArtifactReleaseDiff> createArtifactReleaseDiffs() {
         List<ArtifactReleaseInfo> devInfos = artifactReleaseInfoService.findManyByFoundationAndSpace(DEV_FOUNDATION, DEV_SPACE);
         List<ArtifactReleaseInfo> prodInfos = artifactReleaseInfoService.findManyByFoundationAndSpace(PROD_FOUNDATION, PROD_SPACE);
@@ -63,6 +73,29 @@ public class ReleaseService {
         TreeMap<String, ArtifactReleaseDiff> releaseSummary = combineArtifactReleaseInfos(devInfos, prodInfos);
         addAllStoriesAndDevelopers(releaseSummary);
         return releaseSummary;
+    }
+
+    public Map<String, ArtifactReleaseDiff> createArtifactReleaseDiffsForReleasePlanArtifacts(List<ArtifactReleaseInfo> prodInfos) {
+        ReleasePlanEntity releasePlan = releasePlanService.getCurrentReleasePlan();
+        if (releasePlan == null) {
+            return Collections.emptyMap();
+        }
+        List<ArtifactReleaseInfo> releasePlanReleaseInfos = getReleasePlanReleaseInfosForDiffing(releasePlan);
+        TreeMap<String, ArtifactReleaseDiff> releaseSummary = combineArtifactReleaseInfos(releasePlanReleaseInfos, prodInfos);
+        addAllStoriesAndDevelopers(releaseSummary);
+        return releaseSummary;
+    }
+
+    private List<ArtifactReleaseInfo> getReleasePlanReleaseInfosForDiffing(ReleasePlanEntity releasePlan) {
+        List<ArtifactInfo> releasePlanInfos = releasePlanConverter.toApi(releasePlan).getArtifacts();
+        List<ArtifactReleaseInfo> devInfos = releasePlanInfos.stream().map(
+                artifactInfo -> ArtifactReleaseInfo.builder()
+                        .buildVersion(artifactInfo.getBuildVersion())
+                        .artifactId(artifactInfo.getArtifactId())
+                        .gitSha(artifactInfo.getGitSha())
+                        .releaseVersion(FAKE_RELEASE_VERSION).build())
+                .collect(Collectors.toList());
+        return devInfos;
     }
 
     private TreeMap<String, ArtifactReleaseDiff> combineArtifactReleaseInfos(List<ArtifactReleaseInfo> devInfos, List<ArtifactReleaseInfo> prodInfos) {
