@@ -150,7 +150,7 @@ class ReleaseResourceSpec extends Specification {
         artifactInfoClient.update(recentInfo.artifactId, recentInfo.buildVersion, recentInfo)
         artifactInfoClient.update(middleInfo.artifactId, middleInfo.buildVersion, middleInfo)
         artifactInfoClient.update(earlyInfo.artifactId, earlyInfo.buildVersion, earlyInfo)
-        artifactReleaseInfoClient.update(ReleaseService.DEV_FOUNDATION, ReleaseService.DEV_SPACE, recentReleaseInfo)
+        storeInDev(recentReleaseInfo)
 
         and: "add the artifact behind dev to the releasePlan"
         releasePlanClient.addArtifact(currentReleasePlan.id, middleInfo)

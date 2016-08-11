@@ -46,7 +46,7 @@ public class ReleaseResource {
     }
 
     @POST
-    @Path(ResourcePaths.CURRENT_PATH + "/release-plan-diff")
+    @Path(ResourcePaths.RELEASE_PLAN_DIFF_PATH)
     public Release getCurrentReleasePlanDiffForProdSnapshot(@NotNull List<ArtifactReleaseInfo> prodArtifactReleaseInfos) {
         try {
             return new Release(releaseService.createArtifactReleaseDiffsForReleasePlanArtifacts(prodArtifactReleaseInfos));
