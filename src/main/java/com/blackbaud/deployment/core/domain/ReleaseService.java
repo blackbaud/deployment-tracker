@@ -3,6 +3,7 @@ package com.blackbaud.deployment.core.domain;
 import com.blackbaud.deployment.ArtifactInfoConverter;
 import com.blackbaud.deployment.api.ArtifactReleaseDiff;
 import com.blackbaud.deployment.api.ArtifactReleaseInfo;
+import com.blackbaud.deployment.api.ReleasePlan;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -50,6 +52,9 @@ public class ReleaseService {
     @Autowired
     GitLogRepository gitLogRepository;
 
+    @Autowired
+    private ReleasePlanService releasePlanService;
+
     public Map<String, ArtifactReleaseDiff> createArtifactReleaseDiffs() {
         List<ArtifactReleaseInfo> devInfos = artifactReleaseInfoService.findManyByFoundationAndSpace(DEV_FOUNDATION, DEV_SPACE);
         List<ArtifactReleaseInfo> prodInfos = artifactReleaseInfoService.findManyByFoundationAndSpace(PROD_FOUNDATION, PROD_SPACE);
@@ -60,6 +65,15 @@ public class ReleaseService {
 
     public Map<String, ArtifactReleaseDiff> createArtifactReleaseDiffs(List<ArtifactReleaseInfo> prodInfos) {
         List<ArtifactReleaseInfo> devInfos = artifactReleaseInfoService.findManyByFoundationAndSpace(DEV_FOUNDATION, DEV_SPACE);
+        TreeMap<String, ArtifactReleaseDiff> releaseSummary = combineArtifactReleaseInfos(devInfos, prodInfos);
+        addAllStoriesAndDevelopers(releaseSummary);
+        return releaseSummary;
+    }
+
+    public Map<String, ArtifactReleaseDiff> createArtifactReleaseDiffsForReleasePlanArtifacts(List<ArtifactReleaseInfo> prodInfos) {
+        ReleasePlanEntity releasePlan = releasePlanService.getCurrentReleasePlan();
+        List<String> releasePlanArtifactIds = releasePlan.getArtifacts().stream().map(artifactInfoEntity -> artifactInfoEntity.getArtifactId()).collect(Collectors.toList());
+        List<ArtifactReleaseInfo> devInfos = artifactReleaseInfoService.findManyByFoundationAndSpaceAndArtifactIdsIn(DEV_FOUNDATION, DEV_SPACE, releasePlanArtifactIds);
         TreeMap<String, ArtifactReleaseDiff> releaseSummary = combineArtifactReleaseInfos(devInfos, prodInfos);
         addAllStoriesAndDevelopers(releaseSummary);
         return releaseSummary;

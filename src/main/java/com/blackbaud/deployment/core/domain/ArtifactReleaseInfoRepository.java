@@ -8,6 +8,8 @@ public interface ArtifactReleaseInfoRepository extends CrudRepository<ArtifactRe
 
     ArtifactReleaseInfoEntity findOneByFoundationAndSpaceAndArtifactId(String foundation, String space, String artifactId);
 
+    List<ArtifactReleaseInfoEntity> findManyByArtifactIdInAndFoundationAndSpace(List<String> artifactIdList, String foundation, String space);
+
     List<ArtifactReleaseInfoEntity> findManyByFoundationAndSpace(String foundation, String space);
 
 }

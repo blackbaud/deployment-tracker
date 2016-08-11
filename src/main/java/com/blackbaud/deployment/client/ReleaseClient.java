@@ -23,4 +23,11 @@ public class ReleaseClient extends CrudClient<Release, ReleaseClient> {
                 .createWithPost(prodArtifactReleaseInfos);
     }
 
+    public Release getCurrentReleasePlanDiffForProdSnapshot(List<ArtifactReleaseInfo> prodArtifactReleaseInfos) {
+        return (Release) getUntypedCrudClientRequest()
+                .path(ResourcePaths.CURRENT_PATH)
+                .path("release-plan-diff")
+                .createWithPost(prodArtifactReleaseInfos);
+    }
+
 }

@@ -16,6 +16,15 @@ class RealArtifacts {
                 .build()
     }
 
+    def static getMiddleDeploymentTrackerRelease() {
+        ArtifactReleaseInfo.builder()
+                .artifactId("deployment-tracker")
+                .buildVersion("0.20160603.193021")
+                .gitSha("629e1734a9e6d44e83877d44cd15ffdbd99d27c8")
+                .releaseVersion("0.20160603.750143")
+                .build()
+    }
+
     def static getEarlyDeploymentTrackerRelease() {
         ArtifactReleaseInfo.builder()
                 .artifactId("deployment-tracker")
@@ -50,6 +59,14 @@ class RealArtifacts {
                 .artifactId("deployment-tracker")
                 .buildVersion("0.20160606.194525")
                 .gitSha("e36ec0e653bb77dd20a6ac2c200d4a82a962e6e7")
+                .build()
+    }
+
+    def static getMiddleDeploymentTrackerArtifact() {
+        ArtifactInfo.builder()
+                .artifactId("deployment-tracker")
+                .buildVersion("0.20160603.750143")
+                .gitSha("629e1734a9e6d44e83877d44cd15ffdbd99d27c8")
                 .build()
     }
 
