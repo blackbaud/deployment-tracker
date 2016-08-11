@@ -77,6 +77,16 @@ public class ReleaseService {
 
     public Map<String, ArtifactReleaseDiff> createArtifactReleaseDiffsForReleasePlanArtifacts(List<ArtifactReleaseInfo> prodInfos) {
         ReleasePlanEntity releasePlan = releasePlanService.getCurrentReleasePlan();
+        if (releasePlan == null) {
+            return Collections.emptyMap();
+        }
+        List<ArtifactReleaseInfo> releasePlanReleaseInfos = getReleasePlanReleaseInfosForDiffing(releasePlan);
+        TreeMap<String, ArtifactReleaseDiff> releaseSummary = combineArtifactReleaseInfos(releasePlanReleaseInfos, prodInfos);
+        addAllStoriesAndDevelopers(releaseSummary);
+        return releaseSummary;
+    }
+
+    private List<ArtifactReleaseInfo> getReleasePlanReleaseInfosForDiffing(ReleasePlanEntity releasePlan) {
         List<ArtifactInfo> releasePlanInfos = releasePlanConverter.toApi(releasePlan).getArtifacts();
         List<ArtifactReleaseInfo> devInfos = releasePlanInfos.stream().map(
                 artifactInfo -> ArtifactReleaseInfo.builder()
@@ -85,9 +95,7 @@ public class ReleaseService {
                         .gitSha(artifactInfo.getGitSha())
                         .releaseVersion(FAKE_RELEASE_VERSION).build())
                 .collect(Collectors.toList());
-        TreeMap<String, ArtifactReleaseDiff> releaseSummary = combineArtifactReleaseInfos(devInfos, prodInfos);
-        addAllStoriesAndDevelopers(releaseSummary);
-        return releaseSummary;
+        return devInfos;
     }
 
     private TreeMap<String, ArtifactReleaseDiff> combineArtifactReleaseInfos(List<ArtifactReleaseInfo> devInfos, List<ArtifactReleaseInfo> prodInfos) {

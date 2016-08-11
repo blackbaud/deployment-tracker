@@ -145,15 +145,17 @@ class ReleaseResourceSpec extends Specification {
     }
 
     def "can get releaseDiffs for prod vs releasePlan artifacts"(){
-        given: "a releasePlan with an early artifact"
+        given: "a releasePlan and an artifact (middle) behind dev but later than prod"
         def currentReleasePlan = releasePlanClient.create(null);
         artifactInfoClient.update(recentInfo.artifactId, recentInfo.buildVersion, recentInfo)
         artifactInfoClient.update(middleInfo.artifactId, middleInfo.buildVersion, middleInfo)
         artifactInfoClient.update(earlyInfo.artifactId, earlyInfo.buildVersion, earlyInfo)
         artifactReleaseInfoClient.update(ReleaseService.DEV_FOUNDATION, ReleaseService.DEV_SPACE, recentReleaseInfo)
+
+        and: "add the artifact behind dev to the releasePlan"
         releasePlanClient.addArtifact(currentReleasePlan.id, middleInfo)
 
-        and:
+        and: "a prod snapshot with the oldest artifact"
         def prodSnapShot = [earlyReleaseInfo]
 
         ArtifactReleaseDiff expected = ArtifactReleaseDiff.builder()
@@ -163,10 +165,17 @@ class ReleaseResourceSpec extends Specification {
                 .developers(["Ryan McKay"] as Set)
                 .build()
 
-        expect:
+        expect: "releasePlan diffs show stories and developers for the releasePlan artifacts, not current dev"
         releaseClient.getCurrentReleasePlanDiffForProdSnapshot(prodSnapShot).artifactReleaseDiffs == [('deployment-tracker'): expected]
     }
 
+    def "get releaseDiffs for releasePlan returns empty releaseDiffs when releasePlan does not exist"() {
+        given:
+        def prodSnapShot = [earlyReleaseInfo]
+
+        expect:
+        releaseClient.getCurrentReleasePlanDiffForProdSnapshot(prodSnapShot).artifactReleaseDiffs == [:]
+    }
 
     def storeInDev(ArtifactReleaseInfo artifactReleaseInfo) {
         artifactReleaseInfoClient.update(ReleaseService.DEV_FOUNDATION, ReleaseService.DEV_SPACE, artifactReleaseInfo)
