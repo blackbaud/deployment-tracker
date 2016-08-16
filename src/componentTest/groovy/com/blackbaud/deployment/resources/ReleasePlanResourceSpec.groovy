@@ -198,6 +198,39 @@ class ReleasePlanResourceSpec extends Specification {
         notThrown()
     }
 
+    def "can delete artifacts from a release plan" () {
+        given:
+        ReleasePlanEntity currentPlan = createCurrentReleasePlan()
+        ArtifactInfoEntity artifact1 = aRandom.artifactInfoEntity().build()
+        ArtifactInfoEntity artifact2 = aRandom.artifactInfoEntity().build()
+        artifactInfoRepository.save([artifact1, artifact2])
+
+        and:
+        releasePlanClient.addArtifact(currentPlan.id, artifactInfoConverter.toApi(artifact1))
+        releasePlanClient.addArtifact(currentPlan.id, artifactInfoConverter.toApi(artifact2))
+
+        when:
+        releasePlanClient.deleteArtifact(currentPlan.id, artifact1.artifactId);
+
+        then:
+        ReleasePlanEntity updatedPlan = releasePlanRepository.findOne(currentPlan.id)
+        updatedPlan.artifacts == [artifact2]
+    }
+
+    def "cannot delete artifacts from an activated release plan"() {
+        given:
+        ReleasePlanEntity currentPlan = releasePlanRepository.save(aRandom.releasePlanEntity().build())
+        ArtifactInfoEntity artifact = aRandom.artifactInfoEntity().build()
+        artifactInfoRepository.save(artifact)
+
+        when:
+        releasePlanClient.deleteArtifact(currentPlan.id, artifact.artifactId)
+
+        then:
+        Exception e = thrown()
+        e instanceof BadRequestException
+    }
+
     def ReleasePlanEntity createCurrentReleasePlan() {
         ReleasePlanEntity currentReleasePlan = aRandom.releasePlanEntity()
                 .activated(null)

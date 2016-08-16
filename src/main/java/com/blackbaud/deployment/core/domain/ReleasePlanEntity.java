@@ -56,9 +56,16 @@ public class ReleasePlanEntity {
         if (artifacts == null) {
             artifacts = new ArrayList<>();
         }
-        artifacts = artifacts.stream().filter(
-                artifact -> !artifact.getArtifactId().equals(newArtifact.getArtifactId())
-        ).collect(Collectors.toList());
+        deleteArtifact(newArtifact.getArtifactId());
         artifacts.add(newArtifact);
+    }
+
+    public void deleteArtifact(String artifactId) {
+        if (artifacts == null) {
+            return;
+        }
+        artifacts = artifacts.stream().filter(
+                artifact -> !artifact.getArtifactId().equals(artifactId)
+        ).collect(Collectors.toList());
     }
 }
