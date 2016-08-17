@@ -2,9 +2,9 @@ package com.blackbaud.deployment.core.domain
 
 import static com.blackbaud.deployment.api.ClientARandom.aRandom
 
-class RandomArtifactReleaseLogEntityBuilder extends ArtifactReleaseLogEntity.ArtifactReleaseLogEntityBuilder {
+class RandomArtifactReleaseInfoLogEntityBuilder extends ArtifactReleaseInfoLogEntity.ArtifactReleaseInfoLogEntityBuilder {
 
-    public RandomArtifactReleaseLogEntityBuilder() {
+    public RandomArtifactReleaseInfoLogEntityBuilder() {
         artifactId(aRandom.text(20))
                 .space(aRandom.text(20))
                 .foundation(aRandom.text(20))

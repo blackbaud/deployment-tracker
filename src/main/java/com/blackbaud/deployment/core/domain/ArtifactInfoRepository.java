@@ -9,6 +9,8 @@ public interface ArtifactInfoRepository extends CrudRepository<ArtifactInfoEntit
 
     List<ArtifactInfoEntity> findByArtifactId(String artifactId);
 
+    ArtifactInfoEntity findOneByArtifactIdAndBuildVersion(String artifactId, String buildVersion);
+
     ArtifactInfoEntity findFirstByArtifactIdOrderByBuildVersionDesc(String artifactId);
 
     @Query(value = "select distinct artifact_id from artifact_info", nativeQuery = true)

@@ -10,11 +10,11 @@ import static com.blackbaud.deployment.core.CoreARandom.aRandom
 class ArtifactReleaseLogRepositorySpec extends Specification {
 
     @Autowired
-    ArtifactReleaseLogRepository artifactReleaseLogRepository
+    ArtifactReleaseInfoLogRepository artifactReleaseLogRepository
 
     def "test" () {
         given:
-        ArtifactReleaseLogEntity expected = aRandom.releaseLogEntity().build()
+        ArtifactReleaseInfoLogEntity expected = aRandom.releaseLogEntity().build()
 
         when:
         artifactReleaseLogRepository.save(expected)
@@ -23,11 +23,10 @@ class ArtifactReleaseLogRepositorySpec extends Specification {
         notThrown(Exception)
 
         when:
-        ArtifactReleaseLogPrimaryKey key = new ArtifactReleaseLogPrimaryKey(expected.artifactId, expected.releaseVersion)
-        ArtifactReleaseLogEntity result = artifactReleaseLogRepository.findOne(key)
+        ArtifactReleaseInfoLogPrimaryKey key = new ArtifactReleaseInfoLogPrimaryKey(expected.artifactId, expected.releaseVersion)
+        ArtifactReleaseInfoLogEntity result = artifactReleaseLogRepository.findOne(key)
 
         then:
         result == expected
-
     }
 }

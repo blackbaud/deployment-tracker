@@ -40,7 +40,7 @@ public class ReleaseService {
     public static final String FAKE_RELEASE_VERSION = "12345";
 
     @Autowired
-    private ArtifactReleaseInfoService artifactReleaseInfoService;
+    private ArtifactReleaseInfoLogService artifactReleaseInfoLogService;
 
     @Autowired
     ArtifactInfoService artifactInfoService;
@@ -61,15 +61,15 @@ public class ReleaseService {
     private ReleasePlanConverter releasePlanConverter;
 
     public Map<String, ArtifactReleaseDiff> createArtifactReleaseDiffs() {
-        List<ArtifactReleaseInfo> devInfos = artifactReleaseInfoService.findManyByFoundationAndSpace(DEV_FOUNDATION, DEV_SPACE);
-        List<ArtifactReleaseInfo> prodInfos = artifactReleaseInfoService.findManyByFoundationAndSpace(PROD_FOUNDATION, PROD_SPACE);
+        List<ArtifactReleaseInfo> devInfos = artifactReleaseInfoLogService.findManyByFoundationAndSpace(DEV_FOUNDATION, DEV_SPACE);
+        List<ArtifactReleaseInfo> prodInfos = artifactReleaseInfoLogService.findManyByFoundationAndSpace(PROD_FOUNDATION, PROD_SPACE);
         TreeMap<String, ArtifactReleaseDiff> releaseSummary = combineArtifactReleaseInfos(devInfos, prodInfos);
         addAllStoriesAndDevelopers(releaseSummary);
         return releaseSummary;
     }
 
     public Map<String, ArtifactReleaseDiff> createArtifactReleaseDiffs(List<ArtifactReleaseInfo> prodInfos) {
-        List<ArtifactReleaseInfo> devInfos = artifactReleaseInfoService.findManyByFoundationAndSpace(DEV_FOUNDATION, DEV_SPACE);
+        List<ArtifactReleaseInfo> devInfos = artifactReleaseInfoLogService.findManyByFoundationAndSpace(DEV_FOUNDATION, DEV_SPACE);
         TreeMap<String, ArtifactReleaseDiff> releaseSummary = combineArtifactReleaseInfos(devInfos, prodInfos);
         addAllStoriesAndDevelopers(releaseSummary);
         return releaseSummary;
