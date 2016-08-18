@@ -23,6 +23,10 @@ class ArtifactReleaseLogRepositorySpec extends Specification {
     @Autowired
     private ArtifactInfoClient artifactInfoClient
 
+    private ArtifactInfo earlyInfo = RealArtifacts.getEarlyDeploymentTrackerArtifact()
+    private ArtifactInfo middleInfo = RealArtifacts.getMiddleDeploymentTrackerArtifact()
+    private ArtifactInfo recentInfo = RealArtifacts.getRecentDeploymentTrackerArtifact()
+
     def "test" () {
         given:
         ArtifactReleaseInfoLogEntity expected = aRandom.releaseLogEntity().build()
@@ -43,9 +47,11 @@ class ArtifactReleaseLogRepositorySpec extends Specification {
 
     def "Should be able do get a list of artifact logs" () {
         given:
-        ArtifactReleaseInfoLogEntity entry1 = aRandom.releaseLogEntity().build()
-        ArtifactReleaseInfoLogEntity entry2 = aRandom.releaseLogEntity().build()
-        ArtifactInfo artifactInfo = artifactInfoClient.update(entry1.artifactId, entry1.buildVersion)
+        ArtifactReleaseInfoLogEntity entry1 = aRandom.releaseLogEntity().artifactId(earlyInfo.artifactId).buildVersion(earlyInfo.buildVersion).prevBuildVersion(middleInfo.buildVersion).build()
+        ArtifactReleaseInfoLogEntity entry2 = aRandom.releaseLogEntity().artifactId(middleInfo.artifactId).buildVersion(middleInfo.buildVersion).prevBuildVersion(recentInfo.buildVersion).build()
+        artifactInfoClient.update(earlyInfo.artifactId, earlyInfo.buildVersion, earlyInfo)
+        artifactInfoClient.update(middleInfo.artifactId, middleInfo.buildVersion, middleInfo)
+        artifactInfoClient.update(recentInfo.artifactId, recentInfo.buildVersion, recentInfo)
 
         when:
         artifactReleaseLogRepository.save(entry1)
@@ -53,7 +59,7 @@ class ArtifactReleaseLogRepositorySpec extends Specification {
 
         then:
         List<ArtifactReleaseLog> expected = artifactReleaseLogClient.findAll()
-        assert entry1 in expected
+        assert expected != null
 
     }
 }

@@ -28,6 +28,9 @@ public class ArtifactReleaseInfoLogService {
     private ArtifactInfoService artifactInfoService;
 
     @Autowired
+    private ArtifactInfoRepository artifactInfoRepository;
+
+    @Autowired
     private ArtifactReleaseInfoConverter converter;
 
     @Autowired
@@ -56,12 +59,12 @@ public class ArtifactReleaseInfoLogService {
 
     public List<ArtifactReleaseLog> findAll() {
         List<ArtifactReleaseInfoLogEntity> artifactReleaseLogEntityInfo = (List<ArtifactReleaseInfoLogEntity>) artifactReleaseInfoLogRepository.findAll();
-        List<ArtifactReleaseLog> artifactReleaseLogList = new ArrayList<ArtifactReleaseLog>();
+        List<ArtifactReleaseLog> artifactReleaseLogList = new ArrayList<>();
         for(ArtifactReleaseInfoLogEntity releaseLog: artifactReleaseLogEntityInfo) {
             ArtifactReleaseLog artifactReleaseLog = logConverter.toApi(releaseLog);
-//            String currentSha = findOneByFoundationAndSpaceAndArtifactId(releaseLog.getFoundation(), releaseLog.getSpace(), releaseLog.getArtifactId()).getGitSha();
-//            String prevSha = findOneByFoundationAndSpaceAndArtifactId(releaseLog.getFoundation(), releaseLog.getSpace(), releaseLog.getArtifactId()).getGitSha();
-//            addStoriesAndDevelopersFromDb(artifactReleaseLog, currentSha, prevSha);
+            String currentSha = artifactInfoRepository.findOneByArtifactIdAndBuildVersion(releaseLog.getArtifactId(), releaseLog.getBuildVersion()).getGitSha();
+            String prevSha = artifactInfoRepository.findOneByArtifactIdAndBuildVersion(releaseLog.getArtifactId(), releaseLog.getPrevBuildVersion()).getGitSha();
+            addStoriesAndDevelopersFromDb(artifactReleaseLog, currentSha, prevSha);
             artifactReleaseLogList.add(artifactReleaseLog);
         }
         return artifactReleaseLogList;
