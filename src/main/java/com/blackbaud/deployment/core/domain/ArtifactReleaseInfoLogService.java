@@ -62,6 +62,7 @@ public class ArtifactReleaseInfoLogService {
         List<ArtifactReleaseLog> artifactReleaseLogList = new ArrayList<>();
         for(ArtifactReleaseInfoLogEntity releaseLog: artifactReleaseLogEntityInfo) {
             ArtifactReleaseLog artifactReleaseLog = logConverter.toApi(releaseLog);
+            //add release date
             String currentSha = artifactInfoRepository.findOneByArtifactIdAndBuildVersion(releaseLog.getArtifactId(), releaseLog.getBuildVersion()).getGitSha();
             String prevSha = artifactInfoRepository.findOneByArtifactIdAndBuildVersion(releaseLog.getArtifactId(), releaseLog.getPrevBuildVersion()).getGitSha();
             addStoriesAndDevelopersFromDb(artifactReleaseLog, currentSha, prevSha);
@@ -72,10 +73,6 @@ public class ArtifactReleaseInfoLogService {
 
     public ArtifactReleaseInfo findOneByFoundationAndSpaceAndArtifactId(String foundation, String space, String artifactId) {
         return converter.toApi(artifactReleaseInfoLogRepository.findFirstByFoundationAndSpaceAndArtifactIdOrderByReleaseVersionDesc(foundation, space, artifactId));
-    }
-
-    public List<ArtifactReleaseInfo> findManyByFoundationAndSpaceAndArtifactIdsIn(String foundation, String space, List<String> artifactIds) {
-        return converter.toApiList(artifactReleaseInfoLogRepository.findManyByArtifactIdInAndFoundationAndSpace(artifactIds, foundation, space));
     }
 
     public List<ArtifactReleaseInfo> findManyByFoundationAndSpace(String foundation, String space) {
