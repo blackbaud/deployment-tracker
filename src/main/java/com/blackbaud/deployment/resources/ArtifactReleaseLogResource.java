@@ -2,7 +2,7 @@ package com.blackbaud.deployment.resources;
 
 import com.blackbaud.deployment.api.ArtifactReleaseLog;
 import com.blackbaud.deployment.api.ResourcePaths;
-import com.blackbaud.deployment.core.domain.ArtifactReleaseInfoLogService;
+import com.blackbaud.deployment.core.domain.ArtifactReleaseLogService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -18,11 +18,11 @@ import java.util.List;
 public class ArtifactReleaseLogResource {
 
     @Autowired
-    private ArtifactReleaseInfoLogService artifactReleaseInfoLogService;
+    private ArtifactReleaseLogService artifactReleaseLogService;
 
     @GET
     public List<ArtifactReleaseLog> getArtifactReleaseLog() {
-        return artifactReleaseInfoLogService.findAll();
+        return artifactReleaseLogService.findAll();
     }
 }
 

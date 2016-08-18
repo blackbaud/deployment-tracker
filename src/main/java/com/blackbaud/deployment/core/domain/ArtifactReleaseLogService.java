@@ -11,9 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -21,10 +18,10 @@ import java.util.List;
 
 @Component
 @Slf4j
-public class ArtifactReleaseInfoLogService {
+public class ArtifactReleaseLogService {
 
     @Autowired
-    ArtifactReleaseInfoLogRepository artifactReleaseInfoLogRepository;
+    ArtifactReleaseLogRepository artifactReleaseLogRepository;
 
     @Autowired
     private ArtifactInfoService artifactInfoService;
@@ -44,8 +41,8 @@ public class ArtifactReleaseInfoLogService {
     @Transactional
     public ArtifactReleaseInfo save(ArtifactReleaseInfo artifactReleaseInfo, String foundation, String space) {
         artifactInfoService.create(artifactReleaseInfo.getArtifactId(), artifactReleaseInfo.getBuildVersion(), extractArtifactInfo(artifactReleaseInfo));
-        ArtifactReleaseInfoLogEntity mostRecentRelease = artifactReleaseInfoLogRepository.findFirstByArtifactIdOrderByReleaseVersionDesc(artifactReleaseInfo.getArtifactId());
-        ArtifactReleaseInfoLogEntity newRelease = ArtifactReleaseInfoLogEntity.builder()
+        ArtifactReleaseLogEntity mostRecentRelease = artifactReleaseLogRepository.findFirstByArtifactIdOrderByReleaseVersionDesc(artifactReleaseInfo.getArtifactId());
+        ArtifactReleaseLogEntity newRelease = ArtifactReleaseLogEntity.builder()
                 .artifactId(artifactReleaseInfo.getArtifactId())
                 .buildVersion(artifactReleaseInfo.getBuildVersion())
                 .releaseVersion(artifactReleaseInfo.getReleaseVersion())
@@ -55,14 +52,14 @@ public class ArtifactReleaseInfoLogService {
                 .space(space)
                 .deployer("")
                 .build();
-        artifactReleaseInfoLogRepository.save(newRelease);
+        artifactReleaseLogRepository.save(newRelease);
         return artifactReleaseInfo;
     }
 
     public List<ArtifactReleaseLog> findAll() {
-        List<ArtifactReleaseInfoLogEntity> artifactReleaseLogEntityInfo = (List<ArtifactReleaseInfoLogEntity>) artifactReleaseInfoLogRepository.findAll();
+        List<ArtifactReleaseLogEntity> artifactReleaseLogEntityInfo = (List<ArtifactReleaseLogEntity>) artifactReleaseLogRepository.findAll();
         List<ArtifactReleaseLog> artifactReleaseLogList = new ArrayList<>();
-        for (ArtifactReleaseInfoLogEntity releaseLog : artifactReleaseLogEntityInfo) {
+        for (ArtifactReleaseLogEntity releaseLog : artifactReleaseLogEntityInfo) {
             ArtifactReleaseLog artifactReleaseLog = logConverter.toApi(releaseLog);
             setReleaseDateFromReleaseVersion(artifactReleaseLog);
             String currentSha = artifactInfoRepository.findOneByArtifactIdAndBuildVersion(releaseLog.getArtifactId(), releaseLog.getBuildVersion()).getGitSha();
@@ -88,11 +85,11 @@ public class ArtifactReleaseInfoLogService {
     }
 
     public ArtifactReleaseInfo findOneByFoundationAndSpaceAndArtifactId(String foundation, String space, String artifactId) {
-        return converter.toApi(artifactReleaseInfoLogRepository.findFirstByFoundationAndSpaceAndArtifactIdOrderByReleaseVersionDesc(foundation, space, artifactId));
+        return converter.toApi(artifactReleaseLogRepository.findFirstByFoundationAndSpaceAndArtifactIdOrderByReleaseVersionDesc(foundation, space, artifactId));
     }
 
     public List<ArtifactReleaseInfo> findManyByFoundationAndSpace(String foundation, String space) {
-        return converter.toApiList(artifactReleaseInfoLogRepository.findManyByFoundationAndSpace(foundation, space));
+        return converter.toApiList(artifactReleaseLogRepository.findManyByFoundationAndSpace(foundation, space));
     }
 
     private ArtifactInfoEntity extractArtifactInfo(ArtifactReleaseInfo artifactReleaseInfo) {

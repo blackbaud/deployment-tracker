@@ -5,7 +5,6 @@ import com.blackbaud.deployment.ReleasePlanConverter;
 import com.blackbaud.deployment.api.ArtifactInfo;
 import com.blackbaud.deployment.api.ArtifactReleaseDiff;
 import com.blackbaud.deployment.api.ArtifactReleaseInfo;
-import com.blackbaud.deployment.core.domain.git.GitLogRepository;
 import com.blackbaud.deployment.core.domain.git.GitLogService;
 import com.blackbaud.deployment.core.domain.git.StoriesAndDevelopers;
 import lombok.extern.slf4j.Slf4j;
@@ -41,7 +40,7 @@ public class ReleaseService {
     public static final String FAKE_RELEASE_VERSION = "12345";
 
     @Autowired
-    private ArtifactReleaseInfoLogService artifactReleaseInfoLogService;
+    private ArtifactReleaseLogService artifactReleaseLogService;
 
     @Autowired
     ArtifactInfoService artifactInfoService;
@@ -62,15 +61,15 @@ public class ReleaseService {
     private ReleasePlanConverter releasePlanConverter;
 
     public Map<String, ArtifactReleaseDiff> createArtifactReleaseDiffs() {
-        List<ArtifactReleaseInfo> devInfos = artifactReleaseInfoLogService.findManyByFoundationAndSpace(DEV_FOUNDATION, DEV_SPACE);
-        List<ArtifactReleaseInfo> prodInfos = artifactReleaseInfoLogService.findManyByFoundationAndSpace(PROD_FOUNDATION, PROD_SPACE);
+        List<ArtifactReleaseInfo> devInfos = artifactReleaseLogService.findManyByFoundationAndSpace(DEV_FOUNDATION, DEV_SPACE);
+        List<ArtifactReleaseInfo> prodInfos = artifactReleaseLogService.findManyByFoundationAndSpace(PROD_FOUNDATION, PROD_SPACE);
         TreeMap<String, ArtifactReleaseDiff> releaseSummary = combineArtifactReleaseInfos(devInfos, prodInfos);
         addAllStoriesAndDevelopers(releaseSummary);
         return releaseSummary;
     }
 
     public Map<String, ArtifactReleaseDiff> createArtifactReleaseDiffs(List<ArtifactReleaseInfo> prodInfos) {
-        List<ArtifactReleaseInfo> devInfos = artifactReleaseInfoLogService.findManyByFoundationAndSpace(DEV_FOUNDATION, DEV_SPACE);
+        List<ArtifactReleaseInfo> devInfos = artifactReleaseLogService.findManyByFoundationAndSpace(DEV_FOUNDATION, DEV_SPACE);
         TreeMap<String, ArtifactReleaseDiff> releaseSummary = combineArtifactReleaseInfos(devInfos, prodInfos);
         addAllStoriesAndDevelopers(releaseSummary);
         return releaseSummary;

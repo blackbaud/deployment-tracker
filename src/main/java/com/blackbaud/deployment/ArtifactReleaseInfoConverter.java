@@ -2,7 +2,7 @@ package com.blackbaud.deployment;
 
 import com.blackbaud.deployment.api.ArtifactReleaseInfo;
 import com.blackbaud.deployment.core.domain.ArtifactInfoRepository;
-import com.blackbaud.deployment.core.domain.ArtifactReleaseInfoLogEntity;
+import com.blackbaud.deployment.core.domain.ArtifactReleaseLogEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -17,7 +17,7 @@ public class ArtifactReleaseInfoConverter {
 
     private EntityMapper entityMapper = new EntityMapper();
 
-    public ArtifactReleaseInfo toApi(ArtifactReleaseInfoLogEntity entity) {
+    public ArtifactReleaseInfo toApi(ArtifactReleaseLogEntity entity) {
         if (entity == null) {
             return null;
         }
@@ -27,7 +27,7 @@ public class ArtifactReleaseInfoConverter {
         return artifactReleaseInfo;
     }
 
-    public List<ArtifactReleaseInfo> toApiList(List<ArtifactReleaseInfoLogEntity> entityList) {
+    public List<ArtifactReleaseInfo> toApiList(List<ArtifactReleaseLogEntity> entityList) {
         return entityList.stream()
                 .map(this::toApi)
                 .collect(Collectors.toList());

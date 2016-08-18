@@ -18,7 +18,7 @@ import static com.blackbaud.deployment.core.CoreARandom.aRandom
 class ArtifactReleaseLogRepositorySpec extends Specification {
 
     @Autowired
-    ArtifactReleaseInfoLogRepository artifactReleaseLogRepository
+    ArtifactReleaseLogRepository artifactReleaseLogRepository
 
     @Autowired
     ArtifactReleaseLogClient artifactReleaseLogClient;
@@ -43,7 +43,7 @@ class ArtifactReleaseLogRepositorySpec extends Specification {
 
     def "Should be able do get a list of artifact logs"() {
         given:
-        ArtifactReleaseInfoLogEntity logEntity = aRandom.releaseLogEntity().artifactId(middleInfo.artifactId).buildVersion(middleInfo.buildVersion).prevBuildVersion(earlyInfo.buildVersion).build()
+        ArtifactReleaseLogEntity logEntity = aRandom.releaseLogEntity().artifactId(middleInfo.artifactId).buildVersion(middleInfo.buildVersion).prevBuildVersion(earlyInfo.buildVersion).build()
         artifactInfoClient.update(earlyInfo.artifactId, earlyInfo.buildVersion, earlyInfo)
         artifactInfoClient.update(middleInfo.artifactId, middleInfo.buildVersion, middleInfo)
         gitLogInfoClient.post(earlyInfo.artifactId)

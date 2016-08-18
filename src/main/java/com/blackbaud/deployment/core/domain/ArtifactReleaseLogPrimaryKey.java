@@ -9,7 +9,7 @@ import java.io.Serializable;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ArtifactReleaseInfoLogPrimaryKey implements Serializable {
+public class ArtifactReleaseLogPrimaryKey implements Serializable {
 
     private String artifactId;
     private String releaseVersion;

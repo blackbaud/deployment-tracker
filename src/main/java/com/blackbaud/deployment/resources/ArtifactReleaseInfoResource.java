@@ -2,7 +2,7 @@ package com.blackbaud.deployment.resources;
 
 import com.blackbaud.deployment.api.ArtifactReleaseInfo;
 import com.blackbaud.deployment.api.ResourcePaths;
-import com.blackbaud.deployment.core.domain.ArtifactReleaseInfoLogService;
+import com.blackbaud.deployment.core.domain.ArtifactReleaseLogService;
 import com.blackbaud.deployment.core.domain.git.GitLogParserFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -21,6 +21,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 import java.util.List;
 
+@Deprecated
 @Component
 @Path(ResourcePaths.ARTIFACT_RELEASE_INFO_PATH + "/{foundation}/{space}")
 @Produces(MediaType.APPLICATION_JSON)
@@ -30,14 +31,14 @@ public class ArtifactReleaseInfoResource {
     private UriInfo uriInfo;
 
     @Autowired
-    private ArtifactReleaseInfoLogService artifactReleaseInfoLogService;
+    private ArtifactReleaseLogService artifactReleaseLogService;
 
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     public ArtifactReleaseInfo update(@PathParam("foundation") String foundation, @PathParam("space") String space,
                                       @Valid ArtifactReleaseInfo artifactReleaseInfo) {
         try{
-            return artifactReleaseInfoLogService.save(artifactReleaseInfo, foundation, space);
+            return artifactReleaseLogService.save(artifactReleaseInfo, foundation, space);
         } catch (GitLogParserFactory.InvalidRepositoryException ex){
             throw new BadRequestException(ex.getMessage());
         }
@@ -47,7 +48,7 @@ public class ArtifactReleaseInfoResource {
     @Path("{artifactId}")
     public ArtifactReleaseInfo find(@PathParam("foundation") String foundation, @PathParam("space") String space,
                                     @PathParam("artifactId") String artifactId) {
-        ArtifactReleaseInfo artifactReleaseInfo = artifactReleaseInfoLogService.findOneByFoundationAndSpaceAndArtifactId(foundation, space, artifactId);
+        ArtifactReleaseInfo artifactReleaseInfo = artifactReleaseLogService.findOneByFoundationAndSpaceAndArtifactId(foundation, space, artifactId);
         if (artifactReleaseInfo == null) {
             throw new NotFoundException();
         }
@@ -56,7 +57,7 @@ public class ArtifactReleaseInfoResource {
 
     @GET
     public List<ArtifactReleaseInfo> findAllInSpace(@PathParam("foundation") String foundation, @PathParam("space") String space) {
-        return artifactReleaseInfoLogService.findManyByFoundationAndSpace(foundation, space);
+        return artifactReleaseLogService.findManyByFoundationAndSpace(foundation, space);
     }
 
 }
