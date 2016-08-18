@@ -9,7 +9,6 @@ import com.blackbaud.deployment.client.ArtifactInfoClient
 import com.blackbaud.deployment.client.ArtifactReleaseLogClient
 import com.blackbaud.deployment.client.GitLogInfoClient
 import com.blackbaud.deployment.core.domain.git.GitLogRepository
-import org.junit.BeforeClass
 import org.springframework.beans.factory.annotation.Autowired
 import spock.lang.Specification
 
@@ -39,44 +38,15 @@ class ArtifactReleaseLogRepositorySpec extends Specification {
     @Autowired
     ArtifactInfoConverter converter;
 
-    private final ArtifactInfo deploymentTrackerArtifact = RealArtifacts.getEarlyDeploymentTrackerArtifact()
-
     private ArtifactInfo earlyInfo = RealArtifacts.getEarlyDeploymentTrackerArtifact()
     private ArtifactInfo middleInfo = RealArtifacts.getMiddleDeploymentTrackerArtifact()
 
-    @BeforeClass
-    void setUpOnce() {
-//        artifactInfoRepository.save(converter.toEntity(deploymentTrackerArtifact));
-//        gitLogInfoClient.post(deploymentTrackerArtifact.artifactId)
-//        gitLogRepository.fetchOrderedGitLogForArtifactId(deploymentTrackerArtifact.artifactId)
-    }
-
-    def "test" () {
-        given:
-        ArtifactReleaseInfoLogEntity expected = aRandom.releaseLogEntity().build()
-
-        when:
-        artifactReleaseLogRepository.save(expected)
-
-        then:
-        notThrown(Exception)
-
-        when:
-        ArtifactReleaseInfoLogPrimaryKey key = new ArtifactReleaseInfoLogPrimaryKey(expected.artifactId, expected.releaseVersion)
-        ArtifactReleaseInfoLogEntity result = artifactReleaseLogRepository.findOne(key)
-
-        then:
-        result == expected
-    }
-
-    def "Should be able do get a list of artifact logs" () {
+    def "Should be able do get a list of artifact logs"() {
         given:
         ArtifactReleaseInfoLogEntity logEntity = aRandom.releaseLogEntity().artifactId(middleInfo.artifactId).buildVersion(middleInfo.buildVersion).prevBuildVersion(earlyInfo.buildVersion).build()
         artifactInfoClient.update(earlyInfo.artifactId, earlyInfo.buildVersion, earlyInfo)
         artifactInfoClient.update(middleInfo.artifactId, middleInfo.buildVersion, middleInfo)
-        artifactInfoRepository.save(converter.toEntity(deploymentTrackerArtifact));
-        gitLogInfoClient.post(deploymentTrackerArtifact.artifactId)
-        gitLogRepository.fetchOrderedGitLogForArtifactId(deploymentTrackerArtifact.artifactId)
+        gitLogInfoClient.post(earlyInfo.artifactId)
 
         when:
         artifactReleaseLogRepository.save(logEntity)
@@ -93,8 +63,6 @@ class ArtifactReleaseLogRepositorySpec extends Specification {
                 .developers(["Ryan McKay"] as Set)
                 .build();
         then:
-        List<ArtifactReleaseLog> artifactReleaseLogList = artifactReleaseLogClient.findAll()
-        assert expected in artifactReleaseLogList
-
+        artifactReleaseLogClient.findAll() == [expected]
     }
 }
