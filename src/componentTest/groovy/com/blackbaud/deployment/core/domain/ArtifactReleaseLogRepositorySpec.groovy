@@ -8,6 +8,7 @@ import com.blackbaud.deployment.api.ArtifactReleaseLog
 import com.blackbaud.deployment.client.ArtifactInfoClient
 import com.blackbaud.deployment.client.ArtifactReleaseLogClient
 import com.blackbaud.deployment.client.GitLogInfoClient
+import com.blackbaud.deployment.core.domain.git.GitLogRepository
 import org.junit.BeforeClass
 import org.springframework.beans.factory.annotation.Autowired
 import spock.lang.Specification

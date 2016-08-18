@@ -1,5 +1,6 @@
 package com.blackbaud.deployment.core.domain
 
+import com.blackbaud.deployment.core.domain.git.GitLogParser
 import spock.lang.Specification
 import spock.lang.Unroll
 

@@ -5,6 +5,10 @@ import com.blackbaud.deployment.ComponentTest
 import com.blackbaud.deployment.RealArtifacts
 import com.blackbaud.deployment.api.ArtifactInfo
 import com.blackbaud.deployment.client.ArtifactInfoClient
+import com.blackbaud.deployment.core.domain.git.GitLogEntity
+import com.blackbaud.deployment.core.domain.git.GitLogParser
+import com.blackbaud.deployment.core.domain.git.GitLogParserFactory
+import com.blackbaud.deployment.core.domain.git.GitLogRepository
 import org.springframework.beans.factory.annotation.Autowired
 import spock.lang.Specification
 
@@ -27,7 +31,7 @@ class GitLogRepositorySpec extends Specification {
     def "i can retrieve commits in the order they were commited"() {
         given:
         GitLogParserFactory factory = new GitLogParserFactory();
-        GitLogParser parser = factory.createGitLogParserForNewProject("bluemoon-core","b92937bcc183cb92f3f64abeca54a997d3de0c54")
+        GitLogParser parser = factory.createGitLogParserForNewProject("bluemoon-core", "b92937bcc183cb92f3f64abeca54a997d3de0c54")
         List<GitLogEntity> entities = parser.getGitLogEntities("bluemoon-core");
 
         when:

@@ -3,7 +3,7 @@ package com.blackbaud.deployment.resources;
 import com.blackbaud.deployment.api.ArtifactReleaseInfo;
 import com.blackbaud.deployment.api.Release;
 import com.blackbaud.deployment.api.ResourcePaths;
-import com.blackbaud.deployment.core.domain.GitLogParserFactory;
+import com.blackbaud.deployment.core.domain.git.GitLogParserFactory;
 import com.blackbaud.deployment.core.domain.ReleaseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

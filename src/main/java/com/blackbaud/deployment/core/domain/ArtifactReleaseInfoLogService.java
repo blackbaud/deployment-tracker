@@ -4,9 +4,11 @@ import com.blackbaud.deployment.ArtifactReleaseInfoConverter;
 import com.blackbaud.deployment.ArtifactReleaseLogConverter;
 import com.blackbaud.deployment.api.ArtifactReleaseInfo;
 import com.blackbaud.deployment.api.ArtifactReleaseLog;
-import com.googlecode.javaewah.IteratorUtil;
+import com.blackbaud.deployment.core.domain.git.GitLogEntity;
+import com.blackbaud.deployment.core.domain.git.GitLogRepository;
+import com.blackbaud.deployment.core.domain.git.GitLogService;
+import com.blackbaud.deployment.core.domain.git.StoriesAndDevelopers;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.IteratorUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,9 +37,9 @@ public class ArtifactReleaseInfoLogService {
 
     @Autowired
     private ArtifactReleaseLogConverter logConverter;
-    
+
     @Autowired
-    GitLogRepository gitLogRepository;
+    GitLogService gitLogService;
 
     @Transactional
     public ArtifactReleaseInfo save(ArtifactReleaseInfo artifactReleaseInfo, String foundation, String space) {
@@ -87,29 +89,9 @@ public class ArtifactReleaseInfoLogService {
     }
 
     private void addStoriesAndDevelopersFromDb(ArtifactReleaseLog artifactReleaseLog, String currentSha, String prevSha) {
-        Set<String> stories = new TreeSet<>();
-        Set<String> developers = new TreeSet<>();
+        StoriesAndDevelopers storiesAndDevelopers = gitLogService.getStoriesAndDevelopers(artifactReleaseLog.getArtifactId(), prevSha, currentSha);
 
-        fetchGitLogEntries(artifactReleaseLog.getArtifactId(), currentSha, prevSha).forEach(gitLog -> {
-            developers.add(gitLog.author);
-            if (gitLog.storyId != null) {
-                stories.add(gitLog.storyId);
-            }
-        });
-
-        artifactReleaseLog.setStories(stories);
-        artifactReleaseLog.setDevelopers(developers);
-
-        log.debug("addStoriesAndDevelopersFromDb got stories={} and developers={}", stories, developers);
-    }
-
-    private List<GitLogEntity> fetchGitLogEntries(String artifactId, String currentSha, String prevSha) {
-        if (currentSha == null) {
-            return Collections.emptyList();
-        } else if (prevSha == null) {
-            return gitLogRepository.fetchGitLogUntilSha(artifactId, currentSha);
-        } else {
-            return gitLogRepository.fetchGitLogForCurrentAndPreviousGitShas(artifactId, currentSha, prevSha);
-        }
+        artifactReleaseLog.setStories(storiesAndDevelopers.getStories());
+        artifactReleaseLog.setDevelopers(storiesAndDevelopers.getDevelopers());
     }
 }

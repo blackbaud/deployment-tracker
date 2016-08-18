@@ -1,5 +1,6 @@
-package com.blackbaud.deployment.core.domain;
+package com.blackbaud.deployment.core.domain.git;
 
+import com.blackbaud.deployment.core.domain.ArtifactInfoEntity;
 import lombok.SneakyThrows;
 import org.eclipse.egit.github.core.Repository;
 import org.eclipse.egit.github.core.client.GitHubClient;

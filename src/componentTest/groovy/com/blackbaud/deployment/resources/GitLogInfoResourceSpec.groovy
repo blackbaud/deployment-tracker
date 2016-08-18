@@ -9,8 +9,8 @@ import com.blackbaud.deployment.api.GitLogInfo
 import com.blackbaud.deployment.client.ArtifactInfoClient
 import com.blackbaud.deployment.client.GitLogInfoClient
 import com.blackbaud.deployment.core.domain.ArtifactInfoRepository
-import com.blackbaud.deployment.core.domain.GitLogEntity
-import com.blackbaud.deployment.core.domain.GitLogRepository
+import com.blackbaud.deployment.core.domain.git.GitLogEntity
+import com.blackbaud.deployment.core.domain.git.GitLogRepository
 import org.springframework.beans.factory.annotation.Autowired
 import spock.lang.Specification
 

@@ -17,15 +17,6 @@ public class ArtifactReleaseInfoConverter {
     @Autowired
     private ArtifactInfoRepository artifactInfoRepository;
 
-    private EntityMapper entityMapper = new EntityMapper();
-
-    public ArtifactReleaseInfoEntity toEntity(ArtifactReleaseInfo info, String foundation, String space) {
-        ArtifactReleaseInfoEntity entity = entityMapper.mapIfNotNull(info, ArtifactReleaseInfoEntity.class);
-        entity.setFoundation(foundation);
-        entity.setSpace(space);
-        return entity;
-    }
-
     public ArtifactReleaseInfo toApi(ArtifactReleaseInfoLogEntity entity) {
         if (entity == null) {
             return null;

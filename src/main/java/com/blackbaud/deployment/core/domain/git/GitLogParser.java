@@ -1,4 +1,4 @@
-package com.blackbaud.deployment.core.domain;
+package com.blackbaud.deployment.core.domain.git;
 
 import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
@@ -7,16 +7,11 @@ import lombok.extern.log4j.Log4j;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
