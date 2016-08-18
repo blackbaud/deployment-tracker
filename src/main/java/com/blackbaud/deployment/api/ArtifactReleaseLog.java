@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.Set;
 
 @Data
@@ -20,7 +20,7 @@ public class ArtifactReleaseLog {
     private String prevBuildVersion;
     private String prevReleaseVersion;
     private String deployer;
-    private LocalDate releaseDate;
+    private ZonedDateTime releaseDate;
     private Set<String> stories;
     private Set<String> developers;
 }
