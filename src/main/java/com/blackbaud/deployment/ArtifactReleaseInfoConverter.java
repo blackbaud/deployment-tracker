@@ -1,9 +1,7 @@
 package com.blackbaud.deployment;
 
 import com.blackbaud.deployment.api.ArtifactReleaseInfo;
-import com.blackbaud.deployment.api.ArtifactReleaseLog;
 import com.blackbaud.deployment.core.domain.ArtifactInfoRepository;
-import com.blackbaud.deployment.core.domain.ArtifactReleaseInfoEntity;
 import com.blackbaud.deployment.core.domain.ArtifactReleaseInfoLogEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -17,17 +15,16 @@ public class ArtifactReleaseInfoConverter {
     @Autowired
     private ArtifactInfoRepository artifactInfoRepository;
 
+    private EntityMapper entityMapper = new EntityMapper();
+
     public ArtifactReleaseInfo toApi(ArtifactReleaseInfoLogEntity entity) {
         if (entity == null) {
             return null;
         }
+        ArtifactReleaseInfo artifactReleaseInfo = entityMapper.mapIfNotNull(entity, ArtifactReleaseInfo.class);
         String gitSha = artifactInfoRepository.findOneByArtifactIdAndBuildVersion(entity.getArtifactId(), entity.getBuildVersion()).getGitSha();
-        return ArtifactReleaseInfo.builder()
-                .artifactId(entity.getArtifactId())
-                .buildVersion(entity.getBuildVersion())
-                .releaseVersion(entity.getReleaseVersion())
-                .gitSha(gitSha)
-                .build();
+        artifactReleaseInfo.setGitSha(gitSha);
+        return artifactReleaseInfo;
     }
 
     public List<ArtifactReleaseInfo> toApiList(List<ArtifactReleaseInfoLogEntity> entityList) {

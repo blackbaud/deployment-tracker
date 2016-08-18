@@ -10,18 +10,10 @@ import java.util.stream.Collectors;
 @Component
 public class ArtifactReleaseLogConverter {
 
+    private EntityMapper entityMapper = new EntityMapper();
+
     public ArtifactReleaseLog toApi(ArtifactReleaseInfoLogEntity entity) {
-        if (entity == null) {
-            return null;
-        }
-        return ArtifactReleaseLog.builder()
-                .artifactId(entity.getArtifactId())
-                .buildVersion(entity.getBuildVersion())
-                .releaseVersion(entity.getReleaseVersion())
-                .prevBuildVersion(entity.getPrevBuildVersion())
-                .prevReleaseVersion(entity.getPrevReleaseVersion())
-                .deployer(entity.getDeployer())
-                .build();
+        return entityMapper.mapIfNotNull(entity, ArtifactReleaseLog.class);
     }
 
     public List<ArtifactReleaseLog> toApiList(List<ArtifactReleaseInfoLogEntity> entityList) {
