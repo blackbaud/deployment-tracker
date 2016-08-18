@@ -26,7 +26,6 @@ public class GitLogService {
             }
         });
 
-        log.debug("addStoriesAndDevelopersFromDb got stories={} and developers={}", stories, developers);
         return new StoriesAndDevelopers(stories, developers);
     }
 
