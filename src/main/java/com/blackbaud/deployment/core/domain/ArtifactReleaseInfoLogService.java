@@ -42,19 +42,19 @@ public class ArtifactReleaseInfoLogService {
 
     @Transactional
     public ArtifactReleaseInfo save(ArtifactReleaseInfo artifactReleaseInfo, String foundation, String space) {
-        ArtifactReleaseInfoLogEntity lastRelease = artifactReleaseInfoLogRepository.findFirstByArtifactIdOrderByReleaseVersionDesc(artifactReleaseInfo.getArtifactId());
-        ArtifactReleaseInfoLogEntity releaseLog = ArtifactReleaseInfoLogEntity.builder()
+        artifactInfoService.create(artifactReleaseInfo.getArtifactId(), artifactReleaseInfo.getBuildVersion(), extractArtifactInfo(artifactReleaseInfo));
+        ArtifactReleaseInfoLogEntity mostRecentRelease = artifactReleaseInfoLogRepository.findFirstByArtifactIdOrderByReleaseVersionDesc(artifactReleaseInfo.getArtifactId());
+        ArtifactReleaseInfoLogEntity newRelease = ArtifactReleaseInfoLogEntity.builder()
                 .artifactId(artifactReleaseInfo.getArtifactId())
                 .buildVersion(artifactReleaseInfo.getBuildVersion())
                 .releaseVersion(artifactReleaseInfo.getReleaseVersion())
-                .prevBuildVersion(lastRelease == null ? null : lastRelease.getBuildVersion())
-                .prevReleaseVersion(lastRelease == null ? null : lastRelease.getReleaseVersion())
+                .prevBuildVersion(mostRecentRelease == null ? null : mostRecentRelease.getBuildVersion())
+                .prevReleaseVersion(mostRecentRelease == null ? null : mostRecentRelease.getReleaseVersion())
                 .foundation(foundation)
                 .space(space)
                 .deployer("")
                 .build();
-        artifactReleaseInfoLogRepository.save(releaseLog);
-        artifactInfoService.create(artifactReleaseInfo.getArtifactId(), artifactReleaseInfo.getBuildVersion(), extractArtifactInfo(artifactReleaseInfo));
+        artifactReleaseInfoLogRepository.save(newRelease);
         return artifactReleaseInfo;
     }
 
