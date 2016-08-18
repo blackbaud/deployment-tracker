@@ -71,9 +71,7 @@ public class ReleasePlanService {
 
     public ReleasePlan addArtifact(Long id, ArtifactInfo newArtifact) {
         ReleasePlanEntity releasePlan = getExistingReleasePlan(id);
-        if (releasePlan.getActivated() != null) {
-            throw new BadRequestException("Release plan is already closed.");
-        }
+        failIfReleaseIsClosed(releasePlan);
         releasePlan.addArtifact(artifactInfoConverter.toEntity(newArtifact));
         return converter.toApi(releasePlanRepository.save(releasePlan));
     }
@@ -83,6 +81,19 @@ public class ReleasePlanService {
             releasePlanRepository.delete(id);
         } catch (EmptyResultDataAccessException ex) {
             log.warn("Attempted to delete a deleted release plan");
+        }
+    }
+
+    public void deleteArtifact(Long id, String artifactId) {
+        ReleasePlanEntity releasePlan = getExistingReleasePlan(id);
+        failIfReleaseIsClosed(releasePlan);
+        releasePlan.deleteArtifact(artifactId);
+        releasePlanRepository.save(releasePlan);
+    }
+
+    private void failIfReleaseIsClosed(ReleasePlanEntity releasePlanEntity) {
+        if (releasePlanEntity.getActivated() != null) {
+            throw new BadRequestException("Release plan is already closed.");
         }
     }
 }

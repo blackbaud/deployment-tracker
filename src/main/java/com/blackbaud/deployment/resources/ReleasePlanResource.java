@@ -71,4 +71,10 @@ public class ReleasePlanResource {
     public void deleteReleasePlan(@PathParam("id") Long id) {
         releasePlanService.delete(id);
     }
+
+    @DELETE
+    @Path("{id}/{artifactId}")
+    public void deleteReleasePlan(@PathParam("id") Long id, @PathParam("artifactId") String artifactId) {
+        releasePlanService.deleteArtifact(id, artifactId);
+    }
 }

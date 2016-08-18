@@ -22,6 +22,11 @@ public class ReleasePlanClient extends CrudClient<ReleasePlan, ReleasePlanClient
     public void delete(Long id) {
         crudClientRequest.path(id).delete();
     }
+
+    public void deleteArtifact(Long id, String artifactId) {
+        crudClientRequest.path(id).path(artifactId).delete();
+    }
+
     public void activateReleasePlan(Long id) {
         getUntypedCrudClientRequest().path(id).path(ResourcePaths.ACTIVATE_PATH).updateWithPut(id);
     }
