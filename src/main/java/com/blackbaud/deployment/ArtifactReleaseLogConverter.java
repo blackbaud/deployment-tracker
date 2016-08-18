@@ -8,11 +8,12 @@ import com.blackbaud.deployment.core.domain.ArtifactReleaseInfoLogEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
-public class ArtifactReleaseInfoConverter {
+public class ArtifactReleaseLogConverter {
 
     @Autowired
     private ArtifactInfoRepository artifactInfoRepository;
@@ -26,20 +27,21 @@ public class ArtifactReleaseInfoConverter {
         return entity;
     }
 
-    public ArtifactReleaseInfo toApi(ArtifactReleaseInfoLogEntity entity) {
+    public ArtifactReleaseLog toApi(ArtifactReleaseInfoLogEntity entity) {
         if (entity == null) {
             return null;
         }
-        String gitSha = artifactInfoRepository.findOneByArtifactIdAndBuildVersion(entity.getArtifactId(), entity.getBuildVersion()).getGitSha();
-        return ArtifactReleaseInfo.builder()
+        return ArtifactReleaseLog.builder()
                 .artifactId(entity.getArtifactId())
                 .buildVersion(entity.getBuildVersion())
                 .releaseVersion(entity.getReleaseVersion())
-                .gitSha(gitSha)
+                .prevBuildVersion(entity.getPrevBuildVersion())
+                .prevReleaseVersion(entity.getPrevReleaseVersion())
+                .deployer(entity.getDeployer())
                 .build();
     }
 
-    public List<ArtifactReleaseInfo> toApiList(List<ArtifactReleaseInfoLogEntity> entityList) {
+    public List<ArtifactReleaseLog> toApiList(List<ArtifactReleaseInfoLogEntity> entityList) {
         return entityList.stream()
                 .map(this::toApi)
                 .collect(Collectors.toList());
