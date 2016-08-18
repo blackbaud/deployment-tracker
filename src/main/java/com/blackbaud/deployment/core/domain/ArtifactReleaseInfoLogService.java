@@ -78,7 +78,7 @@ public class ArtifactReleaseInfoLogService {
 
     private ZonedDateTime convertReleaseVersionToDate(String releaseVersion) {
         String[] tokens = releaseVersion.split("_");
-        if (tokens.length != 2 && tokens[0].length() != 8 && tokens[1].length() != 6) {
+        if (tokens.length != 2 || tokens[0].length() != 8 || tokens[1].length() != 6) {
             log.warn("Unparsable release version!! Got {}!!!", releaseVersion);
             return null;
         } else {
@@ -87,8 +87,8 @@ public class ArtifactReleaseInfoLogService {
             try {
                 date = parseReleaseDate(tokens[0]);
                 time = parseReleaseTime(tokens[1]);
-            } catch (NumberFormatException ex) {
-                log.warn("Unparsable release version!! Not a number!! Got {}!!!", releaseVersion);
+            } catch (Exception ex) {
+                log.warn("Unparsable release version!! should be yyyyMMdd_hhmmss!! Got {}!!!", releaseVersion);
                 return null;
             }
             return ZonedDateTime.of(date, time, ZoneId.of("UTC"));
