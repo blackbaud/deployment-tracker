@@ -23,7 +23,8 @@ class ArtifactReleaseInfoLogServiceSpec extends Specification {
     def "should return null if parsing a release version fails"() {
         given:
             ArtifactReleaseInfoLogService artifactReleaseInfoLogService = new ArtifactReleaseInfoLogService()
-            String releaseVersion = "bad_format"
+            //String releaseVersion = "bad_format"
+        String releaseVersion = "badformat"
 
         expect:
             artifactReleaseInfoLogService.convertReleaseVersionToDate(releaseVersion) == null

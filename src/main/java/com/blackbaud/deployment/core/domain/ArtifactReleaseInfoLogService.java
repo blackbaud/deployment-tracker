@@ -15,6 +15,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -61,7 +62,7 @@ public class ArtifactReleaseInfoLogService {
     public List<ArtifactReleaseLog> findAll() {
         List<ArtifactReleaseInfoLogEntity> artifactReleaseLogEntityInfo = (List<ArtifactReleaseInfoLogEntity>) artifactReleaseInfoLogRepository.findAll();
         List<ArtifactReleaseLog> artifactReleaseLogList = new ArrayList<>();
-        for(ArtifactReleaseInfoLogEntity releaseLog: artifactReleaseLogEntityInfo) {
+        for (ArtifactReleaseInfoLogEntity releaseLog : artifactReleaseLogEntityInfo) {
             ArtifactReleaseLog artifactReleaseLog = logConverter.toApi(releaseLog);
             setReleaseDateFromReleaseVersion(artifactReleaseLog);
             String currentSha = artifactInfoRepository.findOneByArtifactIdAndBuildVersion(releaseLog.getArtifactId(), releaseLog.getBuildVersion()).getGitSha();
@@ -77,33 +78,13 @@ public class ArtifactReleaseInfoLogService {
     }
 
     private ZonedDateTime convertReleaseVersionToDate(String releaseVersion) {
-        String[] tokens = releaseVersion.split("_");
-        if (tokens.length != 2 || tokens[0].length() != 8 || tokens[1].length() != 6) {
-            log.warn("Unparsable release version!! Got {}!!!", releaseVersion);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmssz");
+        try {
+            return ZonedDateTime.parse(releaseVersion+"UTC", formatter);
+        } catch (Exception ex) {
+            log.warn("Unparsable release version!! should be yyyyMMdd_hhmmss!! Got {}!!!", releaseVersion);
             return null;
-        } else {
-            LocalDate date;
-            LocalTime time;
-            try {
-                date = parseReleaseDate(tokens[0]);
-                time = parseReleaseTime(tokens[1]);
-            } catch (Exception ex) {
-                log.warn("Unparsable release version!! should be yyyyMMdd_hhmmss!! Got {}!!!", releaseVersion);
-                return null;
-            }
-            return ZonedDateTime.of(date, time, ZoneId.of("UTC"));
         }
-    }
-
-    private LocalDate parseReleaseDate(String token) {
-        return LocalDate.of(Integer.parseInt(token.substring(0,4)),
-                        Integer.parseInt(token.substring(4,6)),
-                        Integer.parseInt(token.substring(6,8)));
-    }
-    private LocalTime parseReleaseTime(String token) {
-        return LocalTime.of(Integer.parseInt(token.substring(0,2)),
-                Integer.parseInt(token.substring(2,4)),
-                Integer.parseInt(token.substring(4,6)));
     }
 
     public ArtifactReleaseInfo findOneByFoundationAndSpaceAndArtifactId(String foundation, String space, String artifactId) {
@@ -113,6 +94,7 @@ public class ArtifactReleaseInfoLogService {
     public List<ArtifactReleaseInfo> findManyByFoundationAndSpace(String foundation, String space) {
         return converter.toApiList(artifactReleaseInfoLogRepository.findManyByFoundationAndSpace(foundation, space));
     }
+
     private ArtifactInfoEntity extractArtifactInfo(ArtifactReleaseInfo artifactReleaseInfo) {
         return ArtifactInfoEntity.builder()
                 .artifactId(artifactReleaseInfo.getArtifactId())
