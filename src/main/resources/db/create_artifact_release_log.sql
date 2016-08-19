@@ -14,3 +14,7 @@ create table artifact_release_log (
   constraint artifact_release_log_pk primary key (artifact_id, release_version)
 )
 --rollback drop table artifact_release_log
+
+--changeset blackbaud:2
+insert into artifact_release_log (space, foundation, artifact_id, build_version, release_version) select space, foundation, artifact_id, build_version, release_version from deployment_info;
+-- truncate table artifact_release_log

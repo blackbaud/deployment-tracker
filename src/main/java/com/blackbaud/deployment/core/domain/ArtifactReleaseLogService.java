@@ -63,11 +63,24 @@ public class ArtifactReleaseLogService {
             ArtifactReleaseLog artifactReleaseLog = logConverter.toApi(releaseLog);
             setReleaseDateFromReleaseVersion(artifactReleaseLog);
             String currentSha = artifactInfoRepository.findOneByArtifactIdAndBuildVersion(releaseLog.getArtifactId(), releaseLog.getBuildVersion()).getGitSha();
-            String prevSha = artifactInfoRepository.findOneByArtifactIdAndBuildVersion(releaseLog.getArtifactId(), releaseLog.getPrevBuildVersion()).getGitSha();
+            String prevSha = getPrevGitSha(releaseLog);
             addStoriesAndDevelopersFromDb(artifactReleaseLog, currentSha, prevSha);
             artifactReleaseLogList.add(artifactReleaseLog);
         }
         return artifactReleaseLogList;
+    }
+
+    private String getPrevGitSha(ArtifactReleaseLogEntity releaseLog) {
+        String prevSha = null;
+        if (releaseLog.getPrevBuildVersion() != null) {
+            ArtifactInfoEntity artifactInfo = artifactInfoRepository.findOneByArtifactIdAndBuildVersion(releaseLog.getArtifactId(), releaseLog.getPrevBuildVersion());
+            if (artifactInfo != null) {
+                prevSha = artifactInfo.getGitSha();
+            } else {
+                log.warn("Release log has previous build version for artifact info that doesn't exist!!");
+            }
+        }
+        return prevSha;
     }
 
     private void setReleaseDateFromReleaseVersion(ArtifactReleaseLog artifactReleaseLog) {
@@ -77,7 +90,7 @@ public class ArtifactReleaseLogService {
     private ZonedDateTime convertReleaseVersionToDate(String releaseVersion) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmssz");
         try {
-            return ZonedDateTime.parse(releaseVersion+"UTC", formatter);
+            return ZonedDateTime.parse(releaseVersion + "UTC", formatter);
         } catch (Exception ex) {
             log.warn("Unparsable release version!! should be yyyyMMdd_hhmmss!! Got {}!!!", releaseVersion);
             return null;
