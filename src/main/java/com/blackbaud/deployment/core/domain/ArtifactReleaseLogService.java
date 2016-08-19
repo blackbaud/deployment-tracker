@@ -63,17 +63,20 @@ public class ArtifactReleaseLogService {
             ArtifactReleaseLog artifactReleaseLog = logConverter.toApi(releaseLog);
             setReleaseDateFromReleaseVersion(artifactReleaseLog);
             String currentSha = artifactInfoRepository.findOneByArtifactIdAndBuildVersion(releaseLog.getArtifactId(), releaseLog.getBuildVersion()).getGitSha();
-            String prevSha = getPrevBuildVersion(releaseLog);
+            String prevSha = getPrevGitSha(releaseLog);
             addStoriesAndDevelopersFromDb(artifactReleaseLog, currentSha, prevSha);
             artifactReleaseLogList.add(artifactReleaseLog);
         }
         return artifactReleaseLogList;
     }
 
-    private String getPrevBuildVersion(ArtifactReleaseLogEntity releaseLog) {
+    private String getPrevGitSha(ArtifactReleaseLogEntity releaseLog) {
         String prevSha = null;
         if (releaseLog.getPrevBuildVersion() != null) {
             prevSha = artifactInfoRepository.findOneByArtifactIdAndBuildVersion(releaseLog.getArtifactId(), releaseLog.getPrevBuildVersion()).getGitSha();
+            if (prevSha == null) {
+                log.warn("Release log has previous build version for artifact info that doesn't exist!!");
+            }
         }
         return prevSha;
     }
