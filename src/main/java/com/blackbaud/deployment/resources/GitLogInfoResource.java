@@ -5,9 +5,9 @@ import com.blackbaud.deployment.api.GitLogInfo;
 import com.blackbaud.deployment.api.ResourcePaths;
 import com.blackbaud.deployment.core.domain.ArtifactInfoEntity;
 import com.blackbaud.deployment.core.domain.ArtifactInfoRepository;
-import com.blackbaud.deployment.core.domain.GitLogParser;
-import com.blackbaud.deployment.core.domain.GitLogParserFactory;
-import com.blackbaud.deployment.core.domain.GitLogRepository;
+import com.blackbaud.deployment.core.domain.git.GitLogParser;
+import com.blackbaud.deployment.core.domain.git.GitLogParserFactory;
+import com.blackbaud.deployment.core.domain.git.GitLogRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

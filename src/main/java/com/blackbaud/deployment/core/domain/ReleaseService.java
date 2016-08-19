@@ -5,17 +5,17 @@ import com.blackbaud.deployment.ReleasePlanConverter;
 import com.blackbaud.deployment.api.ArtifactInfo;
 import com.blackbaud.deployment.api.ArtifactReleaseDiff;
 import com.blackbaud.deployment.api.ArtifactReleaseInfo;
+import com.blackbaud.deployment.core.domain.git.GitLogService;
+import com.blackbaud.deployment.core.domain.git.StoriesAndDevelopers;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Set;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 @Component
@@ -40,7 +40,7 @@ public class ReleaseService {
     public static final String FAKE_RELEASE_VERSION = "12345";
 
     @Autowired
-    private ArtifactReleaseInfoService artifactReleaseInfoService;
+    private ArtifactReleaseLogService artifactReleaseLogService;
 
     @Autowired
     ArtifactInfoService artifactInfoService;
@@ -52,7 +52,7 @@ public class ReleaseService {
     ArtifactInfoRepository artifactInfoRepository;
 
     @Autowired
-    GitLogRepository gitLogRepository;
+    GitLogService gitLogService;
 
     @Autowired
     private ReleasePlanService releasePlanService;
@@ -61,15 +61,15 @@ public class ReleaseService {
     private ReleasePlanConverter releasePlanConverter;
 
     public Map<String, ArtifactReleaseDiff> createArtifactReleaseDiffs() {
-        List<ArtifactReleaseInfo> devInfos = artifactReleaseInfoService.findManyByFoundationAndSpace(DEV_FOUNDATION, DEV_SPACE);
-        List<ArtifactReleaseInfo> prodInfos = artifactReleaseInfoService.findManyByFoundationAndSpace(PROD_FOUNDATION, PROD_SPACE);
+        List<ArtifactReleaseInfo> devInfos = artifactReleaseLogService.findManyByFoundationAndSpace(DEV_FOUNDATION, DEV_SPACE);
+        List<ArtifactReleaseInfo> prodInfos = artifactReleaseLogService.findManyByFoundationAndSpace(PROD_FOUNDATION, PROD_SPACE);
         TreeMap<String, ArtifactReleaseDiff> releaseSummary = combineArtifactReleaseInfos(devInfos, prodInfos);
         addAllStoriesAndDevelopers(releaseSummary);
         return releaseSummary;
     }
 
     public Map<String, ArtifactReleaseDiff> createArtifactReleaseDiffs(List<ArtifactReleaseInfo> prodInfos) {
-        List<ArtifactReleaseInfo> devInfos = artifactReleaseInfoService.findManyByFoundationAndSpace(DEV_FOUNDATION, DEV_SPACE);
+        List<ArtifactReleaseInfo> devInfos = artifactReleaseLogService.findManyByFoundationAndSpace(DEV_FOUNDATION, DEV_SPACE);
         TreeMap<String, ArtifactReleaseDiff> releaseSummary = combineArtifactReleaseInfos(devInfos, prodInfos);
         addAllStoriesAndDevelopers(releaseSummary);
         return releaseSummary;
@@ -137,34 +137,10 @@ public class ReleaseService {
 
     public void addAllStoriesAndDevelopers(TreeMap<String, ArtifactReleaseDiff> allArtifactReleaseDiffs) {
         for (ArtifactReleaseDiff artifactReleaseDiff : allArtifactReleaseDiffs.values()) {
-            addStoriesAndDevelopersFromDb(artifactReleaseDiff);
-        }
-    }
+            StoriesAndDevelopers storiesAndDevelopers = gitLogService.getStoriesAndDevelopers(artifactReleaseDiff.getArtifactId(), artifactReleaseDiff.getProdSha(), artifactReleaseDiff.getDevSha());
 
-    private void addStoriesAndDevelopersFromDb(ArtifactReleaseDiff artifactReleaseDiff) {
-        Set<String> stories = new TreeSet<>();
-        Set<String> developers = new TreeSet<>();
-
-        fetchGitLogEntries(artifactReleaseDiff.getArtifactId(), artifactReleaseDiff.getDevSha(), artifactReleaseDiff.getProdSha()).forEach(gitLog -> {
-            developers.add(gitLog.author);
-            if (gitLog.storyId != null) {
-                stories.add(gitLog.storyId);
-            }
-        });
-
-        artifactReleaseDiff.setStories(stories);
-        artifactReleaseDiff.setDevelopers(developers);
-
-        log.debug("addStoriesAndDevelopersFromDb got stories={} and developers={}", stories, developers);
-    }
-
-    private List<GitLogEntity> fetchGitLogEntries(String artifactId, String devSha, String prodSha) {
-        if (devSha == null) {
-            return Collections.emptyList();
-        } else if (prodSha == null) {
-            return gitLogRepository.fetchGitLogUntilSha(artifactId, devSha);
-        } else {
-            return gitLogRepository.fetchGitLogForCurrentAndPreviousGitShas(artifactId, devSha, prodSha);
+            artifactReleaseDiff.setStories(storiesAndDevelopers.getStories());
+            artifactReleaseDiff.setDevelopers(storiesAndDevelopers.getDevelopers());
         }
     }
 

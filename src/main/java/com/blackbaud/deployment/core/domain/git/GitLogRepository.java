@@ -1,4 +1,4 @@
-package com.blackbaud.deployment.core.domain;
+package com.blackbaud.deployment.core.domain.git;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;

@@ -1,7 +1,9 @@
 package com.blackbaud.deployment;
 
 import com.blackbaud.deployment.api.ArtifactReleaseInfo;
-import com.blackbaud.deployment.core.domain.ArtifactReleaseInfoEntity;
+import com.blackbaud.deployment.core.domain.ArtifactInfoRepository;
+import com.blackbaud.deployment.core.domain.ArtifactReleaseLogEntity;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -9,23 +11,23 @@ import java.util.stream.Collectors;
 
 @Component
 public class ArtifactReleaseInfoConverter {
+
+    @Autowired
+    private ArtifactInfoRepository artifactInfoRepository;
+
     private EntityMapper entityMapper = new EntityMapper();
 
-    public ArtifactReleaseInfoEntity toEntity(ArtifactReleaseInfo info, String foundation, String space) {
-        ArtifactReleaseInfoEntity entity = entityMapper.mapIfNotNull(info, ArtifactReleaseInfoEntity.class);
-        entity.setFoundation(foundation);
-        entity.setSpace(space);
-        return entity;
-    }
-
-    public ArtifactReleaseInfo toApi(ArtifactReleaseInfoEntity entity) {
+    public ArtifactReleaseInfo toApi(ArtifactReleaseLogEntity entity) {
         if (entity == null) {
             return null;
         }
-        return entityMapper.mapIfNotNull(entity, ArtifactReleaseInfo.class);
+        ArtifactReleaseInfo artifactReleaseInfo = entityMapper.mapIfNotNull(entity, ArtifactReleaseInfo.class);
+        String gitSha = artifactInfoRepository.findOneByArtifactIdAndBuildVersion(entity.getArtifactId(), entity.getBuildVersion()).getGitSha();
+        artifactReleaseInfo.setGitSha(gitSha);
+        return artifactReleaseInfo;
     }
 
-    public List<ArtifactReleaseInfo> toApiList(List<ArtifactReleaseInfoEntity> entityList) {
+    public List<ArtifactReleaseInfo> toApiList(List<ArtifactReleaseLogEntity> entityList) {
         return entityList.stream()
                 .map(this::toApi)
                 .collect(Collectors.toList());

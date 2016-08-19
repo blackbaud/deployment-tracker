@@ -1,7 +1,7 @@
 package com.blackbaud.deployment;
 
 import com.blackbaud.deployment.api.GitLogInfo;
-import com.blackbaud.deployment.core.domain.GitLogEntity;
+import com.blackbaud.deployment.core.domain.git.GitLogEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

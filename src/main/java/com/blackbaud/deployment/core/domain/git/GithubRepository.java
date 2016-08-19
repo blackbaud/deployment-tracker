@@ -1,4 +1,4 @@
-package com.blackbaud.deployment.core.domain;
+package com.blackbaud.deployment.core.domain.git;
 
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;

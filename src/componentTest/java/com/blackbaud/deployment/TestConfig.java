@@ -1,15 +1,15 @@
 package com.blackbaud.deployment;
 
 import com.blackbaud.deployment.client.ArtifactInfoClient;
-import org.springframework.context.annotation.Bean;
-import com.blackbaud.deployment.client.ReleasePlanClient;
-
 import com.blackbaud.deployment.client.ArtifactReleaseInfoClient;
+import com.blackbaud.deployment.client.ArtifactReleaseLogClient;
 import com.blackbaud.deployment.client.GitLogInfoClient;
 import com.blackbaud.deployment.client.ReleaseClient;
+import com.blackbaud.deployment.client.ReleasePlanClient;
 import com.blackbaud.testsupport.BaseTestConfig;
 import com.blackbaud.testsupport.TestTokenSupport;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
@@ -44,6 +44,12 @@ public class TestConfig extends BaseTestConfig {
     @Bean
     public ReleasePlanClient releasePlanClient() {
         return new ReleasePlanClient(hostUri)
+                .header(testTokenSupport.createTestTokenHeader());
+    }
+
+    @Bean
+    public ArtifactReleaseLogClient artifactReleaseLogClient() {
+        return new ArtifactReleaseLogClient(hostUri)
                 .header(testTokenSupport.createTestTokenHeader());
     }
 

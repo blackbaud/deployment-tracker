@@ -1,4 +1,4 @@
-package com.blackbaud.deployment.core.domain
+package com.blackbaud.deployment.core.domain.git
 
 import com.blackbaud.deployment.ArtifactInfoConverter
 import com.blackbaud.deployment.ComponentTest
@@ -27,7 +27,7 @@ class GitLogRepositorySpec extends Specification {
     def "i can retrieve commits in the order they were commited"() {
         given:
         GitLogParserFactory factory = new GitLogParserFactory();
-        GitLogParser parser = factory.createGitLogParserForNewProject("bluemoon-core","b92937bcc183cb92f3f64abeca54a997d3de0c54")
+        GitLogParser parser = factory.createGitLogParserForNewProject("bluemoon-core", "b92937bcc183cb92f3f64abeca54a997d3de0c54")
         List<GitLogEntity> entities = parser.getGitLogEntities("bluemoon-core");
 
         when:

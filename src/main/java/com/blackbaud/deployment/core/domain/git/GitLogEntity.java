@@ -1,4 +1,4 @@
-package com.blackbaud.deployment.core.domain;
+package com.blackbaud.deployment.core.domain.git;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -26,19 +26,19 @@ public class GitLogEntity {
 
     @Id
     @Column(name = "artifact_id")
-    String artifactId;
+    public String artifactId;
 
     @Id
     @Column(name = "git_sha")
-    String gitSha;
+    public String gitSha;
 
     @Column(name = "author")
-    String author;
+    public String author;
 
     @Column(name = "story_id")
-    String storyId;
+    public String storyId;
 
     @Column(name = "commit_time")
-    ZonedDateTime commitTime;
+    public ZonedDateTime commitTime;
 
 }

@@ -27,29 +27,29 @@ class ArtifactReleaseInfoResourceSpec extends Specification {
     private String foundation = "pivotal"
     private String space = "dev"
 
-    private final ArtifactReleaseInfo newArtifact = RealArtifacts.getRecentDeploymentTrackerRelease()
+    private final ArtifactReleaseInfo artifactRelease = RealArtifacts.getRecentDeploymentTrackerRelease()
 
     def "should add new deployment info"() {
         when:
-        artifactReleaseInfoClient.find(foundation, space, newArtifact.artifactId)
+        artifactReleaseInfoClient.find(foundation, space, artifactRelease.artifactId)
 
         then:
         thrown(NotFoundException)
 
         when:
-        artifactReleaseInfoClient.update(foundation, space, newArtifact)
+        artifactReleaseInfoClient.update(foundation, space, artifactRelease)
 
         then:
-        assert newArtifact == artifactReleaseInfoClient.find(foundation, space, newArtifact.artifactId)
+        assert artifactRelease == artifactReleaseInfoClient.find(foundation, space, artifactRelease.artifactId)
     }
 
     def "should replace deployment info on update"() {
         given:
-        ArtifactReleaseInfo initialStatus = newArtifact
+        ArtifactReleaseInfo initialStatus = artifactRelease
         ArtifactReleaseInfo updatedStatus = aRandom.artifactReleaseInfo()
-                .artifactId(newArtifact.artifactId)
-                .gitSha(newArtifact.gitSha)
-                .buildVersion("updated-version")
+                .artifactId(artifactRelease.artifactId)
+                .gitSha(artifactRelease.gitSha)
+                .buildVersion("0.20160607.100000")
                 .build()
 
         when:
@@ -84,6 +84,7 @@ class ArtifactReleaseInfoResourceSpec extends Specification {
         ArtifactReleaseInfo app1Status = RealArtifacts.getRecentDeploymentTrackerRelease()
         ArtifactReleaseInfo app2Status = RealArtifacts.getRecentNotificationsRelease()
         ArtifactReleaseInfo otherSpaceApp = RealArtifacts.getRecentNotificationsRelease()
+        otherSpaceApp.releaseVersion = '0.20160606.200000';
 
         when:
         artifactReleaseInfoClient.update(foundation, space, app1Status)
