@@ -12,7 +12,7 @@ import java.util.Set;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ArtifactReleaseLog {
+public class ArtifactReleaseLogDetail {
 
     private String artifactId;
     private String buildVersion;
