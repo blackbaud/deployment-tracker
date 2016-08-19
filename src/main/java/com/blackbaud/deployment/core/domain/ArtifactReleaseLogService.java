@@ -73,8 +73,10 @@ public class ArtifactReleaseLogService {
     private String getPrevGitSha(ArtifactReleaseLogEntity releaseLog) {
         String prevSha = null;
         if (releaseLog.getPrevBuildVersion() != null) {
-            prevSha = artifactInfoRepository.findOneByArtifactIdAndBuildVersion(releaseLog.getArtifactId(), releaseLog.getPrevBuildVersion()).getGitSha();
-            if (prevSha == null) {
+            ArtifactInfoEntity artifactInfo = artifactInfoRepository.findOneByArtifactIdAndBuildVersion(releaseLog.getArtifactId(), releaseLog.getPrevBuildVersion());
+            if (artifactInfo != null) {
+                prevSha = artifactInfo.getGitSha();
+            } else {
                 log.warn("Release log has previous build version for artifact info that doesn't exist!!");
             }
         }
