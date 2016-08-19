@@ -6,9 +6,9 @@ import com.blackbaud.rest.client.CrudClient;
 
 import java.util.List;
 
-public class ArtifactReleaseLogClient extends CrudClient<ArtifactReleaseLogDetail, ArtifactReleaseLogClient> {
+public class ArtifactReleaseLogDetailClient extends CrudClient<ArtifactReleaseLogDetail, ArtifactReleaseLogDetailClient> {
 
-    public ArtifactReleaseLogClient(String baseUrl) {
+    public ArtifactReleaseLogDetailClient(String baseUrl) {
         super(baseUrl, ResourcePaths.ARTIFACT_RELEASE_LOG, ArtifactReleaseLogDetail.class);
     }
 
