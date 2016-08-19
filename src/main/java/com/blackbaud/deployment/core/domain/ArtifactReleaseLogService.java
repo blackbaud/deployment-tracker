@@ -63,11 +63,19 @@ public class ArtifactReleaseLogService {
             ArtifactReleaseLog artifactReleaseLog = logConverter.toApi(releaseLog);
             setReleaseDateFromReleaseVersion(artifactReleaseLog);
             String currentSha = artifactInfoRepository.findOneByArtifactIdAndBuildVersion(releaseLog.getArtifactId(), releaseLog.getBuildVersion()).getGitSha();
-            String prevSha = artifactInfoRepository.findOneByArtifactIdAndBuildVersion(releaseLog.getArtifactId(), releaseLog.getPrevBuildVersion()).getGitSha();
+            String prevSha = getPrevBuildVersion(releaseLog);
             addStoriesAndDevelopersFromDb(artifactReleaseLog, currentSha, prevSha);
             artifactReleaseLogList.add(artifactReleaseLog);
         }
         return artifactReleaseLogList;
+    }
+
+    private String getPrevBuildVersion(ArtifactReleaseLogEntity releaseLog) {
+        String prevSha = null;
+        if (releaseLog.getPrevBuildVersion() != null) {
+            prevSha = artifactInfoRepository.findOneByArtifactIdAndBuildVersion(releaseLog.getArtifactId(), releaseLog.getPrevBuildVersion()).getGitSha();
+        }
+        return prevSha;
     }
 
     private void setReleaseDateFromReleaseVersion(ArtifactReleaseLog artifactReleaseLog) {
@@ -77,7 +85,7 @@ public class ArtifactReleaseLogService {
     private ZonedDateTime convertReleaseVersionToDate(String releaseVersion) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmssz");
         try {
-            return ZonedDateTime.parse(releaseVersion+"UTC", formatter);
+            return ZonedDateTime.parse(releaseVersion + "UTC", formatter);
         } catch (Exception ex) {
             log.warn("Unparsable release version!! should be yyyyMMdd_hhmmss!! Got {}!!!", releaseVersion);
             return null;
