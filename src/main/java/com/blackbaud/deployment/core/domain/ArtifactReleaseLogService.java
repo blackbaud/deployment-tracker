@@ -3,7 +3,7 @@ package com.blackbaud.deployment.core.domain;
 import com.blackbaud.deployment.ArtifactReleaseInfoConverter;
 import com.blackbaud.deployment.ArtifactReleaseLogConverter;
 import com.blackbaud.deployment.api.ArtifactReleaseInfo;
-import com.blackbaud.deployment.api.ArtifactReleaseLog;
+import com.blackbaud.deployment.api.ArtifactReleaseLogDetail;
 import com.blackbaud.deployment.core.domain.git.GitLogService;
 import com.blackbaud.deployment.core.domain.git.StoriesAndDevelopers;
 import lombok.extern.slf4j.Slf4j;
@@ -56,22 +56,22 @@ public class ArtifactReleaseLogService {
         return artifactReleaseInfo;
     }
 
-    public List<ArtifactReleaseLog> findAll() {
+    public List<ArtifactReleaseLogDetail> findAll() {
         List<ArtifactReleaseLogEntity> artifactReleaseLogEntityInfo = (List<ArtifactReleaseLogEntity>) artifactReleaseLogRepository.findAll();
-        List<ArtifactReleaseLog> artifactReleaseLogList = new ArrayList<>();
+        List<ArtifactReleaseLogDetail> artifactReleaseLogDetailList = new ArrayList<>();
         for (ArtifactReleaseLogEntity releaseLog : artifactReleaseLogEntityInfo) {
-            ArtifactReleaseLog artifactReleaseLog = logConverter.toApi(releaseLog);
-            setReleaseDateFromReleaseVersion(artifactReleaseLog);
+            ArtifactReleaseLogDetail artifactReleaseLogDetail = logConverter.toApi(releaseLog);
+            setReleaseDateFromReleaseVersion(artifactReleaseLogDetail);
             String currentSha = artifactInfoRepository.findOneByArtifactIdAndBuildVersion(releaseLog.getArtifactId(), releaseLog.getBuildVersion()).getGitSha();
             String prevSha = artifactInfoRepository.findOneByArtifactIdAndBuildVersion(releaseLog.getArtifactId(), releaseLog.getPrevBuildVersion()).getGitSha();
-            addStoriesAndDevelopersFromDb(artifactReleaseLog, currentSha, prevSha);
-            artifactReleaseLogList.add(artifactReleaseLog);
+            addStoriesAndDevelopersFromDb(artifactReleaseLogDetail, currentSha, prevSha);
+            artifactReleaseLogDetailList.add(artifactReleaseLogDetail);
         }
-        return artifactReleaseLogList;
+        return artifactReleaseLogDetailList;
     }
 
-    private void setReleaseDateFromReleaseVersion(ArtifactReleaseLog artifactReleaseLog) {
-        artifactReleaseLog.setReleaseDate(convertReleaseVersionToDate(artifactReleaseLog.getReleaseVersion()));
+    private void setReleaseDateFromReleaseVersion(ArtifactReleaseLogDetail artifactReleaseLogDetail) {
+        artifactReleaseLogDetail.setReleaseDate(convertReleaseVersionToDate(artifactReleaseLogDetail.getReleaseVersion()));
     }
 
     private ZonedDateTime convertReleaseVersionToDate(String releaseVersion) {
@@ -100,10 +100,10 @@ public class ArtifactReleaseLogService {
                 .build();
     }
 
-    private void addStoriesAndDevelopersFromDb(ArtifactReleaseLog artifactReleaseLog, String currentSha, String prevSha) {
-        StoriesAndDevelopers storiesAndDevelopers = gitLogService.getStoriesAndDevelopers(artifactReleaseLog.getArtifactId(), prevSha, currentSha);
+    private void addStoriesAndDevelopersFromDb(ArtifactReleaseLogDetail artifactReleaseLogDetail, String currentSha, String prevSha) {
+        StoriesAndDevelopers storiesAndDevelopers = gitLogService.getStoriesAndDevelopers(artifactReleaseLogDetail.getArtifactId(), prevSha, currentSha);
 
-        artifactReleaseLog.setStories(storiesAndDevelopers.getStories());
-        artifactReleaseLog.setDevelopers(storiesAndDevelopers.getDevelopers());
+        artifactReleaseLogDetail.setStories(storiesAndDevelopers.getStories());
+        artifactReleaseLogDetail.setDevelopers(storiesAndDevelopers.getDevelopers());
     }
 }

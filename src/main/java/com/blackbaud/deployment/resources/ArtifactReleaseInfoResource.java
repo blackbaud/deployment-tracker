@@ -35,6 +35,7 @@ public class ArtifactReleaseInfoResource {
 
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
+    @SuppressWarnings("CPD-START")
     public ArtifactReleaseInfo update(@PathParam("foundation") String foundation, @PathParam("space") String space,
                                       @Valid ArtifactReleaseInfo artifactReleaseInfo) {
         try{
@@ -46,6 +47,7 @@ public class ArtifactReleaseInfoResource {
 
     @GET
     @Path("{artifactId}")
+    @SuppressWarnings("CPD-END")
     public ArtifactReleaseInfo find(@PathParam("foundation") String foundation, @PathParam("space") String space,
                                     @PathParam("artifactId") String artifactId) {
         ArtifactReleaseInfo artifactReleaseInfo = artifactReleaseLogService.findOneByFoundationAndSpaceAndArtifactId(foundation, space, artifactId);

@@ -4,9 +4,9 @@ import com.blackbaud.deployment.ArtifactInfoConverter
 import com.blackbaud.deployment.ComponentTest
 import com.blackbaud.deployment.RealArtifacts
 import com.blackbaud.deployment.api.ArtifactInfo
-import com.blackbaud.deployment.api.ArtifactReleaseLog
+import com.blackbaud.deployment.api.ArtifactReleaseLogDetail
 import com.blackbaud.deployment.client.ArtifactInfoClient
-import com.blackbaud.deployment.client.ArtifactReleaseLogClient
+import com.blackbaud.deployment.client.ArtifactReleaseLogDetailClient
 import com.blackbaud.deployment.client.GitLogInfoClient
 import com.blackbaud.deployment.core.domain.git.GitLogRepository
 import org.springframework.beans.factory.annotation.Autowired
@@ -21,7 +21,7 @@ class ArtifactReleaseLogRepositorySpec extends Specification {
     ArtifactReleaseLogRepository artifactReleaseLogRepository
 
     @Autowired
-    ArtifactReleaseLogClient artifactReleaseLogClient;
+    ArtifactReleaseLogDetailClient artifactReleaseLogClient;
 
     @Autowired
     ArtifactInfoClient artifactInfoClient
@@ -52,7 +52,7 @@ class ArtifactReleaseLogRepositorySpec extends Specification {
         artifactReleaseLogRepository.save(logEntity)
 
         and:
-        ArtifactReleaseLog expected = ArtifactReleaseLog.builder()
+        ArtifactReleaseLogDetail expected = ArtifactReleaseLogDetail.builder()
                 .artifactId(logEntity.artifactId)
                 .buildVersion(logEntity.buildVersion)
                 .prevBuildVersion(logEntity.prevBuildVersion)

@@ -1,6 +1,6 @@
 package com.blackbaud.deployment;
 
-import com.blackbaud.deployment.api.ArtifactReleaseLog;
+import com.blackbaud.deployment.api.ArtifactReleaseLogDetail;
 import com.blackbaud.deployment.core.domain.ArtifactReleaseLogEntity;
 import org.springframework.stereotype.Component;
 
@@ -12,11 +12,11 @@ public class ArtifactReleaseLogConverter {
 
     private EntityMapper entityMapper = new EntityMapper();
 
-    public ArtifactReleaseLog toApi(ArtifactReleaseLogEntity entity) {
-        return entityMapper.mapIfNotNull(entity, ArtifactReleaseLog.class);
+    public ArtifactReleaseLogDetail toApi(ArtifactReleaseLogEntity entity) {
+        return entityMapper.mapIfNotNull(entity, ArtifactReleaseLogDetail.class);
     }
 
-    public List<ArtifactReleaseLog> toApiList(List<ArtifactReleaseLogEntity> entityList) {
+    public List<ArtifactReleaseLogDetail> toApiList(List<ArtifactReleaseLogEntity> entityList) {
         return entityList.stream()
                 .map(this::toApi)
                 .collect(Collectors.toList());
