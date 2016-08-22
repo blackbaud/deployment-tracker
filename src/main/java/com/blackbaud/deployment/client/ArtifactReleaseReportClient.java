@@ -6,9 +6,9 @@ import com.blackbaud.rest.client.CrudClient;
 
 import java.util.List;
 
-public class ArtifactReleaseDiffClient extends CrudClient<ArtifactReleaseDiff, ArtifactReleaseDiffClient> {
+public class ArtifactReleaseReportClient extends CrudClient<ArtifactReleaseDiff, ArtifactReleaseReportClient> {
 
-    public ArtifactReleaseDiffClient(String baseUrl) {
+    public ArtifactReleaseReportClient(String baseUrl) {
         super(baseUrl, ResourcePaths.ARTIFACT_RELEASE_REPORT, ArtifactReleaseDiff.class);
     }
 

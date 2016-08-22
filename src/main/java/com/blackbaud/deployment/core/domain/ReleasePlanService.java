@@ -28,7 +28,7 @@ public class ReleasePlanService {
 
     public ReleasePlan createReleasePlan() {
         if (currentReleasePlanExists()) {
-            throw new BadRequestException("A dev release plan already exists");
+            throw new BadRequestException("A current plan already exists");
         }
         return createNewReleasePlan();
     }

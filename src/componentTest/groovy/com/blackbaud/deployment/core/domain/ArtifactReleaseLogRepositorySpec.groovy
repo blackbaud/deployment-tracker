@@ -6,7 +6,7 @@ import com.blackbaud.deployment.api.ArtifactInfo
 import com.blackbaud.deployment.api.ArtifactRelease
 import com.blackbaud.deployment.api.ArtifactReleaseDiff
 import com.blackbaud.deployment.client.ArtifactInfoClient
-import com.blackbaud.deployment.client.ArtifactReleaseDiffClient
+import com.blackbaud.deployment.client.ArtifactReleaseReportClient
 import com.blackbaud.deployment.client.GitLogInfoClient
 import org.springframework.beans.factory.annotation.Autowired
 import spock.lang.Specification
@@ -17,10 +17,10 @@ import static com.blackbaud.deployment.core.CoreARandom.aRandom
 class ArtifactReleaseLogRepositorySpec extends Specification {
 
     @Autowired
-    ArtifactReleaseLogRepository artifactReleaseDiffRepository
+    ArtifactReleaseLogRepository artifactReleaseLogRepository
 
     @Autowired
-    ArtifactReleaseDiffClient artifactReleaseDiffClient;
+    ArtifactReleaseReportClient artifactReleaseReportClient;
 
     @Autowired
     ArtifactInfoClient artifactInfoClient
@@ -51,7 +51,7 @@ class ArtifactReleaseLogRepositorySpec extends Specification {
                 .gitSha(middleInfo.gitSha).build()
 
         when:
-        artifactReleaseDiffRepository.save(diffEntity)
+        artifactReleaseLogRepository.save(diffEntity)
 
         and:
         ArtifactReleaseDiff expected = ArtifactReleaseDiff.builder()
@@ -64,6 +64,6 @@ class ArtifactReleaseLogRepositorySpec extends Specification {
                 .developers(["Ryan McKay"] as Set)
                 .build();
         then:
-        artifactReleaseDiffClient.findAll() == [expected]
+        artifactReleaseReportClient.findAll() == [expected]
     }
 }
