@@ -1,8 +1,9 @@
 package com.blackbaud.deployment;
 
 import com.blackbaud.deployment.client.ArtifactInfoClient;
+import com.blackbaud.deployment.client.ArtifactReleaseClient;
 import com.blackbaud.deployment.client.ArtifactReleaseInfoClient;
-import com.blackbaud.deployment.client.ArtifactReleaseLogClient;
+import com.blackbaud.deployment.client.ArtifactReleaseReportClient;
 import com.blackbaud.deployment.client.GitLogInfoClient;
 import com.blackbaud.deployment.client.ReleaseClient;
 import com.blackbaud.deployment.client.ReleasePlanClient;
@@ -48,9 +49,14 @@ public class TestConfig extends BaseTestConfig {
     }
 
     @Bean
-    public ArtifactReleaseLogClient artifactReleaseLogClient() {
-        return new ArtifactReleaseLogClient(hostUri)
+    public ArtifactReleaseReportClient artifactReleaseLogClient() {
+        return new ArtifactReleaseReportClient(hostUri)
                 .header(testTokenSupport.createTestTokenHeader());
     }
 
+    @Bean
+    public ArtifactReleaseClient artifactReleaseClient() {
+        return new ArtifactReleaseClient(hostUri)
+                .header(testTokenSupport.createTestTokenHeader());
+    }
 }

@@ -2,7 +2,7 @@ package com.blackbaud.deployment.api
 
 import static com.blackbaud.deployment.api.ClientARandom.aRandom
 
-class RandomArtifactReleaseLogBuilder extends ArtifactReleaseInfo.ArtifactReleaseInfoBuilder {
+class RandomArtifactReleaseLogBuilder extends ArtifactRelease.ArtifactReleaseBuilder {
 
     public RandomArtifactReleaseLogBuilder() {
         artifactId(aRandom.text(100))

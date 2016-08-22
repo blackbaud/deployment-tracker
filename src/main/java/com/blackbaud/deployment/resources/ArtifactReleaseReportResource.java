@@ -1,6 +1,6 @@
 package com.blackbaud.deployment.resources;
 
-import com.blackbaud.deployment.api.ArtifactReleaseLog;
+import com.blackbaud.deployment.api.ArtifactReleaseDiff;
 import com.blackbaud.deployment.api.ResourcePaths;
 import com.blackbaud.deployment.core.domain.ArtifactReleaseLogService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,15 +13,15 @@ import javax.ws.rs.core.MediaType;
 import java.util.List;
 
 @Component
-@Path(ResourcePaths.ARTIFACT_RELEASE_LOG)
+@Path(ResourcePaths.ARTIFACT_RELEASE_REPORT)
 @Produces(MediaType.APPLICATION_JSON)
-public class ArtifactReleaseLogResource {
+public class ArtifactReleaseReportResource {
 
     @Autowired
     private ArtifactReleaseLogService artifactReleaseLogService;
 
     @GET
-    public List<ArtifactReleaseLog> getArtifactReleaseLog() {
+    public List<ArtifactReleaseDiff> getArtifactReleaseLog() {
         return artifactReleaseLogService.findAll();
     }
 }

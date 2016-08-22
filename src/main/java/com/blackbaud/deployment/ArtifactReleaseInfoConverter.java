@@ -1,6 +1,6 @@
 package com.blackbaud.deployment;
 
-import com.blackbaud.deployment.api.ArtifactReleaseInfo;
+import com.blackbaud.deployment.api.ArtifactRelease;
 import com.blackbaud.deployment.core.domain.ArtifactInfoRepository;
 import com.blackbaud.deployment.core.domain.ArtifactReleaseLogEntity;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,17 +17,17 @@ public class ArtifactReleaseInfoConverter {
 
     private EntityMapper entityMapper = new EntityMapper();
 
-    public ArtifactReleaseInfo toApi(ArtifactReleaseLogEntity entity) {
+    public ArtifactRelease toApi(ArtifactReleaseLogEntity entity) {
         if (entity == null) {
             return null;
         }
-        ArtifactReleaseInfo artifactReleaseInfo = entityMapper.mapIfNotNull(entity, ArtifactReleaseInfo.class);
+        ArtifactRelease artifactRelease = entityMapper.mapIfNotNull(entity, ArtifactRelease.class);
         String gitSha = artifactInfoRepository.findOneByArtifactIdAndBuildVersion(entity.getArtifactId(), entity.getBuildVersion()).getGitSha();
-        artifactReleaseInfo.setGitSha(gitSha);
-        return artifactReleaseInfo;
+        artifactRelease.setGitSha(gitSha);
+        return artifactRelease;
     }
 
-    public List<ArtifactReleaseInfo> toApiList(List<ArtifactReleaseLogEntity> entityList) {
+    public List<ArtifactRelease> toApiList(List<ArtifactReleaseLogEntity> entityList) {
         return entityList.stream()
                 .map(this::toApi)
                 .collect(Collectors.toList());

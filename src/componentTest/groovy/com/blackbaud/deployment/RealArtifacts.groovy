@@ -1,7 +1,7 @@
 package com.blackbaud.deployment
 
 import com.blackbaud.deployment.api.ArtifactInfo
-import com.blackbaud.deployment.api.ArtifactReleaseInfo
+import com.blackbaud.deployment.api.ArtifactRelease
 import com.blackbaud.deployment.core.domain.ReleaseService
 
 class RealArtifacts {
@@ -9,7 +9,7 @@ class RealArtifacts {
     /* Artifact Release Infos */
 
     def static getRecentDeploymentTrackerRelease() {
-        ArtifactReleaseInfo.builder()
+        ArtifactRelease.builder()
                 .artifactId("deployment-tracker")
                 .buildVersion("0.20160606.194525")
                 .gitSha("e36ec0e653bb77dd20a6ac2c200d4a82a962e6e7")
@@ -18,7 +18,7 @@ class RealArtifacts {
     }
 
     def static getMiddleDeploymentTrackerRelease() {
-        ArtifactReleaseInfo.builder()
+        ArtifactRelease.builder()
                 .artifactId("deployment-tracker")
                 .buildVersion("0.20160603.161854")
                 .gitSha("9ecbbedb36e9e9bd39f1781b6e4dcc0523da3e23")
@@ -27,7 +27,7 @@ class RealArtifacts {
     }
 
     def static getEarlyDeploymentTrackerRelease() {
-        ArtifactReleaseInfo.builder()
+        ArtifactRelease.builder()
                 .artifactId("deployment-tracker")
                 .buildVersion("0.20160525.221050")
                 .gitSha("bb0ce6f142d3c52e48c914768f3174278bfa035b")
@@ -36,7 +36,7 @@ class RealArtifacts {
     }
 
     def static getRecentNotificationsRelease() {
-        ArtifactReleaseInfo.builder()
+        ArtifactRelease.builder()
                 .artifactId("notifications")
                 .gitSha("90e59c3996f0027c2cb63e27c564566586ae29f8")
                 .buildVersion("0.20160606.194525")
@@ -45,7 +45,7 @@ class RealArtifacts {
     }
 
     def static getBluemoonDojoRelease() {
-        ArtifactReleaseInfo.builder()
+        ArtifactRelease.builder()
                 .artifactId("bluemoon-dojo")
                 .buildVersion("0.20160606.194525")
                 .releaseVersion("0.20160606.194525")

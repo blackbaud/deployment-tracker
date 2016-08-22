@@ -1,14 +1,13 @@
 package com.blackbaud.deployment.core.domain
 
-import com.blackbaud.deployment.ArtifactInfoConverter
 import com.blackbaud.deployment.ComponentTest
 import com.blackbaud.deployment.RealArtifacts
 import com.blackbaud.deployment.api.ArtifactInfo
-import com.blackbaud.deployment.api.ArtifactReleaseLog
+import com.blackbaud.deployment.api.ArtifactRelease
+import com.blackbaud.deployment.api.ArtifactReleaseDiff
 import com.blackbaud.deployment.client.ArtifactInfoClient
-import com.blackbaud.deployment.client.ArtifactReleaseLogClient
+import com.blackbaud.deployment.client.ArtifactReleaseReportClient
 import com.blackbaud.deployment.client.GitLogInfoClient
-import com.blackbaud.deployment.core.domain.git.GitLogRepository
 import org.springframework.beans.factory.annotation.Autowired
 import spock.lang.Specification
 
@@ -21,48 +20,50 @@ class ArtifactReleaseLogRepositorySpec extends Specification {
     ArtifactReleaseLogRepository artifactReleaseLogRepository
 
     @Autowired
-    ArtifactReleaseLogClient artifactReleaseLogClient;
+    ArtifactReleaseReportClient artifactReleaseReportClient;
 
     @Autowired
     ArtifactInfoClient artifactInfoClient
 
     @Autowired
-    GitLogRepository gitLogRepository;
-
-    @Autowired
     GitLogInfoClient gitLogInfoClient;
-
-    @Autowired
-    ArtifactInfoRepository artifactInfoRepository;
-
-    @Autowired
-    ArtifactInfoConverter converter;
 
     private ArtifactInfo earlyInfo = RealArtifacts.getEarlyDeploymentTrackerArtifact()
     private ArtifactInfo middleInfo = RealArtifacts.getMiddleDeploymentTrackerArtifact()
 
-    def "Should be able do get a list of artifact logs"() {
+    def "Should be able to get a list of artifact logs"() {
         given:
-        ArtifactReleaseLogEntity logEntity = aRandom.releaseLogEntity().artifactId(middleInfo.artifactId).buildVersion(middleInfo.buildVersion).prevBuildVersion(earlyInfo.buildVersion).build()
+        ArtifactReleaseLogEntity diffEntity = aRandom.releaseLogEntity().artifactId(middleInfo.artifactId).buildVersion(middleInfo.buildVersion).prevBuildVersion(earlyInfo.buildVersion).build()
         artifactInfoClient.update(earlyInfo.artifactId, earlyInfo.buildVersion, earlyInfo)
         artifactInfoClient.update(middleInfo.artifactId, middleInfo.buildVersion, middleInfo)
         gitLogInfoClient.post(earlyInfo.artifactId)
 
+        and:
+        ArtifactRelease earlyRelease = ArtifactRelease.builder()
+                .artifactId(earlyInfo.artifactId)
+                .buildVersion(earlyInfo.buildVersion)
+                .releaseVersion(diffEntity.prevReleaseVersion)
+                .gitSha(earlyInfo.gitSha).build()
+        ArtifactRelease middleRelease = ArtifactRelease.builder()
+                .artifactId(middleInfo.artifactId)
+                .buildVersion(middleInfo.buildVersion)
+                .releaseVersion(diffEntity.releaseVersion)
+                .gitSha(middleInfo.gitSha).build()
+
         when:
-        artifactReleaseLogRepository.save(logEntity)
+        artifactReleaseLogRepository.save(diffEntity)
 
         and:
-        ArtifactReleaseLog expected = ArtifactReleaseLog.builder()
-                .artifactId(logEntity.artifactId)
-                .buildVersion(logEntity.buildVersion)
-                .prevBuildVersion(logEntity.prevBuildVersion)
-                .releaseVersion(logEntity.releaseVersion)
-                .prevReleaseVersion(logEntity.prevReleaseVersion)
-                .deployer(logEntity.deployer)
+        ArtifactReleaseDiff expected = ArtifactReleaseDiff.builder()
+                .currentRelease(middleRelease)
+                .prevRelease(earlyRelease)
+                .deployer(diffEntity.deployer)
+                .foundation(diffEntity.foundation)
+                .space(diffEntity.space)
                 .stories(["LUM-8045", "LUM-7759"] as Set)
                 .developers(["Ryan McKay"] as Set)
                 .build();
         then:
-        artifactReleaseLogClient.findAll() == [expected]
+        artifactReleaseReportClient.findAll() == [expected]
     }
 }
