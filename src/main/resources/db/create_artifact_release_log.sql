@@ -18,3 +18,8 @@ create table artifact_release_log (
 --changeset blackbaud:2
 insert into artifact_release_log (space, foundation, artifact_id, build_version, release_version) select space, foundation, artifact_id, build_version, release_version from deployment_info;
 -- truncate table artifact_release_log
+
+--changeset blackbaud:3
+alter table artifact_release_log add constraint artifact_release_log_fk foreign key (artifact_id, build_version) references artifact_info (artifact_id, build_version);
+--rollback alter table artifact_release_log drop constraint artifact_release_log_fk
+
