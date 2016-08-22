@@ -155,7 +155,7 @@ class ReleaseResourceSpec extends Specification {
         and: "add the artifact behind dev to the releasePlan"
         releasePlanClient.addArtifact(currentReleasePlan.id, middleInfo)
 
-        and: "a prevRelease snapshot with the oldest artifact"
+        and: "a prod snapshot with the oldest artifact"
         def prodSnapShot = [earlyReleaseInfo]
 
         ArtifactReleaseDiff expected = ArtifactReleaseDiff.builder()
