@@ -1,8 +1,9 @@
 package com.blackbaud.deployment.resources;
 
+import com.blackbaud.deployment.ArtifactReleaseDiffConverter;
 import com.blackbaud.deployment.api.ArtifactReleaseDiff;
 import com.blackbaud.deployment.api.ResourcePaths;
-import com.blackbaud.deployment.core.domain.ArtifactReleaseLogService;
+import com.blackbaud.deployment.core.domain.ArtifactReleaseLogReportQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -18,11 +19,14 @@ import java.util.List;
 public class ArtifactReleaseReportResource {
 
     @Autowired
-    private ArtifactReleaseLogService artifactReleaseLogService;
+    private ArtifactReleaseLogReportQuery artifactReleaseLogReportQuery;
+
+    @Autowired
+    private ArtifactReleaseDiffConverter converter;
 
     @GET
     public List<ArtifactReleaseDiff> getArtifactReleaseLog() {
-        return artifactReleaseLogService.findAll();
+        return converter.toApiList(artifactReleaseLogReportQuery.getArtifactReleaseReport());
     }
 }
 

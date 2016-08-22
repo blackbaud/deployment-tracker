@@ -21,7 +21,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 import java.util.List;
 
-@Deprecated
 @Component
 @Path(ResourcePaths.ARTIFACT_RELEASE_INFO_PATH + "/{foundation}/{space}")
 @Produces(MediaType.APPLICATION_JSON)
@@ -58,8 +57,8 @@ public class ArtifactReleaseInfoResource {
     }
 
     @GET
-    public List<ArtifactRelease> findAllInSpace(@PathParam("foundation") String foundation, @PathParam("space") String space) {
-        return artifactReleaseLogService.findManyByFoundationAndSpace(foundation, space);
+    public List<ArtifactRelease> findLatestOfEachArtifactByFoundationAndSpace(@PathParam("foundation") String foundation, @PathParam("space") String space) {
+        return artifactReleaseLogService.findLatestOfEachArtifactByFoundationAndSpace(foundation, space);
     }
 
 }
