@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ArtifactReleaseInfo {
+public class ArtifactRelease {
 
     private String artifactId;
     private String buildVersion;

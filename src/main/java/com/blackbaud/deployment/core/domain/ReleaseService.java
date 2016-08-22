@@ -4,7 +4,7 @@ import com.blackbaud.deployment.ArtifactInfoConverter;
 import com.blackbaud.deployment.ReleasePlanConverter;
 import com.blackbaud.deployment.api.ArtifactInfo;
 import com.blackbaud.deployment.api.ArtifactReleaseDiff;
-import com.blackbaud.deployment.api.ArtifactReleaseInfo;
+import com.blackbaud.deployment.api.ArtifactRelease;
 import com.blackbaud.deployment.core.domain.git.GitLogService;
 import com.blackbaud.deployment.core.domain.git.StoriesAndDevelopers;
 import lombok.extern.slf4j.Slf4j;
@@ -22,8 +22,8 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ReleaseService {
 
-    public static final String DEV_FOUNDATION = "pivotal-dev";
-    public static final String DEV_SPACE = "dev-apps";
+    public static final String DEV_FOUNDATION = "pivotal-currentRelease";
+    public static final String DEV_SPACE = "currentRelease-apps";
 
     public static final String PROD_FOUNDATION = "pivotal-prod1";
     public static final String PROD_SPACE = "prod1-apps";
@@ -61,35 +61,35 @@ public class ReleaseService {
     private ReleasePlanConverter releasePlanConverter;
 
     public Map<String, ArtifactReleaseDiff> createArtifactReleaseDiffs() {
-        List<ArtifactReleaseInfo> devInfos = artifactReleaseLogService.findManyByFoundationAndSpace(DEV_FOUNDATION, DEV_SPACE);
-        List<ArtifactReleaseInfo> prodInfos = artifactReleaseLogService.findManyByFoundationAndSpace(PROD_FOUNDATION, PROD_SPACE);
+        List<ArtifactRelease> devInfos = artifactReleaseLogService.findManyByFoundationAndSpace(DEV_FOUNDATION, DEV_SPACE);
+        List<ArtifactRelease> prodInfos = artifactReleaseLogService.findManyByFoundationAndSpace(PROD_FOUNDATION, PROD_SPACE);
         TreeMap<String, ArtifactReleaseDiff> releaseSummary = combineArtifactReleaseInfos(devInfos, prodInfos);
         addAllStoriesAndDevelopers(releaseSummary);
         return releaseSummary;
     }
 
-    public Map<String, ArtifactReleaseDiff> createArtifactReleaseDiffs(List<ArtifactReleaseInfo> prodInfos) {
-        List<ArtifactReleaseInfo> devInfos = artifactReleaseLogService.findManyByFoundationAndSpace(DEV_FOUNDATION, DEV_SPACE);
+    public Map<String, ArtifactReleaseDiff> createArtifactReleaseDiffs(List<ArtifactRelease> prodInfos) {
+        List<ArtifactRelease> devInfos = artifactReleaseLogService.findManyByFoundationAndSpace(DEV_FOUNDATION, DEV_SPACE);
         TreeMap<String, ArtifactReleaseDiff> releaseSummary = combineArtifactReleaseInfos(devInfos, prodInfos);
         addAllStoriesAndDevelopers(releaseSummary);
         return releaseSummary;
     }
 
-    public Map<String, ArtifactReleaseDiff> createArtifactReleaseDiffsForReleasePlanArtifacts(List<ArtifactReleaseInfo> prodInfos) {
+    public Map<String, ArtifactReleaseDiff> createArtifactReleaseDiffsForReleasePlanArtifacts(List<ArtifactRelease> prodInfos) {
         ReleasePlanEntity releasePlan = releasePlanService.getCurrentReleasePlan();
         if (releasePlan == null) {
             return Collections.emptyMap();
         }
-        List<ArtifactReleaseInfo> releasePlanReleaseInfos = getReleasePlanReleaseInfosForDiffing(releasePlan);
+        List<ArtifactRelease> releasePlanReleaseInfos = getReleasePlanReleaseInfosForDiffing(releasePlan);
         TreeMap<String, ArtifactReleaseDiff> releaseSummary = combineArtifactReleaseInfos(releasePlanReleaseInfos, prodInfos);
         addAllStoriesAndDevelopers(releaseSummary);
         return releaseSummary;
     }
 
-    private List<ArtifactReleaseInfo> getReleasePlanReleaseInfosForDiffing(ReleasePlanEntity releasePlan) {
+    private List<ArtifactRelease> getReleasePlanReleaseInfosForDiffing(ReleasePlanEntity releasePlan) {
         List<ArtifactInfo> releasePlanInfos = releasePlanConverter.toApi(releasePlan).getArtifacts();
-        List<ArtifactReleaseInfo> devInfos = releasePlanInfos.stream().map(
-                artifactInfo -> ArtifactReleaseInfo.builder()
+        List<ArtifactRelease> devInfos = releasePlanInfos.stream().map(
+                artifactInfo -> ArtifactRelease.builder()
                         .buildVersion(artifactInfo.getBuildVersion())
                         .artifactId(artifactInfo.getArtifactId())
                         .gitSha(artifactInfo.getGitSha())
@@ -98,39 +98,39 @@ public class ReleaseService {
         return devInfos;
     }
 
-    private TreeMap<String, ArtifactReleaseDiff> combineArtifactReleaseInfos(List<ArtifactReleaseInfo> devInfos, List<ArtifactReleaseInfo> prodInfos) {
+    private TreeMap<String, ArtifactReleaseDiff> combineArtifactReleaseInfos(List<ArtifactRelease> devInfos, List<ArtifactRelease> prodInfos) {
         TreeMap<String, ArtifactReleaseDiff> allArtifactReleaseInfos = new TreeMap<>();
         addDevArtifactReleaseInfos(devInfos, allArtifactReleaseInfos);
         addProdArtifactReleaseInfo(prodInfos, allArtifactReleaseInfos);
         return allArtifactReleaseInfos;
     }
 
-    public void addDevArtifactReleaseInfos(List<ArtifactReleaseInfo> devInfos, Map<String, ArtifactReleaseDiff> allArtifactReleaseInfos) {
-        for (ArtifactReleaseInfo devInfo : devInfos) {
+    public void addDevArtifactReleaseInfos(List<ArtifactRelease> devInfos, Map<String, ArtifactReleaseDiff> allArtifactReleaseInfos) {
+        for (ArtifactRelease devInfo : devInfos) {
             if (isReleasable(devInfo)) {
                 allArtifactReleaseInfos.put(devInfo.getArtifactId(),
                                             ArtifactReleaseDiff.builder()
-                                                    .dev(devInfo)
+                                                    .currentRelease(devInfo)
                                                     .build()
                 );
             }
         }
     }
 
-    private boolean isReleasable(ArtifactReleaseInfo artifactReleaseInfo) {
-        return !nonReleasable.contains(artifactReleaseInfo.getArtifactId());
+    private boolean isReleasable(ArtifactRelease artifactRelease) {
+        return !nonReleasable.contains(artifactRelease.getArtifactId());
     }
 
-    private void addProdArtifactReleaseInfo(List<ArtifactReleaseInfo> prodInfos, Map<String, ArtifactReleaseDiff> allArtifactReleaseInfos) {
-        for (ArtifactReleaseInfo prodInfo : prodInfos) {
+    private void addProdArtifactReleaseInfo(List<ArtifactRelease> prodInfos, Map<String, ArtifactReleaseDiff> allArtifactReleaseInfos) {
+        for (ArtifactRelease prodInfo : prodInfos) {
             ArtifactReleaseDiff artifactReleaseDiff = allArtifactReleaseInfos.get(prodInfo.getArtifactId());
             if (artifactReleaseDiff == null) {
                 allArtifactReleaseInfos.put(prodInfo.getArtifactId(),
                                             ArtifactReleaseDiff.builder()
-                                                    .prod(prodInfo)
+                                                    .prevRelease(prodInfo)
                                                     .build());
             } else {
-                artifactReleaseDiff.setProd(prodInfo);
+                artifactReleaseDiff.setPrevRelease(prodInfo);
             }
         }
     }

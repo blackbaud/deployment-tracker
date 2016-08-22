@@ -1,6 +1,6 @@
 package com.blackbaud.deployment.resources;
 
-import com.blackbaud.deployment.api.ArtifactReleaseInfo;
+import com.blackbaud.deployment.api.ArtifactRelease;
 import com.blackbaud.deployment.api.Release;
 import com.blackbaud.deployment.api.ResourcePaths;
 import com.blackbaud.deployment.core.domain.git.GitLogParserFactory;
@@ -37,9 +37,9 @@ public class ReleaseResource {
 
     @POST
     @Path(ResourcePaths.CURRENT_PATH)
-    public Release getCurrentReleaseForProdSnapshot(@NotNull List<ArtifactReleaseInfo> prodArtifactReleaseInfos) {
+    public Release getCurrentReleaseForProdSnapshot(@NotNull List<ArtifactRelease> prodArtifactReleases) {
         try {
-            return new Release(releaseService.createArtifactReleaseDiffs(prodArtifactReleaseInfos));
+            return new Release(releaseService.createArtifactReleaseDiffs(prodArtifactReleases));
         } catch (GitLogParserFactory.InvalidRepositoryException ex) {
             throw new BadRequestException(ex.getMessage());
         }
@@ -47,9 +47,9 @@ public class ReleaseResource {
 
     @POST
     @Path(ResourcePaths.RELEASE_PLAN_DIFF_PATH)
-    public Release getCurrentReleasePlanDiffForProdSnapshot(@NotNull List<ArtifactReleaseInfo> prodArtifactReleaseInfos) {
+    public Release getCurrentReleasePlanDiffForProdSnapshot(@NotNull List<ArtifactRelease> prodArtifactReleases) {
         try {
-            return new Release(releaseService.createArtifactReleaseDiffsForReleasePlanArtifacts(prodArtifactReleaseInfos));
+            return new Release(releaseService.createArtifactReleaseDiffsForReleasePlanArtifacts(prodArtifactReleases));
         } catch (GitLogParserFactory.InvalidRepositoryException ex) {
             throw new BadRequestException(ex.getMessage());
         }

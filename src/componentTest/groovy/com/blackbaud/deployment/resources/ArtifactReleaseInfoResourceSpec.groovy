@@ -5,7 +5,7 @@ import com.blackbaud.boot.exception.NotFoundException
 import com.blackbaud.deployment.ComponentTest
 import com.blackbaud.deployment.RealArtifacts
 import com.blackbaud.deployment.api.ArtifactInfo
-import com.blackbaud.deployment.api.ArtifactReleaseInfo
+import com.blackbaud.deployment.api.ArtifactRelease
 import com.blackbaud.deployment.client.ArtifactInfoClient
 import com.blackbaud.deployment.client.ArtifactReleaseInfoClient
 import com.blackbaud.deployment.core.domain.ReleaseService
@@ -25,9 +25,9 @@ class ArtifactReleaseInfoResourceSpec extends Specification {
     private ArtifactInfoClient artifactInfoClient
 
     private String foundation = "pivotal"
-    private String space = "dev"
+    private String space = "currentRelease"
 
-    private final ArtifactReleaseInfo artifactRelease = RealArtifacts.getRecentDeploymentTrackerRelease()
+    private final ArtifactRelease artifactRelease = RealArtifacts.getRecentDeploymentTrackerRelease()
 
     def "should add new deployment info"() {
         when:
@@ -45,8 +45,8 @@ class ArtifactReleaseInfoResourceSpec extends Specification {
 
     def "should replace deployment info on update"() {
         given:
-        ArtifactReleaseInfo initialStatus = artifactRelease
-        ArtifactReleaseInfo updatedStatus = aRandom.artifactReleaseInfo()
+        ArtifactRelease initialStatus = artifactRelease
+        ArtifactRelease updatedStatus = aRandom.artifactReleaseInfo()
                 .artifactId(artifactRelease.artifactId)
                 .gitSha(artifactRelease.gitSha)
                 .buildVersion("0.20160607.100000")
@@ -57,16 +57,16 @@ class ArtifactReleaseInfoResourceSpec extends Specification {
         artifactReleaseInfoClient.update(foundation, space, updatedStatus)
 
         then:
-        ArtifactReleaseInfo activeStatus = artifactReleaseInfoClient.find(foundation, space, updatedStatus.artifactId)
+        ArtifactRelease activeStatus = artifactReleaseInfoClient.find(foundation, space, updatedStatus.artifactId)
         assert initialStatus != activeStatus
         assert updatedStatus == activeStatus
     }
 
     def "should track distinct deployment info by foundation and space"() {
         given:
-        ArtifactReleaseInfo artifactReleaseInfo1 = RealArtifacts.getRecentDeploymentTrackerRelease()
-        ArtifactReleaseInfo artifactReleaseInfo2 = RealArtifacts.getRecentNotificationsRelease()
-        ArtifactReleaseInfo artifactReleaseInfo3 = RealArtifacts.getBluemoonDojoRelease()
+        ArtifactRelease artifactReleaseInfo1 = RealArtifacts.getRecentDeploymentTrackerRelease()
+        ArtifactRelease artifactReleaseInfo2 = RealArtifacts.getRecentNotificationsRelease()
+        ArtifactRelease artifactReleaseInfo3 = RealArtifacts.getBluemoonDojoRelease()
 
         when:
         artifactReleaseInfoClient.update(foundation, space, artifactReleaseInfo1)
@@ -81,9 +81,9 @@ class ArtifactReleaseInfoResourceSpec extends Specification {
 
     def "should retrieve all app deployment info objects for a space"() {
         given:
-        ArtifactReleaseInfo app1Status = RealArtifacts.getRecentDeploymentTrackerRelease()
-        ArtifactReleaseInfo app2Status = RealArtifacts.getRecentNotificationsRelease()
-        ArtifactReleaseInfo otherSpaceApp = RealArtifacts.getRecentNotificationsRelease()
+        ArtifactRelease app1Status = RealArtifacts.getRecentDeploymentTrackerRelease()
+        ArtifactRelease app2Status = RealArtifacts.getRecentNotificationsRelease()
+        ArtifactRelease otherSpaceApp = RealArtifacts.getRecentNotificationsRelease()
         otherSpaceApp.releaseVersion = '0.20160606.200000';
 
         when:
@@ -97,7 +97,7 @@ class ArtifactReleaseInfoResourceSpec extends Specification {
 
     def "should populate artifact info resource" (){
         given:
-        ArtifactReleaseInfo artifactReleaseInfo = RealArtifacts.getEarlyDeploymentTrackerRelease()
+        ArtifactRelease artifactReleaseInfo = RealArtifacts.getEarlyDeploymentTrackerRelease()
         ArtifactInfo matchingArtifactInfo = ArtifactInfo.builder()
                 .artifactId(artifactReleaseInfo.artifactId)
                 .buildVersion(artifactReleaseInfo.buildVersion)
@@ -113,7 +113,7 @@ class ArtifactReleaseInfoResourceSpec extends Specification {
 
     def "Missing commits throws exception"() {
         given:
-        ArtifactReleaseInfo dev = aRandom.artifactReleaseInfo()
+        ArtifactRelease dev = aRandom.artifactReleaseInfo()
                 .artifactId("deployment-tracker")
                 .buildVersion("0.20160606.194525")
                 .gitSha("3e176dced48f7b888707337261ba5b97902cf5b8")
@@ -128,7 +128,7 @@ class ArtifactReleaseInfoResourceSpec extends Specification {
 
     def "Invalid github repo throws exception"() {
         given:
-        ArtifactReleaseInfo artifactReleaseInfo = aRandom.artifactReleaseInfo().build();
+        ArtifactRelease artifactReleaseInfo = aRandom.artifactReleaseInfo().build();
 
         when:
         artifactReleaseInfoClient.update(ReleaseService.DEV_FOUNDATION, ReleaseService.DEV_SPACE, artifactReleaseInfo)

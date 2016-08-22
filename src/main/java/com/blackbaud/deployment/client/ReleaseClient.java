@@ -1,6 +1,6 @@
 package com.blackbaud.deployment.client;
 
-import com.blackbaud.deployment.api.ArtifactReleaseInfo;
+import com.blackbaud.deployment.api.ArtifactRelease;
 import com.blackbaud.deployment.api.Release;
 import com.blackbaud.deployment.api.ResourcePaths;
 import com.blackbaud.rest.client.CrudClient;
@@ -17,16 +17,16 @@ public class ReleaseClient extends CrudClient<Release, ReleaseClient> {
         return crudClientRequest.path(ResourcePaths.CURRENT_PATH).find();
     }
 
-    public Release getCurrentReleaseForProdSnapshot(List<ArtifactReleaseInfo> prodArtifactReleaseInfos) {
+    public Release getCurrentReleaseForProdSnapshot(List<ArtifactRelease> prodArtifactReleases) {
         return (Release) getUntypedCrudClientRequest()
                 .path(ResourcePaths.CURRENT_PATH)
-                .createWithPost(prodArtifactReleaseInfos);
+                .createWithPost(prodArtifactReleases);
     }
 
-    public Release getCurrentReleasePlanDiffForProdSnapshot(List<ArtifactReleaseInfo> prodArtifactReleaseInfos) {
+    public Release getCurrentReleasePlanDiffForProdSnapshot(List<ArtifactRelease> prodArtifactReleases) {
         return (Release) getUntypedCrudClientRequest()
                 .path(ResourcePaths.RELEASE_PLAN_DIFF_PATH)
-                .createWithPost(prodArtifactReleaseInfos);
+                .createWithPost(prodArtifactReleases);
     }
 
 }

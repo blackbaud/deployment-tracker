@@ -5,47 +5,48 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.Set;
 
 @Data
+@Builder
 @NoArgsConstructor
 public class ArtifactReleaseDiff {
-    private ArtifactReleaseInfo dev;
-    private ArtifactReleaseInfo prod;
+    private ArtifactRelease currentRelease;
+    private ArtifactRelease prevRelease;
+    private String foundation;
+    private String space;
     private Set<String> stories;
     private Set<String> developers;
+    private String deployer;
+    private ZonedDateTime releaseDate;
 
     @Builder
-    public ArtifactReleaseDiff(ArtifactReleaseInfo dev, ArtifactReleaseInfo prod, Set<String> stories, Set<String> developers) {
-        this.dev = dev;
-        this.prod = prod;
+    public ArtifactReleaseDiff(ArtifactRelease currentRelease, ArtifactRelease prevRelease, String foundation, String space, Set<String> stories, Set<String> developers, String deployer, ZonedDateTime releaseDate) {
+        this.currentRelease = currentRelease;
+        this.prevRelease = prevRelease;
+        this.foundation = foundation;
+        this.space = space;
         this.stories = stories == null ? Collections.emptySet() : stories;
         this.developers = developers == null ? Collections.emptySet() : developers;
+        this.deployer = deployer;
+        this.releaseDate = releaseDate;
     }
 
     @JsonIgnore
     public String getArtifactId() {
-        return dev == null ? prod.getArtifactId() : dev.getArtifactId();
+        return currentRelease == null ? prevRelease.getArtifactId() : currentRelease.getArtifactId();
     }
 
     @JsonIgnore
     public String getDevSha() {
-        return dev == null ? null : dev.getGitSha();
-    }
-
-    @JsonIgnore
-    public String getDevBuildVersion() {
-        return dev == null ? null : dev.getBuildVersion();
+        return currentRelease == null ? null : currentRelease.getGitSha();
     }
 
     @JsonIgnore
     public String getProdSha() {
-        return prod == null ? null : prod.getGitSha();
+        return prevRelease == null ? null : prevRelease.getGitSha();
     }
 
-    @JsonIgnore
-    public String getProdBuildVersion() {
-        return prod == null ? null : prod.getBuildVersion();
-    }
 }

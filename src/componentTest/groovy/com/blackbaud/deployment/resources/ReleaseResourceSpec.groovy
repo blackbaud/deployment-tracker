@@ -5,7 +5,7 @@ import com.blackbaud.deployment.ComponentTest
 import com.blackbaud.deployment.RealArtifacts
 import com.blackbaud.deployment.api.ArtifactInfo
 import com.blackbaud.deployment.api.ArtifactReleaseDiff
-import com.blackbaud.deployment.api.ArtifactReleaseInfo
+import com.blackbaud.deployment.api.ArtifactRelease
 import com.blackbaud.deployment.client.ArtifactInfoClient
 import com.blackbaud.deployment.client.ArtifactReleaseInfoClient
 import com.blackbaud.deployment.client.ReleaseClient
@@ -34,9 +34,9 @@ class ReleaseResourceSpec extends Specification {
 
     private String artifactId = "deployment-tracker"
 
-    private ArtifactReleaseInfo earlyReleaseInfo = RealArtifacts.getEarlyDeploymentTrackerRelease()
-    private ArtifactReleaseInfo middleReleaseInfo = RealArtifacts.getMiddleDeploymentTrackerRelease()
-    private ArtifactReleaseInfo recentReleaseInfo = RealArtifacts.getRecentDeploymentTrackerRelease()
+    private ArtifactRelease earlyReleaseInfo = RealArtifacts.getEarlyDeploymentTrackerRelease()
+    private ArtifactRelease middleReleaseInfo = RealArtifacts.getMiddleDeploymentTrackerRelease()
+    private ArtifactRelease recentReleaseInfo = RealArtifacts.getRecentDeploymentTrackerRelease()
     private ArtifactInfo earlyInfo = RealArtifacts.getEarlyDeploymentTrackerArtifact()
     private ArtifactInfo middleInfo = RealArtifacts.getMiddleDeploymentTrackerArtifact()
     private ArtifactInfo recentInfo = RealArtifacts.getRecentDeploymentTrackerArtifact()
@@ -54,8 +54,8 @@ class ReleaseResourceSpec extends Specification {
         storeInDev(recentReleaseInfo)
 
         ArtifactReleaseDiff expected = ArtifactReleaseDiff.builder()
-                .dev(recentReleaseInfo)
-                .prod(earlyReleaseInfo)
+                .currentRelease(recentReleaseInfo)
+                .prevRelease(earlyReleaseInfo)
                 .stories(["LUM-8045", "LUM-7759"] as Set)
                 .developers(["Blackbaud-JohnHolland", "Ryan McKay"] as Set)
                 .build();
@@ -73,8 +73,8 @@ class ReleaseResourceSpec extends Specification {
 
         String artifactId = earlyReleaseInfo.artifactId
         ArtifactReleaseDiff expected = ArtifactReleaseDiff.builder()
-                .dev(null)
-                .prod(earlyReleaseInfo)
+                .currentRelease(null)
+                .prevRelease(earlyReleaseInfo)
                 .stories([] as Set)
                 .developers([] as Set)
                 .build();
@@ -92,8 +92,8 @@ class ReleaseResourceSpec extends Specification {
 
         String artifactId = earlyReleaseInfo.artifactId
         ArtifactReleaseDiff expected = ArtifactReleaseDiff.builder()
-                .dev(earlyReleaseInfo)
-                .prod(null)
+                .currentRelease(earlyReleaseInfo)
+                .prevRelease(null)
                 .stories(["LUM-7759"] as SortedSet)
                 .developers(["Ryan McKay", "Di Huynh", "Blackbaud-DiHuynh", "Mike Lueders"] as SortedSet)
                 .build();
@@ -111,8 +111,8 @@ class ReleaseResourceSpec extends Specification {
         def prodSnapshot = [earlyReleaseInfo]
 
         ArtifactReleaseDiff expected = ArtifactReleaseDiff.builder()
-                .dev(recentReleaseInfo)
-                .prod(earlyReleaseInfo)
+                .currentRelease(recentReleaseInfo)
+                .prevRelease(earlyReleaseInfo)
                 .stories(["LUM-7759", "LUM-8045"] as Set)
                 .developers(["Ryan McKay", "Blackbaud-JohnHolland"] as Set)
                 .build();
@@ -137,7 +137,7 @@ class ReleaseResourceSpec extends Specification {
 
     def "getCurrentRelease does not return non-releasable artifacts"() {
         given:
-        ArtifactReleaseInfo artifactReleaseInfo = RealArtifacts.getBluemoonDojoRelease()
+        ArtifactRelease artifactReleaseInfo = RealArtifacts.getBluemoonDojoRelease()
         storeInDev(artifactReleaseInfo)
 
         expect:
@@ -145,27 +145,27 @@ class ReleaseResourceSpec extends Specification {
     }
 
     def "can get releaseDiffs for prod vs releasePlan artifacts"(){
-        given: "a releasePlan and an artifact (middle) behind dev but later than prod"
+        given: "a releasePlan and an artifact (middle) behind currentRelease but later than prevRelease"
         def currentReleasePlan = releasePlanClient.create(null);
         artifactInfoClient.update(recentInfo.artifactId, recentInfo.buildVersion, recentInfo)
         artifactInfoClient.update(middleInfo.artifactId, middleInfo.buildVersion, middleInfo)
         artifactInfoClient.update(earlyInfo.artifactId, earlyInfo.buildVersion, earlyInfo)
         storeInDev(recentReleaseInfo)
 
-        and: "add the artifact behind dev to the releasePlan"
+        and: "add the artifact behind currentRelease to the releasePlan"
         releasePlanClient.addArtifact(currentReleasePlan.id, middleInfo)
 
-        and: "a prod snapshot with the oldest artifact"
+        and: "a prevRelease snapshot with the oldest artifact"
         def prodSnapShot = [earlyReleaseInfo]
 
         ArtifactReleaseDiff expected = ArtifactReleaseDiff.builder()
-                .dev(middleReleaseInfo)
-                .prod(earlyReleaseInfo)
+                .currentRelease(middleReleaseInfo)
+                .prevRelease(earlyReleaseInfo)
                 .stories(["LUM-7759", "LUM-8045"] as Set)
                 .developers(["Ryan McKay"] as Set)
                 .build()
 
-        expect: "releasePlan diffs show stories and developers for the releasePlan artifacts, not current dev"
+        expect: "releasePlan diffs show stories and developers for the releasePlan artifacts, not currentRelease currentRelease"
         releaseClient.getCurrentReleasePlanDiffForProdSnapshot(prodSnapShot).artifactReleaseDiffs == [('deployment-tracker'): expected]
     }
 
@@ -177,11 +177,11 @@ class ReleaseResourceSpec extends Specification {
         releaseClient.getCurrentReleasePlanDiffForProdSnapshot(prodSnapShot).artifactReleaseDiffs == [:]
     }
 
-    def storeInDev(ArtifactReleaseInfo artifactReleaseInfo) {
+    def storeInDev(ArtifactRelease artifactReleaseInfo) {
         artifactReleaseInfoClient.update(ReleaseService.DEV_FOUNDATION, ReleaseService.DEV_SPACE, artifactReleaseInfo)
     }
 
-    def storeInProd(ArtifactReleaseInfo artifactReleaseInfo) {
+    def storeInProd(ArtifactRelease artifactReleaseInfo) {
         artifactReleaseInfoClient.update(ReleaseService.PROD_FOUNDATION, ReleaseService.PROD_SPACE, artifactReleaseInfo)
     }
 

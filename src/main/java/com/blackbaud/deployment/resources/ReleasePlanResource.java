@@ -43,7 +43,7 @@ public class ReleasePlanResource {
     public ReleasePlan getCurrentReleasePlan() {
         ReleasePlan releasePlan = converter.toApi(releasePlanService.getCurrentReleasePlan());
         if (releasePlan == null) {
-            throw new NotFoundException("No current release plan exists");
+            throw new NotFoundException("No currentRelease release plan exists");
         }
         return releasePlan;
     }

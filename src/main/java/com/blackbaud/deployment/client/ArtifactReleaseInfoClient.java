@@ -2,27 +2,27 @@ package com.blackbaud.deployment.client;
 
 import com.blackbaud.rest.client.CrudClient;
 import com.blackbaud.deployment.api.ResourcePaths;
-import com.blackbaud.deployment.api.ArtifactReleaseInfo;
+import com.blackbaud.deployment.api.ArtifactRelease;
 
 import java.util.List;
 
-public class ArtifactReleaseInfoClient extends CrudClient<ArtifactReleaseInfo, ArtifactReleaseInfoClient> {
+public class ArtifactReleaseInfoClient extends CrudClient<ArtifactRelease, ArtifactReleaseInfoClient> {
 
     public ArtifactReleaseInfoClient(String baseUrl) {
-        super(baseUrl, ResourcePaths.ARTIFACT_RELEASE_INFO_PATH, ArtifactReleaseInfo.class);
+        super(baseUrl, ResourcePaths.ARTIFACT_RELEASE_INFO_PATH, ArtifactRelease.class);
     }
 
-    public ArtifactReleaseInfo update(String foundation, String space, ArtifactReleaseInfo info) {
+    public ArtifactRelease update(String foundation, String space, ArtifactRelease info) {
         return crudClientRequest.path(foundation).path(space)
                 .updateWithPut(info);
     }
 
-    public ArtifactReleaseInfo find(String foundation, String space, String artifactId) {
+    public ArtifactRelease find(String foundation, String space, String artifactId) {
         return crudClientRequest.path(foundation).path(space).path(artifactId)
                 .find();
     }
 
-    public List<ArtifactReleaseInfo> findAllInSpace(String foundation, String space) {
+    public List<ArtifactRelease> findAllInSpace(String foundation, String space) {
         return crudClientRequest.path(foundation).path(space)
                 .findMany();
     }

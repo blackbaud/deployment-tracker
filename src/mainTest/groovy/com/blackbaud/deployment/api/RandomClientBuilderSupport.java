@@ -2,8 +2,8 @@ package com.blackbaud.deployment.api;
 
 public class RandomClientBuilderSupport {
 
-    public RandomArtifactReleaseInfoBuilder artifactReleaseInfo() {
-        return new RandomArtifactReleaseInfoBuilder();
+    public RandomArtifactReleaseBuilder artifactReleaseInfo() {
+        return new RandomArtifactReleaseBuilder();
     }
 
     public RandomArtifactInfoBuilder artifactInfo() {

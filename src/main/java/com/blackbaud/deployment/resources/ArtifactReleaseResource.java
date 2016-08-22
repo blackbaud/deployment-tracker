@@ -11,8 +11,7 @@ import javax.validation.Valid;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.PUT;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -21,11 +20,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 import java.util.List;
 
-@Deprecated
 @Component
-@Path(ResourcePaths.ARTIFACT_RELEASE_INFO_PATH + "/{foundation}/{space}")
+@Path(ResourcePaths.ARTIFACT_RELEASE_PATH + "/{foundation}/{space}")
 @Produces(MediaType.APPLICATION_JSON)
-public class ArtifactReleaseInfoResource {
+public class ArtifactReleaseResource {
 
     @Context
     private UriInfo uriInfo;
@@ -33,28 +31,15 @@ public class ArtifactReleaseInfoResource {
     @Autowired
     private ArtifactReleaseLogService artifactReleaseLogService;
 
-    @PUT
+    @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    @SuppressWarnings("CPD-START")
-    public ArtifactRelease update(@PathParam("foundation") String foundation, @PathParam("space") String space,
+    public ArtifactRelease create(@PathParam("foundation") String foundation, @PathParam("space") String space,
                                   @Valid ArtifactRelease artifactRelease) {
         try{
             return artifactReleaseLogService.save(artifactRelease, foundation, space);
         } catch (GitLogParserFactory.InvalidRepositoryException ex){
             throw new BadRequestException(ex.getMessage());
         }
-    }
-
-    @GET
-    @Path("{artifactId}")
-    @SuppressWarnings("CPD-END")
-    public ArtifactRelease find(@PathParam("foundation") String foundation, @PathParam("space") String space,
-                                @PathParam("artifactId") String artifactId) {
-        ArtifactRelease artifactRelease = artifactReleaseLogService.findOneByFoundationAndSpaceAndArtifactId(foundation, space, artifactId);
-        if (artifactRelease == null) {
-            throw new NotFoundException();
-        }
-        return artifactRelease;
     }
 
     @GET
