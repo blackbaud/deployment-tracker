@@ -13,5 +13,5 @@ public class ResourcePaths {
     public static final String ACTIVATE_PATH = "activate";
     public static final String ARTIFACT_PATH = "artifacts";
     public static final String RELEASE_PLAN_DIFF_PATH = CURRENT_PATH + "/release-plan-diff";
-    public static final String ARTIFACT_RELEASE_REPORT ="/artifact-release-report";
+    public static final String ARTIFACT_RELEASE_REPORT = DEPLOYMENT_TRACKER_PATH + "/artifact-release-report";
 }
