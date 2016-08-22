@@ -145,14 +145,14 @@ class ReleaseResourceSpec extends Specification {
     }
 
     def "can get releaseDiffs for prod vs releasePlan artifacts"(){
-        given: "a releasePlan and an artifact (middle) behind currentRelease but later than prevRelease"
+        given: "a releasePlan and an artifact (middle) behind dev but later than prod"
         def currentReleasePlan = releasePlanClient.create(null);
         artifactInfoClient.update(recentInfo.artifactId, recentInfo.buildVersion, recentInfo)
         artifactInfoClient.update(middleInfo.artifactId, middleInfo.buildVersion, middleInfo)
         artifactInfoClient.update(earlyInfo.artifactId, earlyInfo.buildVersion, earlyInfo)
         storeInDev(recentReleaseInfo)
 
-        and: "add the artifact behind currentRelease to the releasePlan"
+        and: "add the artifact behind dev to the releasePlan"
         releasePlanClient.addArtifact(currentReleasePlan.id, middleInfo)
 
         and: "a prevRelease snapshot with the oldest artifact"
@@ -165,7 +165,7 @@ class ReleaseResourceSpec extends Specification {
                 .developers(["Ryan McKay"] as Set)
                 .build()
 
-        expect: "releasePlan diffs show stories and developers for the releasePlan artifacts, not currentRelease currentRelease"
+        expect: "releasePlan diffs show stories and developers for the releasePlan artifacts, not current dev"
         releaseClient.getCurrentReleasePlanDiffForProdSnapshot(prodSnapShot).artifactReleaseDiffs == [('deployment-tracker'): expected]
     }
 

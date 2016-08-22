@@ -25,7 +25,7 @@ class ArtifactReleaseInfoResourceSpec extends Specification {
     private ArtifactInfoClient artifactInfoClient
 
     private String foundation = "pivotal"
-    private String space = "currentRelease"
+    private String space = "dev"
 
     private final ArtifactRelease artifactRelease = RealArtifacts.getRecentDeploymentTrackerRelease()
 
