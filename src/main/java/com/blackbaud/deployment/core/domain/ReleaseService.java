@@ -109,6 +109,7 @@ public class ReleaseService {
         devArtifactReleases.stream().filter(devRelease -> isReleasable(devRelease)).forEach(devRelease -> {
             allArtifactReleases.put(devRelease.getArtifactId(),
                                     ArtifactReleaseDiff.builder()
+                                            .artifactId(devRelease.getArtifactId())
                                             .currentRelease(devRelease)
                                             .build()
             );
@@ -125,6 +126,7 @@ public class ReleaseService {
             if (artifactReleaseDiff == null) {
                 allArtifactReleases.put(prodRelease.getArtifactId(),
                                             ArtifactReleaseDiff.builder()
+                                                    .artifactId(prodRelease.getArtifactId())
                                                     .prevRelease(prodRelease)
                                                     .build());
             } else {

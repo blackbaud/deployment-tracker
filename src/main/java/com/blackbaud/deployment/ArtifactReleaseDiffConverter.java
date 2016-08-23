@@ -1,13 +1,10 @@
 package com.blackbaud.deployment;
 
-import com.blackbaud.deployment.api.ArtifactInfo;
 import com.blackbaud.deployment.api.ArtifactRelease;
 import com.blackbaud.deployment.api.ArtifactReleaseDiff;
 import com.blackbaud.deployment.core.domain.ArtifactInfoEntity;
-import com.blackbaud.deployment.core.domain.ArtifactInfoRepository;
 import com.blackbaud.deployment.core.domain.ArtifactReleaseLogEntity;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.ZonedDateTime;
@@ -21,6 +18,7 @@ public class ArtifactReleaseDiffConverter {
         ArtifactRelease currentRelease = new ArtifactRelease(currentInfo.getArtifactId(), currentInfo.getBuildVersion(), entity.getReleaseVersion(), currentInfo.getGitSha());
         ArtifactRelease prevRelease = toArtifactRelease(prevInfo, entity.getPrevReleaseVersion());
         ArtifactReleaseDiff releaseDiff = ArtifactReleaseDiff.builder()
+                .artifactId(getArtifactId(currentRelease, prevRelease))
                 .currentRelease(currentRelease)
                 .prevRelease(prevRelease)
                 .space(entity.getSpace())
@@ -32,10 +30,14 @@ public class ArtifactReleaseDiffConverter {
 
     private ArtifactRelease toArtifactRelease(ArtifactInfoEntity artifactInfoEntity, String releaseVersion) {
         ArtifactRelease artifactRelease = new ArtifactRelease();
-        if(artifactInfoEntity != null) {
+        if (artifactInfoEntity != null) {
             artifactRelease = new ArtifactRelease(artifactInfoEntity.getArtifactId(), artifactInfoEntity.getBuildVersion(), releaseVersion, getPrevGitSha(artifactInfoEntity));
         }
         return artifactRelease;
+    }
+
+    private String getArtifactId(ArtifactRelease currentRelease, ArtifactRelease prevRelease) {
+        return currentRelease == null ? prevRelease.getArtifactId() : currentRelease.getArtifactId();
     }
 
     private String getPrevGitSha(ArtifactInfoEntity releaseInfo) {
