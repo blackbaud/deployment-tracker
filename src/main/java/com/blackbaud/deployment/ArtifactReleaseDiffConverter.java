@@ -19,7 +19,7 @@ public class ArtifactReleaseDiffConverter {
 
     public ArtifactReleaseDiff toApi(ArtifactReleaseLogEntity entity, ArtifactInfoEntity currentInfo, ArtifactInfoEntity prevInfo) {
         ArtifactRelease currentRelease = new ArtifactRelease(currentInfo.getArtifactId(), currentInfo.getBuildVersion(), entity.getReleaseVersion(), currentInfo.getGitSha());
-        ArtifactRelease prevRelease = toArtifactRelease(entity.getPrevBuildVersion(), prevInfo);
+        ArtifactRelease prevRelease = toArtifactRelease(prevInfo, entity.getPrevReleaseVersion());
         ArtifactReleaseDiff releaseDiff = ArtifactReleaseDiff.builder()
                 .currentRelease(currentRelease)
                 .prevRelease(prevRelease)
@@ -30,10 +30,10 @@ public class ArtifactReleaseDiffConverter {
         return releaseDiff;
     }
 
-    private ArtifactRelease toArtifactRelease(String buildVersion, ArtifactInfoEntity artifactInfoEntity) {
+    private ArtifactRelease toArtifactRelease(ArtifactInfoEntity artifactInfoEntity, String releaseVersion) {
         ArtifactRelease artifactRelease = new ArtifactRelease();
         if(artifactInfoEntity != null) {
-            artifactRelease = new ArtifactRelease(artifactInfoEntity.getArtifactId(), artifactInfoEntity.getBuildVersion(), buildVersion, getPrevGitSha(artifactInfoEntity));
+            artifactRelease = new ArtifactRelease(artifactInfoEntity.getArtifactId(), artifactInfoEntity.getBuildVersion(), releaseVersion, getPrevGitSha(artifactInfoEntity));
         }
         return artifactRelease;
     }
