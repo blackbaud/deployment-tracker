@@ -7,6 +7,9 @@ databaseChangeLog:
       file: db/create_artifact_info.sql
 
   - include:
+      file: db/migrate_artifact_info_from_deployment_info.sql
+
+  - include:
       file: db/create_git_log.sql
 
   - include:

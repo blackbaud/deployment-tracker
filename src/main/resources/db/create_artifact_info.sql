@@ -20,3 +20,4 @@ alter table artifact_info drop column authors;
 
 --changeset blackbaud:4
 alter table artifact_info add constraint artifact_info_pk primary key (artifact_id, build_version)
+

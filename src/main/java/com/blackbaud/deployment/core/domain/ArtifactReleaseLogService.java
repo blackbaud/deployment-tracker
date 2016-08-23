@@ -2,7 +2,6 @@ package com.blackbaud.deployment.core.domain;
 
 import com.blackbaud.deployment.ArtifactReleaseDiffConverter;
 import com.blackbaud.deployment.ArtifactReleaseInfoConverter;
-import com.blackbaud.deployment.api.ArtifactInfo;
 import com.blackbaud.deployment.api.ArtifactRelease;
 import com.blackbaud.deployment.api.ArtifactReleaseDiff;
 import com.blackbaud.deployment.core.domain.git.GitLogService;
@@ -12,10 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Time;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Component
