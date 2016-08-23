@@ -54,6 +54,7 @@ class ReleaseResourceSpec extends Specification {
         storeInDev(recentRelease)
 
         ArtifactReleaseDiff expected = ArtifactReleaseDiff.builder()
+                .artifactId(artifactId)
                 .currentRelease(recentRelease)
                 .prevRelease(earlyRelease)
                 .stories(["LUM-8045", "LUM-7759"] as Set)
@@ -73,6 +74,7 @@ class ReleaseResourceSpec extends Specification {
 
         String artifactId = earlyRelease.artifactId
         ArtifactReleaseDiff expected = ArtifactReleaseDiff.builder()
+                .artifactId(artifactId)
                 .currentRelease(null)
                 .prevRelease(earlyRelease)
                 .stories([] as Set)
@@ -92,6 +94,7 @@ class ReleaseResourceSpec extends Specification {
 
         String artifactId = earlyRelease.artifactId
         ArtifactReleaseDiff expected = ArtifactReleaseDiff.builder()
+                .artifactId(artifactId)
                 .currentRelease(earlyRelease)
                 .prevRelease(null)
                 .stories(["LUM-7759"] as SortedSet)
@@ -111,6 +114,7 @@ class ReleaseResourceSpec extends Specification {
         def prodSnapshot = [earlyRelease]
 
         ArtifactReleaseDiff expected = ArtifactReleaseDiff.builder()
+                .artifactId(artifactId)
                 .currentRelease(recentRelease)
                 .prevRelease(earlyRelease)
                 .stories(["LUM-7759", "LUM-8045"] as Set)
@@ -159,6 +163,7 @@ class ReleaseResourceSpec extends Specification {
         def prodSnapShot = [earlyRelease]
 
         ArtifactReleaseDiff expected = ArtifactReleaseDiff.builder()
+                .artifactId(artifactId)
                 .currentRelease(middleRelease)
                 .prevRelease(earlyRelease)
                 .stories(["LUM-7759", "LUM-8045"] as Set)

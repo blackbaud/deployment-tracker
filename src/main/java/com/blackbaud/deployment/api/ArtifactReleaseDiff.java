@@ -13,6 +13,7 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 public class ArtifactReleaseDiff {
+    private String artifactId;
     private ArtifactRelease currentRelease;
     private ArtifactRelease prevRelease;
     private String foundation;
@@ -23,7 +24,8 @@ public class ArtifactReleaseDiff {
     private ZonedDateTime releaseDate;
 
     @Builder
-    public ArtifactReleaseDiff(ArtifactRelease currentRelease, ArtifactRelease prevRelease, String foundation, String space, Set<String> stories, Set<String> developers, String deployer, ZonedDateTime releaseDate) {
+    public ArtifactReleaseDiff(String artifactId, ArtifactRelease currentRelease, ArtifactRelease prevRelease, String foundation, String space, Set<String> stories, Set<String> developers, String deployer, ZonedDateTime releaseDate) {
+        this.artifactId = artifactId;
         this.currentRelease = currentRelease;
         this.prevRelease = prevRelease;
         this.foundation = foundation;
@@ -32,11 +34,6 @@ public class ArtifactReleaseDiff {
         this.developers = developers == null ? Collections.emptySet() : developers;
         this.deployer = deployer;
         this.releaseDate = releaseDate;
-    }
-
-    @JsonIgnore
-    public String getArtifactId() {
-        return currentRelease == null ? prevRelease.getArtifactId() : currentRelease.getArtifactId();
     }
 
     @JsonIgnore

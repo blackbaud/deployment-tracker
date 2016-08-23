@@ -33,7 +33,11 @@ class ArtifactReleaseLogRepositorySpec extends Specification {
 
     def "Should be able to get a list of artifact logs"() {
         given:
-        ArtifactReleaseLogEntity diffEntity = aRandom.releaseLogEntity().artifactId(middleInfo.artifactId).buildVersion(middleInfo.buildVersion).prevBuildVersion(earlyInfo.buildVersion).build()
+        ArtifactReleaseLogEntity diffEntity = aRandom.releaseLogEntity()
+                .artifactId(middleInfo.artifactId)
+                .buildVersion(middleInfo.buildVersion)
+                .prevBuildVersion(earlyInfo.buildVersion)
+                .build()
         artifactInfoClient.update(earlyInfo.artifactId, earlyInfo.buildVersion, earlyInfo)
         artifactInfoClient.update(middleInfo.artifactId, middleInfo.buildVersion, middleInfo)
         gitLogInfoClient.post(earlyInfo.artifactId)
@@ -55,6 +59,7 @@ class ArtifactReleaseLogRepositorySpec extends Specification {
 
         and:
         ArtifactReleaseDiff expected = ArtifactReleaseDiff.builder()
+                .artifactId(middleInfo.artifactId)
                 .currentRelease(middleRelease)
                 .prevRelease(earlyRelease)
                 .deployer(diffEntity.deployer)
