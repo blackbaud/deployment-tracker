@@ -39,7 +39,7 @@ public class ArtifactReleaseLogService {
     @Transactional
     public ArtifactRelease save(ArtifactRelease artifactRelease, String foundation, String space) {
         artifactInfoService.create(artifactRelease.getArtifactId(), artifactRelease.getBuildVersion(), extractArtifactInfo(artifactRelease));
-        ArtifactReleaseLogEntity mostRecentRelease = artifactReleaseLogRepository.findFirstByArtifactIdOrderByReleaseVersionDesc(artifactRelease.getArtifactId());
+        ArtifactReleaseLogEntity mostRecentRelease = artifactReleaseLogRepository.findFirstByArtifactIdAndFoundationAndSpaceOrderByReleaseVersionDesc(artifactRelease.getArtifactId(), foundation, space);
         ArtifactReleaseLogEntity newRelease = ArtifactReleaseLogEntity.builder()
                 .artifactId(artifactRelease.getArtifactId())
                 .buildVersion(artifactRelease.getBuildVersion())
