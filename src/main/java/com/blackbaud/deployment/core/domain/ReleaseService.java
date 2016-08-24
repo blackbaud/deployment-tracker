@@ -37,7 +37,6 @@ public class ReleaseService {
                                                                     "data-pipeline-tests-endpoints",
                                                                     "mock-data-sync-api",
                                                                     "kafka-oauth-sasl-provider");
-    public static final String FAKE_RELEASE_VERSION = "12345";
 
     @Autowired
     private ArtifactReleaseLogService artifactReleaseLogService;
@@ -93,7 +92,7 @@ public class ReleaseService {
                         .buildVersion(artifactInfo.getBuildVersion())
                         .artifactId(artifactInfo.getArtifactId())
                         .gitSha(artifactInfo.getGitSha())
-                        .releaseVersion(FAKE_RELEASE_VERSION).build())
+                        .releaseVersion(null).build())
                 .collect(Collectors.toList());
         return devReleases;
     }
