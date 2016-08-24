@@ -21,26 +21,28 @@ class ArtifactReleaseResourceSpec extends Specification{
     private String foundation = "pivotal"
     private String space = "dev"
 
-    private final ArtifactRelease artifactRelease = RealArtifacts.getRecentDeploymentTrackerRelease()
+    private final ArtifactRelease artifactRelease = RealArtifacts.getEarlyDeploymentTrackerRelease()
 
     def "should add new deployment info"() {
         when:
         artifactReleaseClient.create(foundation, space, artifactRelease)
 
         then:
-        assert artifactRelease in artifactReleaseClient.findAllInSpace(foundation, space)
+        assert artifactRelease in artifactReleaseClient.findLatestOfEachArtifactBySpaceAndFoundation(foundation, space)
     }
 
-    def "should add new deployment info with same space and artifact id but different release version"() {
-        given:
-        ArtifactRelease releaseCopy = RealArtifacts.getRecentDeploymentTrackerRelease()
-        releaseCopy.releaseVersion = aRandom.text(100)
-
+    def "should add new deployment info with same space and artifact id but different release version and build version"() {
         when:
         artifactReleaseClient.create(foundation, space, artifactRelease)
-        artifactReleaseClient.create(foundation, space, releaseCopy)
 
         then:
-        assert [artifactRelease, releaseCopy] == artifactReleaseClient.findAllInSpace(foundation, space)
+        assert [artifactRelease] == artifactReleaseClient.findLatestOfEachArtifactBySpaceAndFoundation(foundation, space)
+
+        when:
+        ArtifactRelease laterRelease = RealArtifacts.getRecentDeploymentTrackerRelease()
+        artifactReleaseClient.create(foundation, space, laterRelease)
+
+        then:
+        assert [laterRelease] == artifactReleaseClient.findLatestOfEachArtifactBySpaceAndFoundation(foundation, space)
     }
 }

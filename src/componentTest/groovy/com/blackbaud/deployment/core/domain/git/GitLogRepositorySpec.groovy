@@ -22,7 +22,7 @@ class GitLogRepositorySpec extends Specification {
 
     private final ArtifactInfo earlyDeploymentTrackerArtifact = RealArtifacts.getEarlyDeploymentTrackerArtifact()
     private final ArtifactInfo recentDeploymentTrackerArtifact = RealArtifacts.getRecentDeploymentTrackerArtifact()
-    private final ArtifactInfo bluemoonCoreArtifact = RealArtifacts.getBluemoonCoreArtifact()
+    private final ArtifactInfo bluemoonCoreArtifact = RealArtifacts.getRecentBluemoonCoreArtifact()
 
     def "i can retrieve commits in the order they were commited"() {
         given:

@@ -17,7 +17,7 @@ public class ArtifactReleaseClient extends CrudClient<ArtifactRelease, ArtifactR
                 .createWithPost(info);
     }
 
-    public List<ArtifactRelease> findAllInSpace(String foundation, String space) {
+    public List<ArtifactRelease> findLatestOfEachArtifactBySpaceAndFoundation(String foundation, String space) {
         return crudClientRequest.path(foundation).path(space)
                 .findMany();
     }
