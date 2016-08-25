@@ -162,9 +162,12 @@ class ReleaseResourceSpec extends Specification {
         and: "a prod snapshot with the oldest artifact"
         def prodSnapShot = [earlyRelease]
 
+        and: "an artifact release diff with no version for prev release"
+        def middleReleaseNoVersion = middleRelease
+        middleReleaseNoVersion.releaseVersion = null
         ArtifactReleaseDiff expected = ArtifactReleaseDiff.builder()
                 .artifactId(artifactId)
-                .currentRelease(middleRelease)
+                .currentRelease(middleReleaseNoVersion)
                 .prevRelease(earlyRelease)
                 .stories(["LUM-7759", "LUM-8045"] as Set)
                 .developers(["Ryan McKay"] as Set)

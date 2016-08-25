@@ -7,6 +7,7 @@ import com.blackbaud.deployment.api.ArtifactInfo
 import com.blackbaud.deployment.api.ArtifactRelease
 import com.blackbaud.deployment.api.ArtifactReleaseDiff
 import com.blackbaud.deployment.client.ArtifactInfoClient
+import com.blackbaud.deployment.client.ArtifactReleaseInfoClient
 import com.blackbaud.deployment.client.ArtifactReleaseReportClient
 import com.blackbaud.deployment.core.domain.ArtifactReleaseLogEntity
 import com.blackbaud.deployment.core.domain.ArtifactReleaseLogRepository
@@ -28,6 +29,9 @@ class ArtifactReleaseReportResourceSpec extends Specification {
     private ArtifactInfoClient artifactInfoClient
 
     @Autowired
+    ArtifactReleaseInfoClient artifactReleaseInfoClient
+
+    @Autowired
     private ArtifactReleaseDiffConverter releaseDiffConverter;
 
     private static String trackerArtifactId = 'deployment-tracker';
@@ -37,6 +41,11 @@ class ArtifactReleaseReportResourceSpec extends Specification {
     private ArtifactInfo recentTrackerInfo = RealArtifacts.getRecentDeploymentTrackerArtifact()
     private ArtifactInfo recentBluemoonCoreInfo = RealArtifacts.getRecentBluemoonCoreArtifact()
     private ArtifactInfo olderBluemoonCoreInfo = RealArtifacts.getEarlyBluemoonCoreArtifact()
+
+    private ArtifactRelease earlyTrackerRelease = RealArtifacts.earlyDeploymentTrackerRelease
+    private ArtifactRelease middleTrackerRelease = RealArtifacts.middleDeploymentTrackerRelease
+    private ArtifactRelease recentTrackerRelease = RealArtifacts.recentDeploymentTrackerRelease
+    private ArtifactRelease emptyTrackerRelease = ArtifactRelease.builder().artifactId(trackerArtifactId).build()
 
     def "Should be able to get a list of all artifact diffs in a space"() {
         given:
@@ -85,6 +94,49 @@ class ArtifactReleaseReportResourceSpec extends Specification {
         results.size() == 3
     }
 
+    def "release of new artifact should have null previous release"() {
+        given:
+        artifactReleaseInfoClient.update("foundation1", "int", earlyTrackerRelease)
+
+        when:
+        def artifactReleaseDiffs = artifactReleaseReportClient.findAll()
+
+        then:
+        assert artifactReleaseDiffs[0].currentRelease == earlyTrackerRelease
+        assert artifactReleaseDiffs[0].prevRelease == emptyTrackerRelease
+    }
+
+    def "new release in same space should have correct previous release"() {
+        given:
+        artifactReleaseInfoClient.update("foundation1", "int", earlyTrackerRelease)
+        artifactReleaseInfoClient.update("foundation1", "int", middleTrackerRelease)
+
+        when:
+        def artifactReleaseDiffs = artifactReleaseReportClient.findAll()
+
+        then:
+        def earlyReleaseDiff = artifactReleaseDiffs[0]
+        assert earlyReleaseDiff.currentRelease == earlyTrackerRelease
+        assert earlyReleaseDiff.prevRelease == emptyTrackerRelease
+
+        def middleReleaseDiff = artifactReleaseDiffs[1]
+        assert middleReleaseDiff.currentRelease == middleTrackerRelease
+        assert middleReleaseDiff.prevRelease == earlyTrackerRelease
+    }
+
+    def "new release in different space should have correct previous release"() {
+        given:
+        artifactReleaseInfoClient.update("foundation1", "int", earlyTrackerRelease)
+        artifactReleaseInfoClient.update("foundation1", "dev", recentTrackerRelease)
+
+        when:
+        def artifactReleaseDiffs = artifactReleaseReportClient.findAll()
+
+        then:
+        assert artifactReleaseDiffs[0].prevRelease == emptyTrackerRelease
+        assert artifactReleaseDiffs[1].prevRelease == emptyTrackerRelease
+    }
+
     private ArtifactRelease createCurrentArtifactRelease(ArtifactReleaseLogEntity logEntity, String gitSha) {
         return new ArtifactRelease(logEntity.artifactId, logEntity.buildVersion, logEntity.releaseVersion, gitSha);
     }
@@ -93,7 +145,9 @@ class ArtifactReleaseReportResourceSpec extends Specification {
         return new ArtifactRelease(logEntity.artifactId, logEntity.prevBuildVersion, logEntity.prevReleaseVersion, gitSha);
     }
 
-    private ArtifactReleaseDiff createArtifactReleaseDiff(ArtifactReleaseLogEntity logEntity, ArtifactRelease curRelease, ArtifactRelease prevRelease, Set<String> stories, Set<String> developers) {
+    private ArtifactReleaseDiff createArtifactReleaseDiff(ArtifactReleaseLogEntity logEntity,
+                                                          ArtifactRelease curRelease, ArtifactRelease prevRelease,
+                                                          Set<String> stories, Set<String> developers) {
         return ArtifactReleaseDiff.builder()
                 .artifactId(logEntity.artifactId)
                 .currentRelease(curRelease)

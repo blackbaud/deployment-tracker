@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface ArtifactReleaseLogRepository extends CrudRepository<ArtifactReleaseLogEntity, ArtifactReleaseLogPrimaryKey> {
 
-    ArtifactReleaseLogEntity findFirstByArtifactIdOrderByReleaseVersionDesc(String artifactId);
+    ArtifactReleaseLogEntity findFirstByArtifactIdAndFoundationAndSpaceOrderByReleaseVersionDesc(String artifactId, String foundation, String space);
 
     ArtifactReleaseLogEntity findFirstByFoundationAndSpaceAndArtifactIdOrderByReleaseVersionDesc(String foundation, String space, String artifactId);
 
