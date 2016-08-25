@@ -36,7 +36,7 @@ class GitLogInfoResourceSpec extends Specification {
     GitLogConverter gitLogConverter;
 
     private final ArtifactInfo deploymentTrackerArtifact = RealArtifacts.getEarlyDeploymentTrackerArtifact()
-    private final ArtifactInfo bluemoonCoreArtifact = RealArtifacts.getBluemoonCoreArtifact()
+    private final ArtifactInfo bluemoonCoreArtifact = RealArtifacts.getRecentBluemoonCoreArtifact()
 
     def "should return git logs for an artifact"() {
         given:

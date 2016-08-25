@@ -22,4 +22,3 @@ insert into artifact_release_log (space, foundation, artifact_id, build_version,
 --changeset blackbaud:3
 alter table artifact_release_log add constraint artifact_release_log_fk foreign key (artifact_id, build_version) references artifact_info (artifact_id, build_version);
 --rollback alter table artifact_release_log drop constraint artifact_release_log_fk
-

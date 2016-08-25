@@ -57,8 +57,8 @@ public class ArtifactReleaseInfoResource {
     }
 
     @GET
-    public List<ArtifactRelease> findAllInSpace(@PathParam("foundation") String foundation, @PathParam("space") String space) {
-        return artifactReleaseLogService.findManyByFoundationAndSpace(foundation, space);
+    public List<ArtifactRelease> findLatestOfEachArtifactByFoundationAndSpace(@PathParam("foundation") String foundation, @PathParam("space") String space) {
+        return artifactReleaseLogService.findLatestOfEachArtifactByFoundationAndSpace(foundation, space);
     }
 
 }

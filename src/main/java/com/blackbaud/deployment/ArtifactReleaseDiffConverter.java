@@ -4,28 +4,51 @@ import com.blackbaud.deployment.api.ArtifactRelease;
 import com.blackbaud.deployment.api.ArtifactReleaseDiff;
 import com.blackbaud.deployment.core.domain.ArtifactInfoEntity;
 import com.blackbaud.deployment.core.domain.ArtifactReleaseLogEntity;
+import com.blackbaud.deployment.core.domain.ArtifactReleaseLogReportResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
 public class ArtifactReleaseDiffConverter {
 
+    public ArtifactReleaseDiff toApi(ArtifactReleaseLogReportResult reportResult) {
+        ArtifactRelease currentRelease = new ArtifactRelease(reportResult.getArtifactId(), reportResult.getBuildVersion(), reportResult.getReleaseVersion(), reportResult.getGitSha());
+        ArtifactRelease previousRelease = new ArtifactRelease(reportResult.getArtifactId(), reportResult.getPrevBuildVersion(), reportResult.getPrevReleaseVersion(), reportResult.getPrevGitSha());
+        return ArtifactReleaseDiff.builder()
+                .artifactId(reportResult.getArtifactId())
+                .currentRelease(currentRelease)
+                .prevRelease(previousRelease)
+                .space(reportResult.getSpace())
+                .foundation(reportResult.getFoundation())
+                .releaseDate(convertReleaseVersionToDate(reportResult.getReleaseVersion()))
+                .deployer(reportResult.getDeployer())
+                .stories(reportResult.getStories())
+                .developers(reportResult.getDevelopers())
+                .build();
+    }
+
+    public List<ArtifactReleaseDiff> toApiList(List<ArtifactReleaseLogReportResult> reportResultList) {
+        return reportResultList.stream()
+                .map(this::toApi)
+                .collect(Collectors.toList());
+    }
+
     public ArtifactReleaseDiff toApi(ArtifactReleaseLogEntity entity, ArtifactInfoEntity currentInfo, ArtifactInfoEntity prevInfo) {
         ArtifactRelease currentRelease = new ArtifactRelease(currentInfo.getArtifactId(), currentInfo.getBuildVersion(), entity.getReleaseVersion(), currentInfo.getGitSha());
         ArtifactRelease prevRelease = toArtifactRelease(prevInfo, entity.getPrevReleaseVersion());
-        ArtifactReleaseDiff releaseDiff = ArtifactReleaseDiff.builder()
-                .artifactId(getArtifactId(currentRelease, prevRelease))
+        return ArtifactReleaseDiff.builder()
                 .currentRelease(currentRelease)
                 .prevRelease(prevRelease)
                 .space(entity.getSpace())
                 .foundation(entity.getFoundation())
                 .releaseDate(convertReleaseVersionToDate(entity.getReleaseVersion()))
                 .deployer(entity.getDeployer()).build();
-        return releaseDiff;
     }
 
     private ArtifactRelease toArtifactRelease(ArtifactInfoEntity artifactInfoEntity, String releaseVersion) {

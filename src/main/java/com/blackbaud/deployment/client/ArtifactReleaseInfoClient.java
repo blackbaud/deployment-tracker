@@ -22,7 +22,7 @@ public class ArtifactReleaseInfoClient extends CrudClient<ArtifactRelease, Artif
                 .find();
     }
 
-    public List<ArtifactRelease> findAllInSpace(String foundation, String space) {
+    public List<ArtifactRelease> findLatestOfEachArtifactBySpaceAndFoundation(String foundation, String space) {
         return crudClientRequest.path(foundation).path(space)
                 .findMany();
     }

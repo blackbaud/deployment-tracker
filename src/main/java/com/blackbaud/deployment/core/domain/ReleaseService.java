@@ -60,15 +60,15 @@ public class ReleaseService {
     private ReleasePlanConverter releasePlanConverter;
 
     public Map<String, ArtifactReleaseDiff> createArtifactReleaseDiffs() {
-        List<ArtifactRelease> devArtifactReleases = artifactReleaseLogService.findManyByFoundationAndSpace(DEV_FOUNDATION, DEV_SPACE);
-        List<ArtifactRelease> prodArtifactReleases = artifactReleaseLogService.findManyByFoundationAndSpace(PROD_FOUNDATION, PROD_SPACE);
+        List<ArtifactRelease> devArtifactReleases = artifactReleaseLogService.findLatestOfEachArtifactByFoundationAndSpace(DEV_FOUNDATION, DEV_SPACE);
+        List<ArtifactRelease> prodArtifactReleases = artifactReleaseLogService.findLatestOfEachArtifactByFoundationAndSpace(PROD_FOUNDATION, PROD_SPACE);
         TreeMap<String, ArtifactReleaseDiff> releaseSummary = combineArtifactReleases(devArtifactReleases, prodArtifactReleases);
         addAllStoriesAndDevelopers(releaseSummary);
         return releaseSummary;
     }
 
     public Map<String, ArtifactReleaseDiff> createArtifactReleaseDiffs(List<ArtifactRelease> prodArtifactReleases) {
-        List<ArtifactRelease> devArtifactReleases = artifactReleaseLogService.findManyByFoundationAndSpace(DEV_FOUNDATION, DEV_SPACE);
+        List<ArtifactRelease> devArtifactReleases = artifactReleaseLogService.findLatestOfEachArtifactByFoundationAndSpace(DEV_FOUNDATION, DEV_SPACE);
         TreeMap<String, ArtifactReleaseDiff> releaseSummary = combineArtifactReleases(devArtifactReleases, prodArtifactReleases);
         addAllStoriesAndDevelopers(releaseSummary);
         return releaseSummary;

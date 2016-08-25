@@ -27,39 +27,35 @@ class ArtifactReleaseInfoResourceSpec extends Specification {
     private String foundation = "pivotal"
     private String space = "dev"
 
-    private final ArtifactRelease artifactRelease = RealArtifacts.getRecentDeploymentTrackerRelease()
+    private final ArtifactRelease earlyArtifactRelease = RealArtifacts.getEarlyDeploymentTrackerRelease()
+    private final ArtifactRelease recentArtifactRelease = RealArtifacts.getRecentDeploymentTrackerRelease()
 
     def "should add new deployment info"() {
         when:
-        artifactReleaseInfoClient.find(foundation, space, artifactRelease.artifactId)
+        artifactReleaseInfoClient.find(foundation, space, earlyArtifactRelease.artifactId)
 
         then:
         thrown(NotFoundException)
 
         when:
-        artifactReleaseInfoClient.update(foundation, space, artifactRelease)
+        artifactReleaseInfoClient.update(foundation, space, earlyArtifactRelease)
 
         then:
-        assert artifactRelease == artifactReleaseInfoClient.find(foundation, space, artifactRelease.artifactId)
+        assert [earlyArtifactRelease] == artifactReleaseInfoClient.findLatestOfEachArtifactBySpaceAndFoundation(foundation, space)
     }
 
-    def "should replace deployment info on update"() {
-        given:
-        ArtifactRelease initialStatus = artifactRelease
-        ArtifactRelease updatedStatus = aRandom.artifactReleaseInfo()
-                .artifactId(artifactRelease.artifactId)
-                .gitSha(artifactRelease.gitSha)
-                .buildVersion("0.20160607.100000")
-                .build()
-
+    def "should create historical log of release info on update"() {
         when:
-        artifactReleaseInfoClient.update(foundation, space, initialStatus)
-        artifactReleaseInfoClient.update(foundation, space, updatedStatus)
+        artifactReleaseInfoClient.update(foundation, space, earlyArtifactRelease)
 
         then:
-        ArtifactRelease activeStatus = artifactReleaseInfoClient.find(foundation, space, updatedStatus.artifactId)
-        assert initialStatus != activeStatus
-        assert updatedStatus == activeStatus
+        [earlyArtifactRelease] == artifactReleaseInfoClient.findLatestOfEachArtifactBySpaceAndFoundation(foundation, space)
+
+        when:
+        artifactReleaseInfoClient.update(foundation, space, recentArtifactRelease)
+
+        then:
+        [recentArtifactRelease] == artifactReleaseInfoClient.findLatestOfEachArtifactBySpaceAndFoundation(foundation, space)
     }
 
     def "should track distinct deployment info by foundation and space"() {
@@ -74,25 +70,40 @@ class ArtifactReleaseInfoResourceSpec extends Specification {
         artifactReleaseInfoClient.update("foundation-three", space, artifactReleaseInfo3)
 
         then:
-        assert artifactReleaseInfo1 == artifactReleaseInfoClient.find(foundation, space, artifactReleaseInfo1.artifactId)
-        assert artifactReleaseInfo2 == artifactReleaseInfoClient.find(foundation, "space-two", artifactReleaseInfo2.artifactId)
-        assert artifactReleaseInfo3 == artifactReleaseInfoClient.find("foundation-three", space, artifactReleaseInfo3.artifactId)
+        assert [artifactReleaseInfo1] == artifactReleaseInfoClient.findLatestOfEachArtifactBySpaceAndFoundation(foundation, space)
+        assert [artifactReleaseInfo2] == artifactReleaseInfoClient.findLatestOfEachArtifactBySpaceAndFoundation(foundation, "space-two")
+        assert [artifactReleaseInfo3] == artifactReleaseInfoClient.findLatestOfEachArtifactBySpaceAndFoundation("foundation-three", space)
     }
 
-    def "should retrieve all app deployment info objects for a space"() {
+    def "should retrieve most recent release info, by release version, for each artifact in a space and foundation"() {
         given:
-        ArtifactRelease app1Status = RealArtifacts.getRecentDeploymentTrackerRelease()
-        ArtifactRelease app2Status = RealArtifacts.getRecentNotificationsRelease()
-        ArtifactRelease otherSpaceApp = RealArtifacts.getRecentNotificationsRelease()
-        otherSpaceApp.releaseVersion = '0.20160606.200000';
+        ArtifactRelease app1Early = RealArtifacts.getEarlyDeploymentTrackerRelease()
+        ArtifactRelease app1Recent = RealArtifacts.getRecentDeploymentTrackerRelease()
+        ArtifactRelease app2 = RealArtifacts.getRecentNotificationsRelease()
 
         when:
-        artifactReleaseInfoClient.update(foundation, space, app1Status)
-        artifactReleaseInfoClient.update(foundation, space, app2Status)
-        artifactReleaseInfoClient.update(foundation, "other-space", otherSpaceApp)
+        artifactReleaseInfoClient.update(foundation, space, app1Early)
+        artifactReleaseInfoClient.update(foundation, space, app1Recent)
+        artifactReleaseInfoClient.update(foundation, space, app2)
 
         then:
-        assert [app1Status, app2Status] == artifactReleaseInfoClient.findAllInSpace(foundation, space)
+        assert [app1Recent, app2] == artifactReleaseInfoClient.findLatestOfEachArtifactBySpaceAndFoundation(foundation, space)
+    }
+
+    def "should get latest artifact based on release version"() {
+        given:
+        ArtifactRelease early = RealArtifacts.getEarlyDeploymentTrackerRelease()
+        early.buildVersion = 2
+
+        ArtifactRelease recent = RealArtifacts.getRecentDeploymentTrackerRelease()
+        recent.buildVersion = 1
+
+        when:
+        artifactReleaseInfoClient.update(foundation, space, early)
+        artifactReleaseInfoClient.update(foundation, space, recent)
+
+        then:
+        artifactReleaseInfoClient.findLatestOfEachArtifactBySpaceAndFoundation(foundation, space) == [recent]
     }
 
     def "should populate artifact info resource" (){
@@ -123,7 +134,7 @@ class ArtifactReleaseInfoResourceSpec extends Specification {
         artifactReleaseInfoClient.update(ReleaseService.DEV_FOUNDATION, ReleaseService.DEV_SPACE, dev)
 
         then:
-        WebApplicationException ex = thrown()
+        thrown(WebApplicationException)
     }
 
     def "Invalid github repo throws exception"() {
