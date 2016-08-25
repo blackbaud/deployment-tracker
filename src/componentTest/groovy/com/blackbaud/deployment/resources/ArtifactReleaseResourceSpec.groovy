@@ -31,18 +31,29 @@ class ArtifactReleaseResourceSpec extends Specification{
         assert artifactRelease in artifactReleaseClient.findLatestOfEachArtifactBySpaceAndFoundation(foundation, space)
     }
 
-    def "should add new deployment info with same space and artifact id but different release version and build version"() {
+    def "findLatestOfEach should find the latest release"() {
         when:
         artifactReleaseClient.create(foundation, space, artifactRelease)
 
         then:
-        assert [artifactRelease] == artifactReleaseClient.findLatestOfEachArtifactBySpaceAndFoundation(foundation, space)
+        assert artifactReleaseClient.findLatestOfEachArtifactBySpaceAndFoundation(foundation, space) == [artifactRelease]
 
         when:
         ArtifactRelease laterRelease = RealArtifacts.getRecentDeploymentTrackerRelease()
         artifactReleaseClient.create(foundation, space, laterRelease)
 
         then:
-        assert [laterRelease] == artifactReleaseClient.findLatestOfEachArtifactBySpaceAndFoundation(foundation, space)
+        assert artifactReleaseClient.findLatestOfEachArtifactBySpaceAndFoundation(foundation, space) == [laterRelease]
+    }
+
+
+    def "findAll should find all releases"() {
+        given:
+        artifactReleaseClient.create(foundation, space, artifactRelease)
+        ArtifactRelease laterRelease = RealArtifacts.getRecentDeploymentTrackerRelease()
+        artifactReleaseClient.create(foundation, space, laterRelease)
+
+        expect:
+        assert artifactReleaseClient.findAllBySpaceAndFoundation(foundation, space) == [laterRelease, artifactRelease]
     }
 }

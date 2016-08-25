@@ -52,6 +52,10 @@ public class ArtifactReleaseLogService {
         return converter.toApi(artifactReleaseLogRepository.findFirstByFoundationAndSpaceAndArtifactIdOrderByReleaseVersionDesc(foundation, space, artifactId));
     }
 
+    public List<ArtifactRelease> findAllByFoundationAndSpace(String foundation, String space) {
+        return converter.toApiList(artifactReleaseLogRepository.findAllByFoundationAndSpaceOrderByArtifactIdAscReleaseVersionDesc(foundation, space));
+    }
+
     public List<ArtifactRelease> findLatestOfEachArtifactByFoundationAndSpace(String foundation, String space) {
         return converter.toApiList(artifactReleaseLogRepository.findLatestOfEachArtifactByFoundationAndSpace(foundation, space));
     }

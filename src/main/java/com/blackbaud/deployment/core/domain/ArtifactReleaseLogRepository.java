@@ -19,4 +19,5 @@ public interface ArtifactReleaseLogRepository extends CrudRepository<ArtifactRel
            nativeQuery = true)
     List<ArtifactReleaseLogEntity> findLatestOfEachArtifactByFoundationAndSpace(@Param("foundation") String foundation, @Param("space") String space);
 
+    List<ArtifactReleaseLogEntity> findAllByFoundationAndSpaceOrderByArtifactIdAscReleaseVersionDesc(@Param("foundation") String foundation, @Param("space") String space);
 }
