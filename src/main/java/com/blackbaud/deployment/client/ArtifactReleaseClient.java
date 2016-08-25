@@ -17,8 +17,13 @@ public class ArtifactReleaseClient extends CrudClient<ArtifactRelease, ArtifactR
                 .createWithPost(info);
     }
 
-    public List<ArtifactRelease> findLatestOfEachArtifactBySpaceAndFoundation(String foundation, String space) {
+    public List<ArtifactRelease> findAllBySpaceAndFoundation(String foundation, String space) {
         return crudClientRequest.path(foundation).path(space)
+                .findMany();
+    }
+
+    public List<ArtifactRelease> findLatestOfEachArtifactBySpaceAndFoundation(String foundation, String space) {
+        return crudClientRequest.path(foundation).path(space).path("current")
                 .findMany();
     }
 
