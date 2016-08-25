@@ -42,10 +42,10 @@ class ArtifactReleaseReportResourceSpec extends Specification {
     private ArtifactInfo recentBluemoonCoreInfo = RealArtifacts.getRecentBluemoonCoreArtifact()
     private ArtifactInfo olderBluemoonCoreInfo = RealArtifacts.getEarlyBluemoonCoreArtifact()
 
-    private ArtifactRelease earlyRelease = RealArtifacts.earlyDeploymentTrackerRelease
-    private ArtifactRelease middleRelease = RealArtifacts.middleDeploymentTrackerRelease
-    private ArtifactRelease recentRelease = RealArtifacts.recentDeploymentTrackerRelease
-    private static ArtifactRelease EMPTY_ARTIFACT_RELEASE = ArtifactRelease.builder()
+    private ArtifactRelease earlyTrackerRelease = RealArtifacts.earlyDeploymentTrackerRelease
+    private ArtifactRelease middleTrackerRelease = RealArtifacts.middleDeploymentTrackerRelease
+    private ArtifactRelease recentTrackerRelease = RealArtifacts.recentDeploymentTrackerRelease
+    private ArtifactRelease emptyTrackerRelease = ArtifactRelease.builder().artifactId(trackerArtifactId).build()
 
     def "Should be able to get a list of all artifact diffs in a space"() {
         given:
@@ -96,40 +96,45 @@ class ArtifactReleaseReportResourceSpec extends Specification {
 
     def "release of new artifact should have null previous release"() {
         given:
-        artifactReleaseInfoClient.update("foundation1", "int", earlyRelease)
+        artifactReleaseInfoClient.update("foundation1", "int", earlyTrackerRelease)
 
         when:
         def artifactReleaseDiffs = artifactReleaseReportClient.findAll()
 
         then:
-        assert artifactReleaseDiffs[0].currentRelease == earlyRelease
-        assert artifactReleaseDiffs[0].prevRelease == EMPTY_ARTIFACT_RELEASE
+        assert artifactReleaseDiffs[0].currentRelease == earlyTrackerRelease
+        assert artifactReleaseDiffs[0].prevRelease == emptyTrackerRelease
     }
 
     def "new release in same space should have correct previous release"() {
         given:
-        artifactReleaseInfoClient.update("foundation1", "int", earlyRelease)
-        artifactReleaseInfoClient.update("foundation1", "int", middleRelease)
+        artifactReleaseInfoClient.update("foundation1", "int", earlyTrackerRelease)
+        artifactReleaseInfoClient.update("foundation1", "int", middleTrackerRelease)
 
         when:
         def artifactReleaseDiffs = artifactReleaseReportClient.findAll()
 
         then:
-        assert artifactReleaseDiffs[1].currentRelease == middleRelease
-        assert artifactReleaseDiffs[1].prevRelease == earlyRelease
+        def earlyReleaseDiff = artifactReleaseDiffs[0]
+        assert earlyReleaseDiff.currentRelease == earlyTrackerRelease
+        assert earlyReleaseDiff.prevRelease == emptyTrackerRelease
+
+        def middleReleaseDiff = artifactReleaseDiffs[1]
+        assert middleReleaseDiff.currentRelease == middleTrackerRelease
+        assert middleReleaseDiff.prevRelease == earlyTrackerRelease
     }
 
     def "new release in different space should have correct previous release"() {
         given:
-        artifactReleaseInfoClient.update("foundation1", "int", earlyRelease)
-        artifactReleaseInfoClient.update("foundation1", "dev", recentRelease)
+        artifactReleaseInfoClient.update("foundation1", "int", earlyTrackerRelease)
+        artifactReleaseInfoClient.update("foundation1", "dev", recentTrackerRelease)
 
         when:
         def artifactReleaseDiffs = artifactReleaseReportClient.findAll()
 
         then:
-        assert artifactReleaseDiffs[0].prevRelease == EMPTY_ARTIFACT_RELEASE
-        assert artifactReleaseDiffs[1].prevRelease == EMPTY_ARTIFACT_RELEASE
+        assert artifactReleaseDiffs[0].prevRelease == emptyTrackerRelease
+        assert artifactReleaseDiffs[1].prevRelease == emptyTrackerRelease
     }
 
     private ArtifactRelease createCurrentArtifactRelease(ArtifactReleaseLogEntity logEntity, String gitSha) {
