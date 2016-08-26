@@ -18,6 +18,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -40,6 +41,22 @@ public class ArtifactReleaseResource {
         } catch (GitLogParserFactory.InvalidRepositoryException ex){
             throw new BadRequestException(ex.getMessage());
         }
+    }
+
+    @POST
+    @Path("bulk")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public List<ArtifactRelease> createAll(@PathParam("foundation") String foundation, @PathParam("space") String space,
+                                  @Valid List<ArtifactRelease> artifactReleases) {
+        List<ArtifactRelease> result = new ArrayList<>();
+        try{
+            artifactReleases.stream().forEach(artifactRelease -> {
+                result.add(artifactReleaseLogService.save(artifactRelease, foundation, space));
+            });
+        } catch (GitLogParserFactory.InvalidRepositoryException ex){
+            throw new BadRequestException(ex.getMessage());
+        }
+        return result;
     }
 
     @GET
