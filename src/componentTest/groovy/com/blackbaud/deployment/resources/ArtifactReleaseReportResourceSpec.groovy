@@ -138,17 +138,21 @@ class ArtifactReleaseReportResourceSpec extends Specification {
         assert artifactReleaseDiffs[1].prevRelease == emptyTrackerRelease
     }
 
-    def "should include releases with with older build versions"() {
+    def "should include releases with with older or same build versions"() {
         given:
-        ArtifactRelease old = ArtifactRelease.builder().artifactId('bluemoon-core').buildVersion('0.20160823.231731').releaseVersion('20160824_164457').gitSha('b92937bcc183cb92f3f64abeca54a997d3de0c54').build();
-        ArtifactRelease newCore = ArtifactRelease.builder().artifactId('bluemoon-core').buildVersion('0.20160822.231731').releaseVersion('20160825_181554').gitSha('b92937bcc183cb92f3f64abeca54a997d3de0c54').build();
+        def releaseBuilder = ArtifactRelease.builder().artifactId('bluemoon-core').gitSha('b92937bcc183cb92f3f64abeca54a997d3de0c54')
+        ArtifactRelease old = releaseBuilder.buildVersion('0.00000000.000000').releaseVersion('00000000_000000').build();
+        ArtifactRelease recent = releaseBuilder.buildVersion('0.00000000.000001').releaseVersion('00000000_000001').build();
+        ArtifactRelease redeployedRecent = releaseBuilder.buildVersion('0.00000000.000001').releaseVersion('00000000_000002').build();
 
         and:
         artifactReleaseClient.create("foundation", "space", old);
-        artifactReleaseClient.create("foundation", "space", newCore);
+        artifactReleaseClient.create("foundation", "space", recent);
+        artifactReleaseClient.create("foundation", "space", redeployedRecent);
+
 
         expect:
-        artifactReleaseReportClient.findAll().size() == 2
+        artifactReleaseReportClient.findAll().size() == 3
     }
 
     private ArtifactRelease createCurrentArtifactRelease(ArtifactReleaseLogEntity logEntity, String gitSha) {
