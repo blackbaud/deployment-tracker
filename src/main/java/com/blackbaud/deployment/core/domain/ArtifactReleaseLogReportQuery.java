@@ -24,7 +24,8 @@ public class ArtifactReleaseLogReportQuery {
                         "from artifact_release_log arl left join " +
                         "fetch_git_log(arl.artifact_id, arl.build_version, arl.prev_build_version) gl " +
                         "on arl.artifact_id = gl.artifact_id " +
-                        "group by arl.artifact_id, arl.foundation, arl.space, arl.deployer, arl.release_version, arl.build_version, arl.prev_release_version, arl.prev_build_version;",
+                        "group by arl.artifact_id, arl.foundation, arl.space, arl.deployer, arl.release_version, arl.build_version, arl.prev_release_version, arl.prev_build_version " +
+                        "order by release_version desc;",
                 ArtifactReleaseLogReportResult.class).getResultList();
     }
 
