@@ -116,13 +116,15 @@ class ArtifactReleaseReportResourceSpec extends Specification {
         def artifactReleaseDiffs = artifactReleaseReportClient.findAll()
 
         then:
-        def earlyReleaseDiff = artifactReleaseDiffs[0]
+        def middleReleaseDiff = artifactReleaseDiffs[0]
+        assert middleReleaseDiff.currentRelease == middleTrackerRelease
+        assert middleReleaseDiff.prevRelease == earlyTrackerRelease
+
+        def earlyReleaseDiff = artifactReleaseDiffs[1]
         assert earlyReleaseDiff.currentRelease == earlyTrackerRelease
         assert earlyReleaseDiff.prevRelease == emptyTrackerRelease
 
-        def middleReleaseDiff = artifactReleaseDiffs[1]
-        assert middleReleaseDiff.currentRelease == middleTrackerRelease
-        assert middleReleaseDiff.prevRelease == earlyTrackerRelease
+
     }
 
     def "new release in different space should have correct previous release"() {
