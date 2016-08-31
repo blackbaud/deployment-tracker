@@ -23,12 +23,23 @@ class ArtifactReleaseResourceSpec extends Specification{
 
     private final ArtifactRelease artifactRelease = RealArtifacts.getEarlyDeploymentTrackerRelease()
 
-    def "should add new deployment info"() {
+    def "should add new artifact release"() {
         when:
         artifactReleaseClient.create(foundation, space, artifactRelease)
 
         then:
-        assert artifactRelease in artifactReleaseClient.findLatestOfEachArtifactBySpaceAndFoundation(foundation, space)
+        assert artifactReleaseClient.findLatestOfEachArtifactBySpaceAndFoundation(foundation, space) == [artifactRelease]
+    }
+
+    def "should not blow up when duplicate artifact release is posted"() {
+        given:
+        artifactReleaseClient.create(foundation, space, artifactRelease)
+
+        when:
+        artifactReleaseClient.create(foundation, space, artifactRelease)
+
+        then:
+        assert artifactReleaseClient.findLatestOfEachArtifactBySpaceAndFoundation(foundation, space) == [artifactRelease]
     }
 
     def "findLatestOfEach should find the latest release"() {
