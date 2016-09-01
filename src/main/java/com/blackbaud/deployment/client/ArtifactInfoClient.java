@@ -17,6 +17,10 @@ public class ArtifactInfoClient extends CrudClient<ArtifactInfo, ArtifactInfoCli
                 .updateWithPut(artifactInfo);
     }
 
+    public ArtifactInfo create(ArtifactInfo artifactInfo) {
+        return crudClientRequest.createWithPost(artifactInfo);
+    }
+
     public ArtifactInfo find(String artifactId, String buildVersion) {
         return crudClientRequest.path(artifactId).path(buildVersion)
                 .find();

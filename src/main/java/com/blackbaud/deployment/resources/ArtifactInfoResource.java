@@ -10,6 +10,7 @@ import com.blackbaud.deployment.core.domain.ArtifactInfoRepository;
 import com.blackbaud.deployment.core.domain.ArtifactInfoService;
 import com.blackbaud.deployment.core.domain.git.GitLogParserFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.validation.Valid;
@@ -45,7 +46,13 @@ public class ArtifactInfoResource {
     @Path("{artifactId}/{buildVersion}")
     public ArtifactInfo put(@PathParam("artifactId") String artifactId, @PathParam("buildVersion") String buildVersion,
                             @Valid ArtifactInfo artifactInfo) {
-        return artifactInfoService.create(artifactInfo);
+        return artifactInfoService.create(artifactId, buildVersion, converter.toEntity(artifactInfo));
+    }
+
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ArtifactInfo create(@Valid ArtifactInfo artifactInfo) {
+        return artifactInfoService.createIfNotExist(artifactInfo);
     }
 
     @GET
@@ -76,7 +83,7 @@ public class ArtifactInfoResource {
         List<ArtifactInfo> result = new ArrayList<>();
         try{
             artifactInfos.stream().forEach(artifactInfo -> {
-                result.add(artifactInfoService.create(artifactInfo));
+                result.add(artifactInfoService.createIfNotExist(artifactInfo));
             });
         } catch (GitLogParserFactory.InvalidRepositoryException ex){
             throw new BadRequestException(ex.getMessage());
