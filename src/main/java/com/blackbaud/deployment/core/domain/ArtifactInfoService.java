@@ -28,8 +28,12 @@ public class ArtifactInfoService {
     @Autowired
     private GitLogRepository gitLogRepository;
 
-    public ArtifactInfo create (ArtifactInfo artifactInfo) {
-        return create(artifactInfo.getArtifactId(), artifactInfo.getBuildVersion(), converter.toEntity(artifactInfo));
+    public ArtifactInfo create(ArtifactInfo artifactInfo) {
+        ArtifactInfoEntity existingEntity = artifactInfoRepository.findOneByArtifactIdAndBuildVersion(artifactInfo.getArtifactId(), artifactInfo.getBuildVersion());
+        if (existingEntity == null || !existingEntity.getGitSha().equals(artifactInfo.getGitSha())) {
+            return create(artifactInfo.getArtifactId(), artifactInfo.getBuildVersion(), converter.toEntity(artifactInfo));
+        }
+        return artifactInfo;
     }
 
     public ArtifactInfo create(String artifactId, String buildVersion, ArtifactInfoEntity artifact) {
