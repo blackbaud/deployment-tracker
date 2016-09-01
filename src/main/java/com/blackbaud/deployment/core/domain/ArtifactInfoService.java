@@ -28,6 +28,10 @@ public class ArtifactInfoService {
     @Autowired
     private GitLogRepository gitLogRepository;
 
+    public ArtifactInfo create (ArtifactInfo artifactInfo) {
+        return create(artifactInfo.getArtifactId(), artifactInfo.getBuildVersion(), converter.toEntity(artifactInfo));
+    }
+
     public ArtifactInfo create(String artifactId, String buildVersion, ArtifactInfoEntity artifact) {
         persistGitLogForArtifact(artifactId, artifact);
         artifact.setArtifactId(artifactId);
@@ -40,5 +44,4 @@ public class ArtifactInfoService {
         List<GitLogEntity> gitLogEntities = parser.getGitLogEntities(artifactId);
         gitLogRepository.save(gitLogEntities);
     }
-
 }
