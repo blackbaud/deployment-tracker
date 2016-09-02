@@ -32,7 +32,7 @@ public class ArtifactInfoService {
     @Autowired
     private GitLogRepository gitLogRepository;
 
-    public List<ArtifactInfo> createIfNotExist(List<ArtifactInfo> artifactInfos) {
+    public int createIfNotExist(List<ArtifactInfo> artifactInfos) {
         List<ArtifactInfo> newArtifactInfos = new ArrayList<>();
         artifactInfos.stream().forEach(artifactInfo -> {
             try {
@@ -41,7 +41,7 @@ public class ArtifactInfoService {
                 log.debug("{}. Continuing with the rest.", ex.getMessage());
             }
         });
-        return newArtifactInfos;
+        return newArtifactInfos.size();
     }
 
     public ArtifactInfo createIfNotExist(ArtifactInfo artifactInfo) {

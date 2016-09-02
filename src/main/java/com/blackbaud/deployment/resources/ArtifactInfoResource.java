@@ -8,6 +8,7 @@ import com.blackbaud.deployment.core.domain.ArtifactInfoPrimaryKey;
 import com.blackbaud.deployment.core.domain.ArtifactInfoRepository;
 import com.blackbaud.deployment.core.domain.ArtifactInfoService;
 import com.blackbaud.deployment.core.domain.git.GitLogParserFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -27,6 +28,7 @@ import java.util.List;
 @Component
 @Path(ResourcePaths.ARTIFACT_INFO_PATH)
 @Produces(MediaType.APPLICATION_JSON)
+@Slf4j
 public class ArtifactInfoResource {
 
     @Autowired
@@ -76,9 +78,11 @@ public class ArtifactInfoResource {
     @POST
     @Path("bulk")
     @Consumes(MediaType.APPLICATION_JSON)
-    public List<ArtifactInfo> createAll(@Valid List<ArtifactInfo> artifactInfos) {
+    public void createAll(@Valid List<ArtifactInfo> artifactInfos) {
         try{
-            return artifactInfoService.createIfNotExist(artifactInfos);
+            log.debug("About to insert {} artifacts", artifactInfos.size());
+            int successfulArtifacts = artifactInfoService.createIfNotExist(artifactInfos);
+            log.debug("Successfully inserted: {} artifacts", successfulArtifacts);
         } catch (GitLogParserFactory.InvalidRepositoryException ex){
             throw new BadRequestException(ex.getMessage());
         }
