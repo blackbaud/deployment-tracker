@@ -7,13 +7,17 @@ import com.blackbaud.deployment.core.domain.ArtifactInfoEntity;
 import com.blackbaud.deployment.core.domain.ArtifactInfoPrimaryKey;
 import com.blackbaud.deployment.core.domain.ArtifactInfoRepository;
 import com.blackbaud.deployment.core.domain.ArtifactInfoService;
+import com.blackbaud.deployment.core.domain.git.GitLogParserFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.validation.Valid;
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
+import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -24,6 +28,7 @@ import java.util.List;
 @Component
 @Path(ResourcePaths.ARTIFACT_INFO_PATH)
 @Produces(MediaType.APPLICATION_JSON)
+@Slf4j
 public class ArtifactInfoResource {
 
     @Autowired
@@ -41,6 +46,12 @@ public class ArtifactInfoResource {
     public ArtifactInfo put(@PathParam("artifactId") String artifactId, @PathParam("buildVersion") String buildVersion,
                             @Valid ArtifactInfo artifactInfo) {
         return artifactInfoService.create(artifactId, buildVersion, converter.toEntity(artifactInfo));
+    }
+
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ArtifactInfo create(@Valid ArtifactInfo artifactInfo) {
+        return artifactInfoService.createIfNotExist(artifactInfo);
     }
 
     @GET
@@ -62,5 +73,18 @@ public class ArtifactInfoResource {
         }
         return converter.toApi(requestedArtifact);
 
+    }
+
+    @POST
+    @Path("bulk")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public void createAll(@Valid List<ArtifactInfo> artifactInfos) {
+        try{
+            log.debug("About to insert {} artifacts", artifactInfos.size());
+            int successfulArtifacts = artifactInfoService.createIfNotExist(artifactInfos);
+            log.debug("Successfully inserted: {} artifacts", successfulArtifacts);
+        } catch (GitLogParserFactory.InvalidRepositoryException ex){
+            throw new BadRequestException(ex.getMessage());
+        }
     }
 }
