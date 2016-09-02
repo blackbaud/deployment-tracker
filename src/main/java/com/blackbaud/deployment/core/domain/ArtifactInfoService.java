@@ -6,8 +6,6 @@ import com.blackbaud.deployment.core.domain.git.GitLogEntity;
 import com.blackbaud.deployment.core.domain.git.GitLogParser;
 import com.blackbaud.deployment.core.domain.git.GitLogParserFactory;
 import com.blackbaud.deployment.core.domain.git.GitLogRepository;
-import lombok.SneakyThrows;
-import lombok.extern.log4j.Log4j;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -37,7 +35,7 @@ public class ArtifactInfoService {
         artifactInfos.stream().forEach(artifactInfo -> {
             try {
                 newArtifactInfos.add(createIfNotExist(artifactInfo));
-            } catch (ArtifactInfoAlreadyHasGitShaException ex) {
+            } catch (ArtifactInfoIsImmutableException ex) {
                 log.debug("{}. Continuing with the rest.", ex.getMessage());
             }
         });
@@ -48,7 +46,7 @@ public class ArtifactInfoService {
         ArtifactInfoEntity existingEntity = artifactInfoRepository.findOneByArtifactIdAndBuildVersion(artifactInfo.getArtifactId(), artifactInfo.getBuildVersion());
         if (existingEntity != null) {
             if (!existingEntity.getGitSha().equals(artifactInfo.getGitSha())) {
-                throw new ArtifactInfoAlreadyHasGitShaException("Cannot create " + artifactInfo + " because " + existingEntity + " already exists.");
+                throw new ArtifactInfoIsImmutableException("Cannot create " + artifactInfo + " because " + existingEntity + " already exists.");
             }
             return artifactInfo;
         }
@@ -68,8 +66,8 @@ public class ArtifactInfoService {
         gitLogRepository.save(gitLogEntities);
     }
 
-    public class ArtifactInfoAlreadyHasGitShaException extends BadRequestException {
-        public ArtifactInfoAlreadyHasGitShaException(String message) {
+    public class ArtifactInfoIsImmutableException extends BadRequestException {
+        public ArtifactInfoIsImmutableException(String message) {
             super(message);
         }
     }

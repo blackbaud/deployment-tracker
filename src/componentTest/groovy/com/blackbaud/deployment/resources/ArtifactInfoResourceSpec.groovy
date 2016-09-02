@@ -124,7 +124,7 @@ class ArtifactInfoResourceSpec extends Specification {
         thrown(BadRequestException)
     }
 
-    def "create does not throws exception if artifact already exist"() {
+    def "create does not throws exception if the same artifact already exist"() {
         given:
         artifactInfoClient.create(oldArtifact)
 
@@ -135,15 +135,15 @@ class ArtifactInfoResourceSpec extends Specification {
         notThrown()
     }
 
-    def "Invalid artifacts do not affect entire batch for bulk create"() {
+    def "Modified artifacts do not affect entire batch for bulk create"() {
         given:
         artifactInfoClient.create(oldArtifact)
-        def invalidArtifact = ArtifactInfo.builder()
+        def modifiedArtifact = ArtifactInfo.builder()
                 .artifactId(oldArtifact.artifactId)
                 .buildVersion(oldArtifact.buildVersion)
                 .gitSha(newArtifact.gitSha)
                 .build()
-        List<ArtifactInfo> newArtifactInfos = [invalidArtifact, newArtifact]
+        List<ArtifactInfo> newArtifactInfos = [modifiedArtifact, newArtifact]
 
         when:
         artifactInfoClient.create(newArtifactInfos)
