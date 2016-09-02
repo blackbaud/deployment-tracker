@@ -6,16 +6,14 @@ import com.blackbaud.deployment.ComponentTest
 import com.blackbaud.deployment.RealArtifacts
 import com.blackbaud.deployment.api.ArtifactInfo
 import com.blackbaud.deployment.client.ArtifactInfoClient
+import com.blackbaud.deployment.core.domain.ArtifactInfoEntity
 import com.blackbaud.deployment.core.domain.ArtifactInfoRepository
-import com.blackbaud.deployment.core.domain.ArtifactInfoService
 import com.blackbaud.deployment.core.domain.git.GitLogEntity
 import com.blackbaud.deployment.core.domain.git.GitLogRepository
 import org.springframework.beans.factory.annotation.Autowired
 import spock.lang.Specification
 
 import javax.ws.rs.BadRequestException
-import javax.ws.rs.WebApplicationException
-import java.util.stream.Collectors
 
 @ComponentTest
 class ArtifactInfoResourceSpec extends Specification {
@@ -152,5 +150,21 @@ class ArtifactInfoResourceSpec extends Specification {
         notThrown()
         artifactInfoClient.find(oldArtifact.artifactId, oldArtifact.buildVersion) == oldArtifact
         artifactInfoClient.find(newArtifact.artifactId, newArtifact.buildVersion) == newArtifact
+    }
+
+    def "create updates gitsha if existing gitsha was null"() {
+        given:
+        def nullGitSha = ArtifactInfoEntity.builder()
+            .artifactId(oldArtifact.artifactId)
+            .buildVersion(oldArtifact.buildVersion)
+            .gitSha(null)
+            .build()
+        artifactInfoRepository.save(nullGitSha)
+
+        when:
+        artifactInfoClient.create([oldArtifact])
+
+        then:
+        artifactInfoClient.find(oldArtifact.artifactId, oldArtifact.buildVersion) == oldArtifact
     }
 }

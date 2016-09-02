@@ -44,7 +44,7 @@ public class ArtifactInfoService {
 
     public ArtifactInfo createIfNotExist(ArtifactInfo artifactInfo) {
         ArtifactInfoEntity existingEntity = artifactInfoRepository.findOneByArtifactIdAndBuildVersion(artifactInfo.getArtifactId(), artifactInfo.getBuildVersion());
-        if (existingEntity != null) {
+        if (existingEntity != null && existingEntity.getGitSha() != null) {
             if (!existingEntity.getGitSha().equals(artifactInfo.getGitSha())) {
                 throw new ArtifactInfoIsImmutableException("Cannot create " + artifactInfo + " because " + existingEntity + " already exists.");
             }
