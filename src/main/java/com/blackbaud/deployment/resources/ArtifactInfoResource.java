@@ -2,7 +2,6 @@ package com.blackbaud.deployment.resources;
 
 import com.blackbaud.deployment.ArtifactInfoConverter;
 import com.blackbaud.deployment.api.ArtifactInfo;
-import com.blackbaud.deployment.api.ArtifactRelease;
 import com.blackbaud.deployment.api.ResourcePaths;
 import com.blackbaud.deployment.core.domain.ArtifactInfoEntity;
 import com.blackbaud.deployment.core.domain.ArtifactInfoPrimaryKey;
@@ -10,7 +9,6 @@ import com.blackbaud.deployment.core.domain.ArtifactInfoRepository;
 import com.blackbaud.deployment.core.domain.ArtifactInfoService;
 import com.blackbaud.deployment.core.domain.git.GitLogParserFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.validation.Valid;
@@ -24,7 +22,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -80,14 +77,10 @@ public class ArtifactInfoResource {
     @Path("bulk")
     @Consumes(MediaType.APPLICATION_JSON)
     public List<ArtifactInfo> createAll(@Valid List<ArtifactInfo> artifactInfos) {
-        List<ArtifactInfo> result = new ArrayList<>();
         try{
-            artifactInfos.stream().forEach(artifactInfo -> {
-                result.add(artifactInfoService.createIfNotExist(artifactInfo));
-            });
+            return artifactInfoService.createIfNotExist(artifactInfos);
         } catch (GitLogParserFactory.InvalidRepositoryException ex){
             throw new BadRequestException(ex.getMessage());
         }
-        return result;
     }
 }

@@ -8,14 +8,16 @@ import com.blackbaud.deployment.core.domain.git.GitLogParserFactory;
 import com.blackbaud.deployment.core.domain.git.GitLogRepository;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.ws.rs.BadRequestException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
-@Log4j
+@Slf4j
 public class ArtifactInfoService {
 
     @Autowired
@@ -30,11 +32,23 @@ public class ArtifactInfoService {
     @Autowired
     private GitLogRepository gitLogRepository;
 
+    public List<ArtifactInfo> createIfNotExist(List<ArtifactInfo> artifactInfos) {
+        List<ArtifactInfo> newArtifactInfos = new ArrayList<>();
+        artifactInfos.stream().forEach(artifactInfo -> {
+            try {
+                newArtifactInfos.add(createIfNotExist(artifactInfo));
+            } catch (ArtifactInfoAlreadyHasGitShaException ex) {
+                log.debug("{}. Continuing with the rest.", ex.getMessage());
+            }
+        });
+        return newArtifactInfos;
+    }
+
     public ArtifactInfo createIfNotExist(ArtifactInfo artifactInfo) {
         ArtifactInfoEntity existingEntity = artifactInfoRepository.findOneByArtifactIdAndBuildVersion(artifactInfo.getArtifactId(), artifactInfo.getBuildVersion());
         if (existingEntity != null) {
             if (!existingEntity.getGitSha().equals(artifactInfo.getGitSha())) {
-                throw new ArtifactInfoAlreadyHasGitShaException(existingEntity.toString() + " cannot be overidden with " + artifactInfo);
+                throw new ArtifactInfoAlreadyHasGitShaException("Cannot create " + artifactInfo + " because " + existingEntity + " already exists.");
             }
             return artifactInfo;
         }

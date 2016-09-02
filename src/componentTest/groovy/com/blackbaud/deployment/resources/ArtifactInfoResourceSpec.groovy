@@ -85,7 +85,7 @@ class ArtifactInfoResourceSpec extends Specification {
 
         then:
         List<GitLogEntity> newEntries = gitLogSinceNewArtifact.minus(gitLogSinceOldArtifact)
-        newEntries.stream().map { s -> s.gitSha }.collect(Collectors.toList()).equals(
+        newEntries.stream().collect{ s -> s.gitSha } ==
                 ["5c43c3629f19ef1d4ddf061b04c7439b7f14e8a7",
                  "9ecbbedb36e9e9bd39f1781b6e4dcc0523da3e23",
                  "76cf98e70a739ced8c610999b8814b9b2556071e",
@@ -94,7 +94,6 @@ class ArtifactInfoResourceSpec extends Specification {
                  "629e1734a9e6d44e83877d44cd15ffdbd99d27c8",
                  "712e5f87572874c3c779f3ecbbf1b3439f8ffdc2",
                  "e36ec0e653bb77dd20a6ac2c200d4a82a962e6e7"]
-        )
     }
 
     def "should return all infos for artifact id"() {
@@ -122,8 +121,7 @@ class ArtifactInfoResourceSpec extends Specification {
         artifactInfoClient.create(oldArtifactNewSha)
 
         then:
-        // TODO: make this throw something
-        def ex = thrown(BadRequestException)
+        thrown(BadRequestException)
     }
 
     def "create does not throws exception if artifact already exist"() {
@@ -135,5 +133,24 @@ class ArtifactInfoResourceSpec extends Specification {
 
         then:
         notThrown()
+    }
+
+    def "Invalid artifacts do not affect entire batch for bulk create"() {
+        given:
+        artifactInfoClient.create(oldArtifact)
+        def invalidArtifact = ArtifactInfo.builder()
+                .artifactId(oldArtifact.artifactId)
+                .buildVersion(oldArtifact.buildVersion)
+                .gitSha(newArtifact.gitSha)
+                .build()
+        List<ArtifactInfo> newArtifactInfos = [invalidArtifact, newArtifact]
+
+        when:
+        artifactInfoClient.create(newArtifactInfos)
+
+        then:
+        notThrown()
+        artifactInfoClient.find(oldArtifact.artifactId, oldArtifact.buildVersion) == oldArtifact
+        artifactInfoClient.find(newArtifact.artifactId, newArtifact.buildVersion) == newArtifact
     }
 }
