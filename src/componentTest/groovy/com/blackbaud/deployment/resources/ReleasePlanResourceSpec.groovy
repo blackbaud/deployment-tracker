@@ -191,10 +191,7 @@ class ReleasePlanResourceSpec extends Specification {
         then:
         releasePlanRepository.findOne(plan.id) == null
 
-        when:
-        releasePlanClient.delete(plan.id)
-
-        then:
+        and:
         notThrown()
     }
 
