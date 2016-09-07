@@ -53,7 +53,7 @@ public class ArtifactInfoService {
         return create(artifactInfo.getArtifactId(), artifactInfo.getBuildVersion(), converter.toEntity(artifactInfo));
     }
 
-    public ArtifactInfo create (ArtifactInfo artifactInfo) {
+    public ArtifactInfo create(ArtifactInfo artifactInfo) {
         return create(artifactInfo.getArtifactId(), artifactInfo.getBuildVersion(), converter.toEntity(artifactInfo));
     }
 
