@@ -51,7 +51,7 @@ public class ArtifactInfoResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public ArtifactInfo create(@Valid ArtifactInfo artifactInfo) {
-        return artifactInfoService.remediationCreate(artifactInfo);
+        return artifactInfoService.create(artifactInfo);
     }
 
     @GET
@@ -79,12 +79,8 @@ public class ArtifactInfoResource {
     @Path(ResourcePaths.REMEDIATE_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
     public void remediationCreate(@Valid List<ArtifactInfo> artifactInfos) {
-        try{
-            log.debug("About to insert {} artifacts", artifactInfos.size());
-            int successfulArtifacts = artifactInfoService.remediationCreate(artifactInfos);
-            log.debug("Successfully inserted: {} artifacts", successfulArtifacts);
-        } catch (GitLogParserFactory.InvalidRepositoryException ex){
-            throw new BadRequestException(ex.getMessage());
-        }
+        log.debug("About to insert {} artifacts", artifactInfos.size());
+        int successfulArtifacts = artifactInfoService.remediationCreate(artifactInfos);
+        log.debug("Successfully inserted: {} artifacts", successfulArtifacts);
     }
 }

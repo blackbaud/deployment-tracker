@@ -35,7 +35,7 @@ public class ArtifactInfoService {
         artifactInfos.stream().forEach(artifactInfo -> {
             try {
                 newArtifactInfos.add(remediationCreate(artifactInfo));
-            } catch (ArtifactInfoIsImmutableException ex) {
+            } catch (Exception ex) {
                 log.debug("{}. Continuing with the rest.", ex.getMessage());
             }
         });
@@ -50,6 +50,10 @@ public class ArtifactInfoService {
             }
             return artifactInfo;
         }
+        return create(artifactInfo.getArtifactId(), artifactInfo.getBuildVersion(), converter.toEntity(artifactInfo));
+    }
+
+    public ArtifactInfo create (ArtifactInfo artifactInfo) {
         return create(artifactInfo.getArtifactId(), artifactInfo.getBuildVersion(), converter.toEntity(artifactInfo));
     }
 
