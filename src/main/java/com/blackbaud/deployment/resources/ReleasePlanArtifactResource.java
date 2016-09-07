@@ -26,7 +26,7 @@ public class ReleasePlanArtifactResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public void updateArtifactOrder(@Valid ArtifactOrderUpdate artifactOrderUpdate) {
-        releasePlanService.updateArtifactOrder(artifactOrderUpdate.getMoveSha(),
+        releasePlanService.updateArtifactOrder(artifactOrderUpdate.getMovingSha(),
                                                artifactOrderUpdate.getAnchorSha(),
                                                artifactOrderUpdate.getPosition());
     }
