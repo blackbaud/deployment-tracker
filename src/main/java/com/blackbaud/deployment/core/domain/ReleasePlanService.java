@@ -116,11 +116,11 @@ public class ReleasePlanService {
         updateArtifactListOrder(releasePlan.getArtifacts());
     }
 
-    public void updateArtifactOrder(String anchorSha, String targetSha, String position) {
+    public void updateArtifactOrder(String moveSha, String anchorSha, String position) {
         List<ArtifactInfoEntity> artifacts = getCurrentReleasePlan().getArtifacts();
 
-        ArtifactInfoEntity artifactToMove = artifacts.stream().filter(a -> a.getGitSha().equals(anchorSha)).findFirst().get();
-        ArtifactInfoEntity artifactTarget = artifacts.stream().filter(a -> a.getGitSha().equals(targetSha)).findFirst().get();
+        ArtifactInfoEntity artifactToMove = artifacts.stream().filter(a -> a.getGitSha().equals(moveSha)).findFirst().get();
+        ArtifactInfoEntity artifactTarget = artifacts.stream().filter(a -> a.getGitSha().equals(anchorSha)).findFirst().get();
 
         artifacts.remove(artifactToMove);
         if (position.equals("above")) {

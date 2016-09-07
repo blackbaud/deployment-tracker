@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ArtifactOrderUpdate {
 
+    private String moveSha;
     private String anchorSha;
-    private String targetSha;
     private String position;
 }
