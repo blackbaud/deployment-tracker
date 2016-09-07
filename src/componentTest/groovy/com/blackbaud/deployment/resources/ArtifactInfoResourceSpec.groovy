@@ -144,7 +144,7 @@ class ArtifactInfoResourceSpec extends Specification {
         List<ArtifactInfo> newArtifactInfos = [modifiedArtifact, newArtifact]
 
         when:
-        artifactInfoClient.create(newArtifactInfos)
+        artifactInfoClient.remediationCreate(newArtifactInfos)
 
         then:
         notThrown()
@@ -162,7 +162,7 @@ class ArtifactInfoResourceSpec extends Specification {
         artifactInfoRepository.save(nullGitSha)
 
         when:
-        artifactInfoClient.create([oldArtifact])
+        artifactInfoClient.remediationCreate([oldArtifact])
 
         then:
         artifactInfoClient.find(oldArtifact.artifactId, oldArtifact.buildVersion) == oldArtifact

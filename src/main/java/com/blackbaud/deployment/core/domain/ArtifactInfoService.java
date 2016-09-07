@@ -30,11 +30,11 @@ public class ArtifactInfoService {
     @Autowired
     private GitLogRepository gitLogRepository;
 
-    public int createIfNotExist(List<ArtifactInfo> artifactInfos) {
+    public int remediationCreate(List<ArtifactInfo> artifactInfos) {
         List<ArtifactInfo> newArtifactInfos = new ArrayList<>();
         artifactInfos.stream().forEach(artifactInfo -> {
             try {
-                newArtifactInfos.add(createIfNotExist(artifactInfo));
+                newArtifactInfos.add(remediationCreate(artifactInfo));
             } catch (ArtifactInfoIsImmutableException ex) {
                 log.debug("{}. Continuing with the rest.", ex.getMessage());
             }
@@ -42,7 +42,7 @@ public class ArtifactInfoService {
         return newArtifactInfos.size();
     }
 
-    public ArtifactInfo createIfNotExist(ArtifactInfo artifactInfo) {
+    public ArtifactInfo remediationCreate(ArtifactInfo artifactInfo) {
         ArtifactInfoEntity existingEntity = artifactInfoRepository.findOneByArtifactIdAndBuildVersion(artifactInfo.getArtifactId(), artifactInfo.getBuildVersion());
         if (existingEntity != null && existingEntity.getGitSha() != null) {
             if (!existingEntity.getGitSha().equals(artifactInfo.getGitSha())) {
