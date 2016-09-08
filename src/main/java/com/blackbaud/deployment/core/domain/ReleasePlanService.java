@@ -13,6 +13,7 @@ import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotFoundException;
 import java.time.ZonedDateTime;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -67,8 +68,13 @@ public class ReleasePlanService {
     }
 
     private void updateArtifactOrderIfNecessary(ReleasePlanEntity releasePlan) {
-        if (releasePlan != null && releasePlan.getArtifacts().stream().filter(a -> a.getListOrder() == null).findFirst().isPresent()) {
-            initializeArtifactOrder(releasePlan.getArtifacts());
+        List<ArtifactInfoEntity> artifacts = releasePlan.getArtifacts();
+        if (artifacts != null && artifacts.size() > 1) {
+            artifacts.sort(Comparator.comparing(
+                    ArtifactInfoEntity::getListOrder, Comparator.nullsLast(Comparator.naturalOrder())));
+            if (artifacts.stream().filter(a -> a.getListOrder() == null).findFirst().isPresent()) {
+                initializeArtifactOrder(artifacts);
+            }
         }
     }
 
