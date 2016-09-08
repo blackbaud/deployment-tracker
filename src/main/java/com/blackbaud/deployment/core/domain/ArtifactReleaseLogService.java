@@ -33,7 +33,7 @@ public class ArtifactReleaseLogService {
         return saveArtifactReleaseLog(artifactRelease, foundation, space);
     }
 
-    public ArtifactRelease saveArtifactReleaseLog(ArtifactRelease artifactRelease, String foundation, String space) {
+    private ArtifactRelease saveArtifactReleaseLog(ArtifactRelease artifactRelease, String foundation, String space) {
         ArtifactReleaseLogEntity mostRecentRelease = artifactReleaseLogRepository.findFirstByArtifactIdAndFoundationAndSpaceOrderByReleaseVersionDesc(artifactRelease.getArtifactId(), foundation, space);
         ArtifactReleaseLogEntity newRelease = ArtifactReleaseLogEntity.builder()
                 .artifactId(artifactRelease.getArtifactId())

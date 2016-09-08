@@ -28,9 +28,6 @@ class ArtifactReleaseResourceSpec extends Specification {
     private ArtifactInfoRepository artifactInfoRepository
 
     @Autowired
-    private ArtifactReleaseInfoClient artifactReleaseInfoClient
-
-    @Autowired
     private ArtifactReleaseLogRepository artifactReleaseLogRepository
 
     @Autowired
@@ -76,7 +73,6 @@ class ArtifactReleaseResourceSpec extends Specification {
         assert artifactReleaseClient.findLatestOfEachArtifactBySpaceAndFoundation(foundation, space) == [laterRelease]
     }
 
-
     def "findAll should find all releases"() {
         given:
         artifactReleaseClient.create(foundation, space, artifactRelease)
@@ -87,7 +83,7 @@ class ArtifactReleaseResourceSpec extends Specification {
         assert artifactReleaseClient.findAllBySpaceAndFoundation(foundation, space) == [laterRelease, artifactRelease]
     }
 
-    def "remediationCreate binds new artifact release with null gitsha with existing artifact info if exists"() {
+    def "remediationCreate binds new artifact release with null gitsha with existing artifact info"() {
         given:
         artifactInfoClient.create(deploymentTrackerInfo)
 
@@ -109,15 +105,19 @@ class ArtifactReleaseResourceSpec extends Specification {
                 .releaseVersion(deploymentTrackerRelease.releaseVersion)
                 .gitSha(deploymentTrackerInfo.gitSha)
                 .build()
-        ArtifactReleaseLogEntity actual = artifactReleaseLogRepository.findOne(new ArtifactReleaseLogPrimaryKey(deploymentTrackerRelease.artifactId, deploymentTrackerRelease.releaseVersion))
-        converter.toApi(actual) == expectedArtifactRelease
+        expectedArtifactRelease == findArtifactRelease(deploymentTrackerRelease.artifactId, deploymentTrackerRelease.releaseVersion)
     }
 
-    def "remediationCreate does not create new artifact info if artifactRelease has no corresponding artifactInfo"() {
+    def "remediationCreate does not create new artifact info"() {
         when:
         artifactReleaseClient.remediationCreate(foundation, space, [artifactRelease])
 
         then:
         null == artifactInfoRepository.findOneByArtifactIdAndBuildVersion(artifactRelease.artifactId, artifactRelease.buildVersion)
+    }
+
+    private ArtifactRelease findArtifactRelease(String artifactId, String releaseVersion) {
+        ArtifactReleaseLogEntity entity = artifactReleaseLogRepository.findOne(new ArtifactReleaseLogPrimaryKey(artifactId, releaseVersion))
+        converter.toApi(entity)
     }
 }
