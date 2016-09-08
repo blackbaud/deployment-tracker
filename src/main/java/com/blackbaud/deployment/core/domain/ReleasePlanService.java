@@ -74,9 +74,7 @@ public class ReleasePlanService {
         if (artifacts != null && artifacts.size() > 1) {
             artifacts.sort(Comparator.comparing(
                     ArtifactInfoEntity::getReleasePlanOrder, Comparator.nullsLast(Comparator.naturalOrder())));
-            if (artifacts.stream().filter(a -> a.getReleasePlanOrder() == null).findFirst().isPresent()) {
-                initializeArtifactOrder(artifacts);
-            }
+            updateArtifactListOrder(artifacts);
         }
     }
 
@@ -145,17 +143,6 @@ public class ReleasePlanService {
     private void updateArtifactListOrder(List<ArtifactInfoEntity> artifacts) {
         artifacts.forEach(a -> a.setReleasePlanOrder(artifacts.indexOf(a) + 1));
         artifactInfoRepository.save(artifacts);
-    }
-
-    private void initializeArtifactOrder(List<ArtifactInfoEntity> artifacts) {
-        List<ArtifactInfoEntity> artifactsToSort = artifacts.stream().filter(a -> a.getReleasePlanOrder() == null).collect(Collectors.toList());
-
-        artifacts.removeAll(artifactsToSort);
-        Collections.sort(artifactsToSort, (a1, a2) -> a1.getArtifactId().compareTo(a2.getArtifactId()));
-
-        artifacts.addAll(artifactsToSort);
-
-        updateArtifactListOrder(artifacts);
     }
 
     private void failIfReleaseIsClosed(ReleasePlanEntity releasePlanEntity) {
