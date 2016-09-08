@@ -21,8 +21,8 @@ public class ArtifactInfoClient extends CrudClient<ArtifactInfo, ArtifactInfoCli
         return crudClientRequest.createWithPost(artifactInfo);
     }
 
-    public void create(List<ArtifactInfo> artifactInfos){
-        getUntypedCrudClientRequest().getClientRequest().path("bulk").createWithPost(artifactInfos);
+    public void remediationCreate(List<ArtifactInfo> artifactInfos){
+        getUntypedCrudClientRequest().getClientRequest().path(ResourcePaths.REMEDIATE_PATH).createWithPost(artifactInfos);
     }
 
     public ArtifactInfo find(String artifactId, String buildVersion) {

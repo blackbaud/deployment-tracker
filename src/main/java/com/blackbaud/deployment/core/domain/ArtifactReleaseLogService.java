@@ -1,6 +1,7 @@
 package com.blackbaud.deployment.core.domain;
 
 import com.blackbaud.deployment.ArtifactReleaseInfoConverter;
+import com.blackbaud.deployment.api.ArtifactInfo;
 import com.blackbaud.deployment.api.ArtifactRelease;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +25,7 @@ public class ArtifactReleaseLogService {
 
     @Transactional
     public ArtifactRelease save(ArtifactRelease artifactRelease, String foundation, String space) {
-        artifactInfoService.create(artifactRelease.getArtifactId(), artifactRelease.getBuildVersion(), extractArtifactInfo(artifactRelease));
+        artifactInfoService.create(extractArtifactInfo(artifactRelease));
         ArtifactReleaseLogEntity mostRecentRelease = artifactReleaseLogRepository.findFirstByArtifactIdAndFoundationAndSpaceOrderByReleaseVersionDesc(artifactRelease.getArtifactId(), foundation, space);
         ArtifactReleaseLogEntity newRelease = ArtifactReleaseLogEntity.builder()
                 .artifactId(artifactRelease.getArtifactId())
@@ -40,8 +41,8 @@ public class ArtifactReleaseLogService {
         return artifactRelease;
     }
     
-    private ArtifactInfoEntity extractArtifactInfo(ArtifactRelease artifactRelease) {
-        return ArtifactInfoEntity.builder()
+    private ArtifactInfo extractArtifactInfo(ArtifactRelease artifactRelease) {
+        return ArtifactInfo.builder()
                 .artifactId(artifactRelease.getArtifactId())
                 .buildVersion(artifactRelease.getBuildVersion())
                 .gitSha(artifactRelease.getGitSha())

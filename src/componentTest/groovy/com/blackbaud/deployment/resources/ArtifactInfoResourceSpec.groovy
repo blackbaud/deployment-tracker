@@ -13,8 +13,6 @@ import com.blackbaud.deployment.core.domain.git.GitLogRepository
 import org.springframework.beans.factory.annotation.Autowired
 import spock.lang.Specification
 
-import javax.ws.rs.BadRequestException
-
 @ComponentTest
 class ArtifactInfoResourceSpec extends Specification {
 
@@ -83,7 +81,7 @@ class ArtifactInfoResourceSpec extends Specification {
 
         then:
         List<GitLogEntity> newEntries = gitLogSinceNewArtifact.minus(gitLogSinceOldArtifact)
-        newEntries.stream().collect{ s -> s.gitSha } ==
+        newEntries.stream().collect { s -> s.gitSha } ==
                 ["5c43c3629f19ef1d4ddf061b04c7439b7f14e8a7",
                  "9ecbbedb36e9e9bd39f1781b6e4dcc0523da3e23",
                  "76cf98e70a739ced8c610999b8814b9b2556071e",
@@ -107,62 +105,46 @@ class ArtifactInfoResourceSpec extends Specification {
         artifactInfoList.containsAll([oldArtifact, newArtifact])
     }
 
-    def "create throws exception if artifact already exist but gitsha is different"() {
+    def "remediationCreate does not overwrite existing artifacts git sha"() {
         given:
         artifactInfoClient.create(oldArtifact)
 
         and:
-        def oldArtifactNewSha = oldArtifact
-        oldArtifactNewSha.gitSha = newArtifact.gitSha
-
-        when:
-        artifactInfoClient.create(oldArtifactNewSha)
-
-        then:
-        thrown(BadRequestException)
-    }
-
-    def "create does not throws exception if the same artifact already exist"() {
-        given:
-        artifactInfoClient.create(oldArtifact)
-
-        when:
-        artifactInfoClient.create(oldArtifact)
-
-        then:
-        notThrown()
-    }
-
-    def "Modified artifacts do not affect entire batch for bulk create"() {
-        given:
-        artifactInfoClient.create(oldArtifact)
-        def modifiedArtifact = ArtifactInfo.builder()
+        def oldArtifactNewSha = ArtifactInfo.builder()
                 .artifactId(oldArtifact.artifactId)
                 .buildVersion(oldArtifact.buildVersion)
                 .gitSha(newArtifact.gitSha)
                 .build()
-        List<ArtifactInfo> newArtifactInfos = [modifiedArtifact, newArtifact]
 
         when:
-        artifactInfoClient.create(newArtifactInfos)
+        artifactInfoClient.remediationCreate([oldArtifactNewSha])
+
+        then:
+        oldArtifact == artifactInfoClient.find(oldArtifact.getArtifactId(), oldArtifact.getBuildVersion())
+    }
+
+    def "remediationCreate does not throws exception if the same artifact already exist"() {
+        given:
+        artifactInfoClient.create(oldArtifact)
+
+        when:
+        artifactInfoClient.remediationCreate([oldArtifact])
 
         then:
         notThrown()
-        artifactInfoClient.find(oldArtifact.artifactId, oldArtifact.buildVersion) == oldArtifact
-        artifactInfoClient.find(newArtifact.artifactId, newArtifact.buildVersion) == newArtifact
     }
 
-    def "create updates gitsha if existing gitsha was null"() {
+    def "remediationCreate updates gitsha if existing gitsha was null"() {
         given:
         def nullGitSha = ArtifactInfoEntity.builder()
-            .artifactId(oldArtifact.artifactId)
-            .buildVersion(oldArtifact.buildVersion)
-            .gitSha(null)
-            .build()
+                .artifactId(oldArtifact.artifactId)
+                .buildVersion(oldArtifact.buildVersion)
+                .gitSha(null)
+                .build()
         artifactInfoRepository.save(nullGitSha)
 
         when:
-        artifactInfoClient.create([oldArtifact])
+        artifactInfoClient.remediationCreate([oldArtifact])
 
         then:
         artifactInfoClient.find(oldArtifact.artifactId, oldArtifact.buildVersion) == oldArtifact
