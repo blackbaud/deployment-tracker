@@ -28,7 +28,7 @@ public class ArtifactReleaseLogService {
     private ArtifactInfoRepository artifactInfoRepository;
 
     @Transactional
-    public ArtifactRelease save(ArtifactRelease artifactRelease, String foundation, String space) {
+    public ArtifactRelease create(ArtifactRelease artifactRelease, String foundation, String space) {
         artifactInfoService.create(extractArtifactInfo(artifactRelease));
         return saveArtifactReleaseLog(artifactRelease, foundation, space);
     }
