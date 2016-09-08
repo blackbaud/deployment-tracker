@@ -236,16 +236,9 @@ class ReleasePlanResourceSpec extends Specification {
     def "when artifacts are added to a release plan, the listOrder is set based on their position in the list"() {
         given:
         ReleasePlanEntity currentPlan = createCurrentReleasePlan()
-        List<ArtifactInfoEntity> artifactList = []
-        (1..10).each{
-            artifactList.add(aRandom.artifactInfoEntity().listOrder(null).build())
-        }
-        artifactInfoRepository.save(artifactList)
 
         when:
-        artifactList.each { artifact ->
-            releasePlanClient.addArtifact(currentPlan.id, artifactInfoConverter.toApi(artifact))
-        }
+        createRandomReleasePlanWithArtifacts(10, currentPlan.id)
 
         then:
         ReleasePlan updatedReleasePlan = releasePlanClient.getCurrentReleasePlan()
@@ -258,16 +251,7 @@ class ReleasePlanResourceSpec extends Specification {
         ReleasePlanEntity currentPlan = createCurrentReleasePlan()
 
         and:
-        List<ArtifactInfoEntity> artifactList = []
-        (1..10).each{
-            artifactList.add(aRandom.artifactInfoEntity().listOrder(null).build())
-        }
-        artifactInfoRepository.save(artifactList)
-
-        and:
-        artifactList.each { artifact ->
-            releasePlanClient.addArtifact(currentPlan.id, artifactInfoConverter.toApi(artifact))
-        }
+        List<ArtifactInfoEntity> artifactList = createRandomReleasePlanWithArtifacts(10, currentPlan.id)
 
         when:
         releasePlanClient.deleteArtifact(currentPlan.id, artifactList.get(2).artifactId)
@@ -296,16 +280,7 @@ class ReleasePlanResourceSpec extends Specification {
         ReleasePlanEntity currentPlan = createCurrentReleasePlan()
 
         and:
-        List<ArtifactInfoEntity> artifactList = []
-        (1..10).each{
-            artifactList.add(aRandom.artifactInfoEntity().listOrder(null).build())
-        }
-        artifactInfoRepository.save(artifactList)
-
-        and:
-        artifactList.each { artifact ->
-            releasePlanClient.addArtifact(currentPlan.id, artifactInfoConverter.toApi(artifact))
-        }
+        List<ArtifactInfoEntity> artifactList = createRandomReleasePlanWithArtifacts(10, currentPlan.id)
 
         and:
         ArtifactInfoEntity anchor = artifactList.get(2)
@@ -323,6 +298,20 @@ class ReleasePlanResourceSpec extends Specification {
         updatedReleasePlan.artifacts.eachWithIndex { artifact, i -> artifact.listOrder == i + 1}
         moving.gitSha == updatedReleasePlan.artifacts.get(2).gitSha
 
+    }
+
+    List<ArtifactInfoEntity> createRandomReleasePlanWithArtifacts(int numberToCreate, Long releasePlanId) {
+        List<ArtifactInfoEntity> artifactList = []
+        numberToCreate.times{
+            artifactList.add(aRandom.artifactInfoEntity().listOrder(null).build())
+        }
+        artifactInfoRepository.save(artifactList)
+
+        artifactList.each { artifact ->
+            releasePlanClient.addArtifact(releasePlanId, artifactInfoConverter.toApi(artifact))
+        }
+
+        artifactList
     }
 
     def ReleasePlanEntity createCurrentReleasePlan() {
