@@ -54,7 +54,9 @@ public class ReleasePlanService {
 
     public ReleasePlanEntity getCurrentReleasePlan() {
         ReleasePlanEntity releasePlan = releasePlanRepository.findByActivatedNull();
-        updateArtifactOrderIfNecessary(releasePlan);
+        if (releasePlan != null) {
+            updateArtifactOrderIfNecessary(releasePlan);
+        }
         return releasePlan;
     }
 

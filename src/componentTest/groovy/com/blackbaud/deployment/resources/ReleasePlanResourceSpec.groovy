@@ -321,7 +321,7 @@ class ReleasePlanResourceSpec extends Specification {
         then:
         ReleasePlan updatedReleasePlan = releasePlanClient.getCurrentReleasePlan()
         updatedReleasePlan.artifacts.eachWithIndex { artifact, i -> artifact.listOrder == i + 1}
-        moving.gitSha == updatedReleasePlan.artifacts.get(5).gitSha
+        moving.gitSha == updatedReleasePlan.artifacts.get(2).gitSha
 
     }
 
