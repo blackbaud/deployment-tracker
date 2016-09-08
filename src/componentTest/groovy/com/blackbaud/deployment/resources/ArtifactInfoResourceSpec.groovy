@@ -134,25 +134,6 @@ class ArtifactInfoResourceSpec extends Specification {
         notThrown()
     }
 
-    def "Modified artifacts do not affect entire batch for remediation create"() {
-        given:
-        artifactInfoClient.create(oldArtifact)
-        def modifiedArtifact = ArtifactInfo.builder()
-                .artifactId(oldArtifact.artifactId)
-                .buildVersion(oldArtifact.buildVersion)
-                .gitSha(newArtifact.gitSha)
-                .build()
-        List<ArtifactInfo> newArtifactInfos = [modifiedArtifact, newArtifact]
-
-        when:
-        artifactInfoClient.remediationCreate(newArtifactInfos)
-
-        then:
-        notThrown()
-        artifactInfoClient.find(oldArtifact.artifactId, oldArtifact.buildVersion) == oldArtifact
-        artifactInfoClient.find(newArtifact.artifactId, newArtifact.buildVersion) == newArtifact
-    }
-
     def "remediationCreate updates gitsha if existing gitsha was null"() {
         given:
         def nullGitSha = ArtifactInfoEntity.builder()
