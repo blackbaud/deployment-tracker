@@ -233,7 +233,7 @@ class ReleasePlanResourceSpec extends Specification {
         e instanceof BadRequestException
     }
 
-    def "when artifacts are added to a release plan, the listOrder is set based on their position in the list"() {
+    def "when artifacts are added to a release plan, the releasePlanOrder is set based on their position in the list"() {
         given:
         ReleasePlanEntity currentPlan = createCurrentReleasePlan()
 
@@ -242,7 +242,7 @@ class ReleasePlanResourceSpec extends Specification {
 
         then:
         ReleasePlan updatedReleasePlan = releasePlanClient.getCurrentReleasePlan()
-        updatedReleasePlan.artifacts.eachWithIndex { artifact, i -> artifact.listOrder == i + 1}
+        updatedReleasePlan.artifacts.eachWithIndex { artifact, i -> artifact.releasePlanOrder == i + 1}
 
     }
 
@@ -260,7 +260,7 @@ class ReleasePlanResourceSpec extends Specification {
 
         then:
         List<ArtifactInfo> artifacts = releasePlanClient.currentReleasePlan.artifacts
-        artifacts.eachWithIndex { artifact, i -> artifact.listOrder == i + 1}
+        artifacts.eachWithIndex { artifact, i -> artifact.releasePlanOrder == i + 1}
 
         when:
         releasePlanClient.addArtifact(currentPlan.id, artifactInfoConverter.toApi(artifactList.get(2)))
@@ -269,7 +269,7 @@ class ReleasePlanResourceSpec extends Specification {
 
         then:
         List<ArtifactInfo> artifacts2 = releasePlanClient.currentReleasePlan.artifacts
-        artifacts2.eachWithIndex { artifact, i -> artifact.listOrder == i + 1}
+        artifacts2.eachWithIndex { artifact, i -> artifact.releasePlanOrder == i + 1}
         artifactList.get(2).gitSha == artifacts2.get(artifacts2.size() - 3).gitSha
         artifactList.get(4).gitSha == artifacts2.get(artifacts2.size() - 2).gitSha
         artifactList.get(6).gitSha == artifacts2.last().gitSha
@@ -295,7 +295,7 @@ class ReleasePlanResourceSpec extends Specification {
 
         then:
         ReleasePlan updatedReleasePlan = releasePlanClient.getCurrentReleasePlan()
-        updatedReleasePlan.artifacts.eachWithIndex { artifact, i -> artifact.listOrder == i + 1}
+        updatedReleasePlan.artifacts.eachWithIndex { artifact, i -> artifact.releasePlanOrder == i + 1}
         moving.gitSha == updatedReleasePlan.artifacts.get(2).gitSha
 
     }
@@ -303,7 +303,7 @@ class ReleasePlanResourceSpec extends Specification {
     List<ArtifactInfoEntity> createRandomReleasePlanWithArtifacts(int numberToCreate, Long releasePlanId) {
         List<ArtifactInfoEntity> artifactList = []
         numberToCreate.times{
-            artifactList.add(aRandom.artifactInfoEntity().listOrder(null).build())
+            artifactList.add(aRandom.artifactInfoEntity().releasePlanOrder(null).build())
         }
         artifactInfoRepository.save(artifactList)
 

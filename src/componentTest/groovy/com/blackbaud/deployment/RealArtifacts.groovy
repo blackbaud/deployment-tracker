@@ -2,7 +2,6 @@ package com.blackbaud.deployment
 
 import com.blackbaud.deployment.api.ArtifactInfo
 import com.blackbaud.deployment.api.ArtifactRelease
-import com.blackbaud.deployment.core.domain.ReleaseService
 
 class RealArtifacts {
 
@@ -60,7 +59,7 @@ class RealArtifacts {
                 .artifactId("deployment-tracker")
                 .buildVersion("0.20160606.194525")
                 .gitSha("e36ec0e653bb77dd20a6ac2c200d4a82a962e6e7")
-                .listOrder(1)
+                .releasePlanOrder(1)
                 .build()
     }
 
@@ -69,7 +68,7 @@ class RealArtifacts {
                 .artifactId("deployment-tracker")
                 .buildVersion("0.20160603.161854")
                 .gitSha("9ecbbedb36e9e9bd39f1781b6e4dcc0523da3e23")
-                .listOrder(2)
+                .releasePlanOrder(2)
                 .build()
     }
 
@@ -78,7 +77,7 @@ class RealArtifacts {
                 .artifactId("deployment-tracker")
                 .buildVersion("0.20160525.221050")
                 .gitSha("bb0ce6f142d3c52e48c914768f3174278bfa035b")
-                .listOrder(3)
+                .releasePlanOrder(3)
                 .build()
     }
 
@@ -87,7 +86,7 @@ class RealArtifacts {
                 .artifactId("bluemoon-core")
                 .buildVersion("2")
                 .gitSha("b92937bcc183cb92f3f64abeca54a997d3de0c54")
-                .listOrder(4)
+                .releasePlanOrder(4)
                 .build()
     }
 
@@ -96,7 +95,7 @@ class RealArtifacts {
                 .artifactId("bluemoon-core")
                 .buildVersion("1")
                 .gitSha("6f39d6f6f1b732439c9f1c45c3a2bc481ce8d314")
-                .listOrder(5)
+                .releasePlanOrder(5)
                 .build()
     }
 

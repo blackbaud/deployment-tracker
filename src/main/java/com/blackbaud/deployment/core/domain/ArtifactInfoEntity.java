@@ -34,7 +34,7 @@ public class ArtifactInfoEntity {
     @Column(name = "git_sha")
     private String gitSha;
 
-    @Column(name = "list_order")
-    private Integer listOrder;
+    @Column(name = "release_plan_order")
+    private Integer releasePlanOrder;
 
 }

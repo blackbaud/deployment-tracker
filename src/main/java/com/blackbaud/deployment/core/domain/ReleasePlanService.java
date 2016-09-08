@@ -73,8 +73,8 @@ public class ReleasePlanService {
         List<ArtifactInfoEntity> artifacts = releasePlan.getArtifacts();
         if (artifacts != null && artifacts.size() > 1) {
             artifacts.sort(Comparator.comparing(
-                    ArtifactInfoEntity::getListOrder, Comparator.nullsLast(Comparator.naturalOrder())));
-            if (artifacts.stream().filter(a -> a.getListOrder() == null).findFirst().isPresent()) {
+                    ArtifactInfoEntity::getReleasePlanOrder, Comparator.nullsLast(Comparator.naturalOrder())));
+            if (artifacts.stream().filter(a -> a.getReleasePlanOrder() == null).findFirst().isPresent()) {
                 initializeArtifactOrder(artifacts);
             }
         }
@@ -103,7 +103,7 @@ public class ReleasePlanService {
         try {
             ReleasePlanEntity releasePlan = getExistingReleasePlan(id);
             releasePlan.getArtifacts().stream().forEach(a -> {
-                a.setListOrder(null);
+                a.setReleasePlanOrder(null);
                 artifactInfoRepository.save(a);
             });
             releasePlanRepository.delete(id);
@@ -116,7 +116,7 @@ public class ReleasePlanService {
         ReleasePlanEntity releasePlan = getExistingReleasePlan(id);
         failIfReleaseIsClosed(releasePlan);
         releasePlan.getArtifacts().stream().filter(a -> a.getArtifactId().equals(artifactId)).findFirst().ifPresent(a -> {
-            a.setListOrder(null);
+            a.setReleasePlanOrder(null);
             artifactInfoRepository.save(a);
         });
         releasePlan.deleteArtifact(artifactId);
@@ -143,12 +143,12 @@ public class ReleasePlanService {
     }
 
     private void updateArtifactListOrder(List<ArtifactInfoEntity> artifacts) {
-        artifacts.forEach(a -> a.setListOrder(artifacts.indexOf(a) + 1));
+        artifacts.forEach(a -> a.setReleasePlanOrder(artifacts.indexOf(a) + 1));
         artifactInfoRepository.save(artifacts);
     }
 
     private void initializeArtifactOrder(List<ArtifactInfoEntity> artifacts) {
-        List<ArtifactInfoEntity> artifactsToSort = artifacts.stream().filter(a -> a.getListOrder() == null).collect(Collectors.toList());
+        List<ArtifactInfoEntity> artifactsToSort = artifacts.stream().filter(a -> a.getReleasePlanOrder() == null).collect(Collectors.toList());
 
         artifacts.removeAll(artifactsToSort);
         Collections.sort(artifactsToSort, (a1, a2) -> a1.getArtifactId().compareTo(a2.getArtifactId()));

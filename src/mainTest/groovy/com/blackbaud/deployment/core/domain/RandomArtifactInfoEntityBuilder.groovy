@@ -8,6 +8,6 @@ class RandomArtifactInfoEntityBuilder extends ArtifactInfoEntity.ArtifactInfoEnt
         artifactId(aRandom.text(20))
         .buildVersion(aRandom.text(20))
         .gitSha(aRandom.text(20))
-        .listOrder(aRandom.intBetween(1, 20))
+        .releasePlanOrder(aRandom.intBetween(1, 20))
     }
 }
