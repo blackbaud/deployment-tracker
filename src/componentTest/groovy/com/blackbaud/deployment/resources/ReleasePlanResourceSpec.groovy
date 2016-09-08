@@ -8,7 +8,6 @@ import com.blackbaud.deployment.api.ArtifactInfo
 import com.blackbaud.deployment.api.ArtifactOrderUpdate
 import com.blackbaud.deployment.api.ReleasePlan
 import com.blackbaud.deployment.client.ArtifactInfoClient
-import com.blackbaud.deployment.client.ReleasePlanArtifactOrderClient
 import com.blackbaud.deployment.client.ReleasePlanClient
 import com.blackbaud.deployment.core.domain.ArtifactInfoEntity
 import com.blackbaud.deployment.core.domain.ArtifactInfoRepository
@@ -42,9 +41,6 @@ class ReleasePlanResourceSpec extends Specification {
 
     @Inject
     private ArtifactInfoClient artifactInfoClient
-
-    @Inject
-    private ReleasePlanArtifactOrderClient releasePlanArtifactOrderClient
 
     private final ArtifactInfo newArtifact = RealArtifacts.getRecentDeploymentTrackerArtifact()
     private final ArtifactInfo oldArtifact = RealArtifacts.getEarlyDeploymentTrackerArtifact()
@@ -270,9 +266,9 @@ class ReleasePlanResourceSpec extends Specification {
         then:
         List<ArtifactInfo> artifacts2 = releasePlanClient.currentReleasePlan.artifacts
         artifacts2.eachWithIndex { artifact, i -> artifact.releasePlanOrder == i + 1}
-        artifactList.get(2).gitSha == artifacts2.get(artifacts2.size() - 3).gitSha
-        artifactList.get(4).gitSha == artifacts2.get(artifacts2.size() - 2).gitSha
-        artifactList.get(6).gitSha == artifacts2.last().gitSha
+        artifactList.get(2).artifactId == artifacts2.get(artifacts2.size() - 3).artifactId
+        artifactList.get(4).artifactId == artifacts2.get(artifacts2.size() - 2).artifactId
+        artifactList.get(6).artifactId == artifacts2.last().artifactId
     }
 
     def "artifacts are still in order after moving one to a different position"() {
@@ -286,17 +282,17 @@ class ReleasePlanResourceSpec extends Specification {
         ArtifactInfoEntity anchor = artifactList.get(2)
         ArtifactInfoEntity moving = artifactList.get(5)
         ArtifactOrderUpdate artifactOrderUpdate = ArtifactOrderUpdate.builder()
-                .anchorSha(anchor.gitSha)
-                .movingSha(moving.gitSha)
+                .anchorArtifactId(anchor.artifactId)
+                .movingArtifactId(moving.artifactId)
                 .position("above").build()
 
         when:
-        releasePlanArtifactOrderClient.updateArtifactOrder(artifactOrderUpdate)
+        releasePlanClient.updateArtifactOrder(artifactOrderUpdate)
 
         then:
         ReleasePlan updatedReleasePlan = releasePlanClient.getCurrentReleasePlan()
         updatedReleasePlan.artifacts.eachWithIndex { artifact, i -> artifact.releasePlanOrder == i + 1}
-        moving.gitSha == updatedReleasePlan.artifacts.get(2).gitSha
+        moving.artifactId == updatedReleasePlan.artifacts.get(2).artifactId
 
     }
 
