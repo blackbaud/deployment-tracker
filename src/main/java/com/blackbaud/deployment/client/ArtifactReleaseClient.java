@@ -27,4 +27,8 @@ public class ArtifactReleaseClient extends CrudClient<ArtifactRelease, ArtifactR
                 .findMany();
     }
 
+    public void remediationCreate(String foundation, String space, List<ArtifactRelease> artifactReleases) {
+        getUntypedCrudClientRequest().getClientRequest().path(foundation).path(space).path(ResourcePaths.REMEDIATE_PATH)
+                .createWithPost(artifactReleases);
+    }
 }

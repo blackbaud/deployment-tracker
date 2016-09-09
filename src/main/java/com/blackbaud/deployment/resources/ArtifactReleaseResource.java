@@ -37,7 +37,7 @@ public class ArtifactReleaseResource {
     public ArtifactRelease create(@PathParam("foundation") String foundation, @PathParam("space") String space,
                                   @Valid ArtifactRelease artifactRelease) {
         try{
-            return artifactReleaseLogService.save(artifactRelease, foundation, space);
+            return artifactReleaseLogService.create(artifactRelease, foundation, space);
         } catch (GitLogParserFactory.InvalidRepositoryException ex){
             throw new BadRequestException(ex.getMessage());
         }
@@ -51,7 +51,7 @@ public class ArtifactReleaseResource {
         List<ArtifactRelease> result = new ArrayList<>();
         try{
             artifactReleases.stream().forEach(artifactRelease -> {
-                result.add(artifactReleaseLogService.save(artifactRelease, foundation, space));
+                result.add(artifactReleaseLogService.create(artifactRelease, foundation, space));
             });
         } catch (GitLogParserFactory.InvalidRepositoryException ex){
             throw new BadRequestException(ex.getMessage());
@@ -70,4 +70,10 @@ public class ArtifactReleaseResource {
         return artifactReleaseLogService.findLatestOfEachArtifactByFoundationAndSpace(foundation, space);
     }
 
+    @POST
+    @Path(ResourcePaths.REMEDIATE_PATH)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public void remediationCreate(@PathParam("foundation") String foundation, @PathParam("space") String space, @Valid List<ArtifactRelease> artifactReleases) {
+        artifactReleaseLogService.remediationCreate(foundation, space, artifactReleases);
+    }
 }

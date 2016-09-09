@@ -38,7 +38,7 @@ public class ArtifactReleaseInfoResource {
     public ArtifactRelease update(@PathParam("foundation") String foundation, @PathParam("space") String space,
                                   @Valid ArtifactRelease artifactRelease) {
         try{
-            return artifactReleaseLogService.save(artifactRelease, foundation, space);
+            return artifactReleaseLogService.create(artifactRelease, foundation, space);
         } catch (GitLogParserFactory.InvalidRepositoryException ex){
             throw new BadRequestException(ex.getMessage());
         }
