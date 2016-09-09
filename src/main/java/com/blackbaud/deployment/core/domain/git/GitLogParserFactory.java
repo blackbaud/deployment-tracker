@@ -21,8 +21,8 @@ public class GitLogParserFactory {
     private GitLogRepository gitLogRepository;
 
     private RepositoryService repositoryService;
-    private String githubUsername = "Blackbaud-OdsDeploy";
-    private String githubPassword = "0DPassword2!";
+    private String githubUsername = "Blackbaud-DeploymentTracker";
+    private String githubPassword = "DTPassword2!";
 
     private UsernamePasswordCredentialsProvider githubCredentialsProvider;
     private Path workspace;
