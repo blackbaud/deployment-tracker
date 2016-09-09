@@ -229,19 +229,6 @@ class ReleasePlanResourceSpec extends Specification {
         e instanceof BadRequestException
     }
 
-    def "when artifacts are added to a release plan, the releasePlanOrder is set based on their position in the list"() {
-        given:
-        ReleasePlanEntity currentPlan = createCurrentReleasePlan()
-
-        when:
-        createRandomReleasePlanWithArtifacts(10, currentPlan.id)
-
-        then:
-        ReleasePlan updatedReleasePlan = releasePlanClient.getCurrentReleasePlan()
-        updatedReleasePlan.artifacts.eachWithIndex { artifact, i -> artifact.releasePlanOrder == i + 1}
-
-    }
-
     def "artifact order is maintained when artifacts are removed and re-added"() {
         given:
         ReleasePlanEntity currentPlan = createCurrentReleasePlan()
@@ -254,21 +241,17 @@ class ReleasePlanResourceSpec extends Specification {
         releasePlanClient.deleteArtifact(currentPlan.id, artifactList.get(4).artifactId)
         releasePlanClient.deleteArtifact(currentPlan.id, artifactList.get(6).artifactId)
 
-        then:
-        List<ArtifactInfo> artifacts = releasePlanClient.currentReleasePlan.artifacts
-        artifacts.eachWithIndex { artifact, i -> artifact.releasePlanOrder == i + 1}
-
-        when:
+        and:
         releasePlanClient.addArtifact(currentPlan.id, artifactInfoConverter.toApi(artifactList.get(2)))
         releasePlanClient.addArtifact(currentPlan.id, artifactInfoConverter.toApi(artifactList.get(4)))
         releasePlanClient.addArtifact(currentPlan.id, artifactInfoConverter.toApi(artifactList.get(6)))
 
         then:
-        List<ArtifactInfo> artifacts2 = releasePlanClient.currentReleasePlan.artifacts
-        artifacts2.eachWithIndex { artifact, i -> artifact.releasePlanOrder == i + 1}
-        artifactList.get(2).artifactId == artifacts2.get(artifacts2.size() - 3).artifactId
-        artifactList.get(4).artifactId == artifacts2.get(artifacts2.size() - 2).artifactId
-        artifactList.get(6).artifactId == artifacts2.last().artifactId
+        List<ArtifactInfo> artifacts = releasePlanClient.currentReleasePlan.artifacts
+        artifacts.eachWithIndex { artifact, i -> artifact.artifactId == artifactList.get(i).artifactId}
+        artifactList.get(2).artifactId == artifacts.get(artifacts.size() - 3).artifactId
+        artifactList.get(4).artifactId == artifacts.get(artifacts.size() - 2).artifactId
+        artifactList.get(6).artifactId == artifacts.last().artifactId
     }
 
     def "artifacts are still in order after moving one to a different position"() {
@@ -290,7 +273,6 @@ class ReleasePlanResourceSpec extends Specification {
         ReleasePlan updatedReleasePlan = releasePlanClient.updateArtifactOrder(artifactOrderUpdate)
 
         then:
-        updatedReleasePlan.artifacts.eachWithIndex { artifact, i -> artifact.releasePlanOrder == i + 1}
         moving.artifactId == updatedReleasePlan.artifacts.get(2).artifactId
 
     }
