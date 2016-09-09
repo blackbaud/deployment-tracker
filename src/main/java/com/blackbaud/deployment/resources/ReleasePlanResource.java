@@ -83,8 +83,8 @@ public class ReleasePlanResource {
     @POST
     @Path(ResourcePaths.RELEASE_PLAN_ARTIFACT_REORDER)
     @Consumes(MediaType.APPLICATION_JSON)
-    public void updateArtifactOrder(@Valid ArtifactOrderUpdate artifactOrderUpdate) {
-        releasePlanService.updateArtifactOrder(artifactOrderUpdate.getMovingArtifactId(),
+    public ReleasePlan updateArtifactOrder(@Valid ArtifactOrderUpdate artifactOrderUpdate) {
+        return releasePlanService.updateArtifactOrder(artifactOrderUpdate.getMovingArtifactId(),
                                                artifactOrderUpdate.getAnchorArtifactId(),
                                                artifactOrderUpdate.getPosition());
     }

@@ -33,6 +33,8 @@ public class ReleasePlanService {
     @Inject
     private ArtifactInfoConverter artifactInfoConverter;
 
+    @Inject ReleasePlanConverter releasePlanConverter;
+
     public ReleasePlan createReleasePlan() {
         if (currentReleasePlanExists()) {
             throw new BadRequestException("A current plan already exists");
@@ -122,8 +124,9 @@ public class ReleasePlanService {
         updateArtifactListOrder(releasePlan.getArtifacts());
     }
 
-    public void updateArtifactOrder(String movingArtifactId, String anchorArtifactId, String position) {
-        List<ArtifactInfoEntity> artifacts = getCurrentReleasePlan().getArtifacts();
+    public ReleasePlan updateArtifactOrder(String movingArtifactId, String anchorArtifactId, String position) {
+        ReleasePlanEntity currentReleasePlan = getCurrentReleasePlan();
+        List<ArtifactInfoEntity> artifacts = currentReleasePlan.getArtifacts();
 
         ArtifactInfoEntity artifactToMove = artifacts.stream().filter(a -> a.getArtifactId().equals(movingArtifactId)).findFirst().get();
         ArtifactInfoEntity artifactTarget = artifacts.stream().filter(a -> a.getArtifactId().equals(anchorArtifactId)).findFirst().get();
@@ -138,6 +141,8 @@ public class ReleasePlanService {
         }
 
         updateArtifactListOrder(artifacts);
+
+        return releasePlanConverter.toApi(currentReleasePlan);
     }
 
     private void updateArtifactListOrder(List<ArtifactInfoEntity> artifacts) {

@@ -36,7 +36,7 @@ public class ReleasePlanClient extends CrudClient<ReleasePlan, ReleasePlanClient
         getUntypedCrudClientRequest().path(id).path(ResourcePaths.ARTIFACT_PATH).updateWithPut(artifactInfo);
     }
 
-    public void updateArtifactOrder(ArtifactOrderUpdate artifactOrderUpdate) {
-        getUntypedCrudClientRequest().path(ResourcePaths.RELEASE_PLAN_ARTIFACT_REORDER).createWithPost(artifactOrderUpdate);
+    public ReleasePlan updateArtifactOrder(ArtifactOrderUpdate artifactOrderUpdate) {
+        return (ReleasePlan) getUntypedCrudClientRequest().path(ResourcePaths.RELEASE_PLAN_ARTIFACT_REORDER).createWithPost(artifactOrderUpdate);
     }
 }

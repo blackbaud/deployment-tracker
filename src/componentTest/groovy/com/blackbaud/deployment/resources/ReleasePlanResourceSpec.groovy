@@ -287,10 +287,9 @@ class ReleasePlanResourceSpec extends Specification {
                 .position("above").build()
 
         when:
-        releasePlanClient.updateArtifactOrder(artifactOrderUpdate)
+        ReleasePlan updatedReleasePlan = releasePlanClient.updateArtifactOrder(artifactOrderUpdate)
 
         then:
-        ReleasePlan updatedReleasePlan = releasePlanClient.getCurrentReleasePlan()
         updatedReleasePlan.artifacts.eachWithIndex { artifact, i -> artifact.releasePlanOrder == i + 1}
         moving.artifactId == updatedReleasePlan.artifacts.get(2).artifactId
 
