@@ -35,34 +35,37 @@ class ArtifactReleaseResourceSpec extends Specification {
     private String foundation = "pivotal"
     private String space = "dev"
 
-    private final ArtifactRelease artifactRelease = RealArtifacts.getEarlyDeploymentTrackerRelease()
-    private final ArtifactInfo deploymentTrackerInfo = RealArtifacts.getEarlyDeploymentTrackerArtifact()
+    private final ArtifactRelease earlyRelease = RealArtifacts.getEarlyDeploymentTrackerRelease()
+    private final ArtifactRelease recentRelease = RealArtifacts.getRecentDeploymentTrackerRelease()
+
+    private final ArtifactInfo earlyInfo = RealArtifacts.getEarlyDeploymentTrackerArtifact()
+    private final ArtifactInfo recentInfo = RealArtifacts.getRecentDeploymentTrackerArtifact()
 
     def "should add new artifact release"() {
         when:
-        artifactReleaseClient.create(foundation, space, artifactRelease)
+        artifactReleaseClient.create(foundation, space, earlyRelease)
 
         then:
-        assert artifactReleaseClient.findLatestOfEachArtifactBySpaceAndFoundation(foundation, space) == [artifactRelease]
+        assert artifactReleaseClient.findLatestOfEachArtifactBySpaceAndFoundation(foundation, space) == [earlyRelease]
     }
 
     def "should not blow up when duplicate artifact release is posted"() {
         given:
-        artifactReleaseClient.create(foundation, space, artifactRelease)
+        artifactReleaseClient.create(foundation, space, earlyRelease)
 
         when:
-        artifactReleaseClient.create(foundation, space, artifactRelease)
+        artifactReleaseClient.create(foundation, space, earlyRelease)
 
         then:
-        assert artifactReleaseClient.findLatestOfEachArtifactBySpaceAndFoundation(foundation, space) == [artifactRelease]
+        assert artifactReleaseClient.findLatestOfEachArtifactBySpaceAndFoundation(foundation, space) == [earlyRelease]
     }
 
     def "findLatestOfEach should find the latest release"() {
         when:
-        artifactReleaseClient.create(foundation, space, artifactRelease)
+        artifactReleaseClient.create(foundation, space, earlyRelease)
 
         then:
-        assert artifactReleaseClient.findLatestOfEachArtifactBySpaceAndFoundation(foundation, space) == [artifactRelease]
+        assert artifactReleaseClient.findLatestOfEachArtifactBySpaceAndFoundation(foundation, space) == [earlyRelease]
 
         when:
         ArtifactRelease laterRelease = RealArtifacts.getRecentDeploymentTrackerRelease()
@@ -74,22 +77,22 @@ class ArtifactReleaseResourceSpec extends Specification {
 
     def "findAll should find all releases"() {
         given:
-        artifactReleaseClient.create(foundation, space, artifactRelease)
+        artifactReleaseClient.create(foundation, space, earlyRelease)
         ArtifactRelease laterRelease = RealArtifacts.getRecentDeploymentTrackerRelease()
         artifactReleaseClient.create(foundation, space, laterRelease)
 
         expect:
-        assert artifactReleaseClient.findAllBySpaceAndFoundation(foundation, space) == [laterRelease, artifactRelease]
+        assert artifactReleaseClient.findAllBySpaceAndFoundation(foundation, space) == [laterRelease, earlyRelease]
     }
 
     def "remediationCreate binds new artifact release with null gitsha with existing artifact info"() {
         given:
-        artifactInfoClient.create(deploymentTrackerInfo)
+        artifactInfoClient.create(earlyInfo)
 
         and:
         ArtifactRelease deploymentTrackerRelease = ArtifactRelease.builder()
-                .artifactId(deploymentTrackerInfo.artifactId)
-                .buildVersion(deploymentTrackerInfo.buildVersion)
+                .artifactId(earlyInfo.artifactId)
+                .buildVersion(earlyInfo.buildVersion)
                 .releaseVersion("release version")
                 .gitSha(null)
                 .build()
@@ -102,42 +105,38 @@ class ArtifactReleaseResourceSpec extends Specification {
                 .artifactId(deploymentTrackerRelease.artifactId)
                 .buildVersion(deploymentTrackerRelease.buildVersion)
                 .releaseVersion(deploymentTrackerRelease.releaseVersion)
-                .gitSha(deploymentTrackerInfo.gitSha)
+                .gitSha(earlyInfo.gitSha)
                 .build()
         expectedArtifactRelease == findArtifactRelease(deploymentTrackerRelease.artifactId, deploymentTrackerRelease.releaseVersion)
     }
 
     def "remediationCreate does not create new artifact info"() {
         when:
-        artifactReleaseClient.remediationCreate(foundation, space, [artifactRelease])
+        artifactReleaseClient.remediationCreate(foundation, space, [earlyRelease])
 
         then:
-        null == artifactInfoRepository.findOneByArtifactIdAndBuildVersion(artifactRelease.artifactId, artifactRelease.buildVersion)
+        null == artifactInfoRepository.findOneByArtifactIdAndBuildVersion(earlyRelease.artifactId, earlyRelease.buildVersion)
     }
 
     def "remediateCreate update previous version correctly"() {
         given:
-        ArtifactInfo earlyDt = RealArtifacts.earlyDeploymentTrackerArtifact
-        ArtifactInfo lateDt = RealArtifacts.recentDeploymentTrackerArtifact
-        artifactInfoClient.create(earlyDt)
-        artifactInfoClient.create(lateDt)
+        artifactInfoClient.create(earlyInfo)
+        artifactInfoClient.create(recentInfo)
 
         and:
-        ArtifactRelease earlyRelease= RealArtifacts.earlyDeploymentTrackerRelease
-        ArtifactRelease lateRelease = RealArtifacts.recentDeploymentTrackerRelease
-        artifactReleaseClient.create(foundation, space, lateRelease)
+        artifactReleaseClient.create(foundation, space, recentRelease)
 
         when:
-        artifactReleaseClient.remediationCreate(foundation, space, [earlyRelease, lateRelease])
+        artifactReleaseClient.remediationCreate(foundation, space, [earlyRelease, recentRelease])
 
         then:
         ArtifactReleaseLogEntity earlyReleaseLog = artifactReleaseLogRepository.findOne(new ArtifactReleaseLogPrimaryKey(earlyRelease.artifactId, earlyRelease.releaseVersion))
         earlyReleaseLog.prevBuildVersion == null
         earlyReleaseLog.prevReleaseVersion == null
 
-        ArtifactReleaseLogEntity lateReleaseLog = artifactReleaseLogRepository.findOne(new ArtifactReleaseLogPrimaryKey(lateRelease.artifactId, lateRelease.releaseVersion))
-        lateReleaseLog.prevBuildVersion == earlyReleaseLog.buildVersion
-        lateReleaseLog.prevReleaseVersion == earlyReleaseLog.releaseVersion
+        ArtifactReleaseLogEntity recentReleaseLog = artifactReleaseLogRepository.findOne(new ArtifactReleaseLogPrimaryKey(recentRelease.artifactId, recentRelease.releaseVersion))
+        recentReleaseLog.prevBuildVersion == earlyReleaseLog.buildVersion
+        recentReleaseLog.prevReleaseVersion == earlyReleaseLog.releaseVersion
     }
 
     private ArtifactRelease findArtifactRelease(String artifactId, String releaseVersion) {
