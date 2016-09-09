@@ -68,21 +68,19 @@ class ArtifactReleaseResourceSpec extends Specification {
         assert artifactReleaseClient.findLatestOfEachArtifactBySpaceAndFoundation(foundation, space) == [earlyRelease]
 
         when:
-        ArtifactRelease laterRelease = RealArtifacts.getRecentDeploymentTrackerRelease()
-        artifactReleaseClient.create(foundation, space, laterRelease)
+        artifactReleaseClient.create(foundation, space, recentRelease)
 
         then:
-        assert artifactReleaseClient.findLatestOfEachArtifactBySpaceAndFoundation(foundation, space) == [laterRelease]
+        assert artifactReleaseClient.findLatestOfEachArtifactBySpaceAndFoundation(foundation, space) == [recentRelease]
     }
 
     def "findAll should find all releases"() {
         given:
         artifactReleaseClient.create(foundation, space, earlyRelease)
-        ArtifactRelease laterRelease = RealArtifacts.getRecentDeploymentTrackerRelease()
-        artifactReleaseClient.create(foundation, space, laterRelease)
+        artifactReleaseClient.create(foundation, space, recentRelease)
 
         expect:
-        assert artifactReleaseClient.findAllBySpaceAndFoundation(foundation, space) == [laterRelease, earlyRelease]
+        assert artifactReleaseClient.findAllBySpaceAndFoundation(foundation, space) == [recentRelease, earlyRelease]
     }
 
     def "remediationCreate binds new artifact release with null gitsha with existing artifact info"() {
@@ -98,7 +96,7 @@ class ArtifactReleaseResourceSpec extends Specification {
                 .build()
 
         when:
-        artifactReleaseClient.remediationCreate(foundation, space, [deploymentTrackerRelease])
+        artifactReleaseClient.remediate(foundation, space, [deploymentTrackerRelease])
 
         then:
         ArtifactRelease expectedArtifactRelease = ArtifactRelease.builder()
@@ -112,7 +110,7 @@ class ArtifactReleaseResourceSpec extends Specification {
 
     def "remediationCreate does not create new artifact info"() {
         when:
-        artifactReleaseClient.remediationCreate(foundation, space, [earlyRelease])
+        artifactReleaseClient.remediate(foundation, space, [earlyRelease])
 
         then:
         null == artifactInfoRepository.findOneByArtifactIdAndBuildVersion(earlyRelease.artifactId, earlyRelease.buildVersion)
@@ -127,7 +125,7 @@ class ArtifactReleaseResourceSpec extends Specification {
         artifactReleaseClient.create(foundation, space, recentRelease)
 
         when:
-        artifactReleaseClient.remediationCreate(foundation, space, [earlyRelease, recentRelease])
+        artifactReleaseClient.remediate(foundation, space, [earlyRelease, recentRelease])
 
         then:
         ArtifactReleaseLogEntity earlyReleaseLog = artifactReleaseLogRepository.findOne(new ArtifactReleaseLogPrimaryKey(earlyRelease.artifactId, earlyRelease.releaseVersion))
