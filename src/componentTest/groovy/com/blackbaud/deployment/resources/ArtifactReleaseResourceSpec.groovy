@@ -83,7 +83,7 @@ class ArtifactReleaseResourceSpec extends Specification {
         assert artifactReleaseClient.findAllBySpaceAndFoundation(foundation, space) == [recentRelease, earlyRelease]
     }
 
-    def "remediationCreate binds new artifact release with null gitsha with existing artifact info"() {
+    def "remediate binds new artifact release with null gitsha with existing artifact info"() {
         given:
         artifactInfoClient.create(earlyInfo)
 
@@ -108,7 +108,7 @@ class ArtifactReleaseResourceSpec extends Specification {
         expectedArtifactRelease == findArtifactRelease(deploymentTrackerRelease.artifactId, deploymentTrackerRelease.releaseVersion)
     }
 
-    def "remediationCreate does not create new artifact info"() {
+    def "remediate does not create new artifact info"() {
         when:
         artifactReleaseClient.remediate(foundation, space, [earlyRelease])
 
@@ -116,7 +116,7 @@ class ArtifactReleaseResourceSpec extends Specification {
         null == artifactInfoRepository.findOneByArtifactIdAndBuildVersion(earlyRelease.artifactId, earlyRelease.buildVersion)
     }
 
-    def "remediateCreate update previous version correctly"() {
+    def "remediate updates previous version correctly"() {
         given:
         artifactInfoClient.create(earlyInfo)
         artifactInfoClient.create(recentInfo)
