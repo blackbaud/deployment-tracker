@@ -67,13 +67,13 @@ public class ArtifactReleaseResource {
     @GET
     @Path("current")
     public List<ArtifactRelease> findLatestOfEachArtifactBySpaceAndFoundation(@PathParam("foundation") String foundation, @PathParam("space") String space) {
-        return artifactReleaseLogService.findLatestOfEachArtifactByFoundationAndSpace(foundation, space);
+        return artifactReleaseLogService.findMostRecentOfEachArtifactByFoundationAndSpace(foundation, space);
     }
 
     @POST
     @Path(ResourcePaths.REMEDIATE_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
     public void remediationCreate(@PathParam("foundation") String foundation, @PathParam("space") String space, @Valid List<ArtifactRelease> artifactReleases) {
-        artifactReleaseLogService.remediationCreate(foundation, space, artifactReleases);
+        artifactReleaseLogService.remediate(foundation, space, artifactReleases);
     }
 }

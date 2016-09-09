@@ -34,7 +34,7 @@ public class ArtifactReleaseLogService {
     }
 
     private ArtifactRelease saveArtifactReleaseLog(ArtifactRelease artifactRelease, String foundation, String space) {
-        ArtifactReleaseLogEntity mostRecentRelease = artifactReleaseLogRepository.findFirstByArtifactIdAndFoundationAndSpaceOrderByReleaseVersionDesc(artifactRelease.getArtifactId(), foundation, space);
+        ArtifactReleaseLogEntity mostRecentRelease = findMostRecentBefore(artifactRelease, foundation, space);
         ArtifactReleaseLogEntity newRelease = ArtifactReleaseLogEntity.builder()
                 .artifactId(artifactRelease.getArtifactId())
                 .buildVersion(artifactRelease.getBuildVersion())
@@ -47,6 +47,11 @@ public class ArtifactReleaseLogService {
                 .build();
         artifactReleaseLogRepository.save(newRelease);
         return artifactRelease;
+    }
+
+    private ArtifactReleaseLogEntity findMostRecentBefore(ArtifactRelease artifactRelease, String foundation, String space) {
+        return artifactReleaseLogRepository.findFirstByFoundationAndSpaceAndArtifactIdAndReleaseVersionLessThanOrderByReleaseVersionDesc
+                (foundation, space, artifactRelease.getArtifactId(), artifactRelease.getReleaseVersion());
     }
 
     private ArtifactInfo extractArtifactInfo(ArtifactRelease artifactRelease) {
@@ -65,21 +70,21 @@ public class ArtifactReleaseLogService {
         return converter.toApiList(artifactReleaseLogRepository.findAllByFoundationAndSpaceOrderByArtifactIdAscReleaseVersionDesc(foundation, space));
     }
 
-    public List<ArtifactRelease> findLatestOfEachArtifactByFoundationAndSpace(String foundation, String space) {
+    public List<ArtifactRelease> findMostRecentOfEachArtifactByFoundationAndSpace(String foundation, String space) {
         return converter.toApiList(artifactReleaseLogRepository.findLatestOfEachArtifactByFoundationAndSpace(foundation, space));
     }
 
-    public void remediationCreate(String foundation, String space, List<ArtifactRelease> artifactReleases) {
+    public void remediate(String foundation, String space, List<ArtifactRelease> artifactReleases) {
         artifactReleases.stream().forEach(artifactRelease -> {
             try {
-                remediationCreate(foundation, space, artifactRelease);
+                remediate(foundation, space, artifactRelease);
             } catch (Exception ex) {
                 log.warn("{}. Continuing with the rest.", ex.getMessage());
             }
         });
     }
 
-    private void remediationCreate(String foundation, String space, ArtifactRelease artifactRelease) {
+    private void remediate(String foundation, String space, ArtifactRelease artifactRelease) {
         ArtifactInfoEntity artifactInfo = artifactInfoRepository.findOneByArtifactIdAndBuildVersion(artifactRelease.getArtifactId(), artifactRelease.getBuildVersion());
         if (artifactInfo == null) {
             throw new NotFoundException("ArtifactInfo for this release " + artifactRelease + " does not exist");

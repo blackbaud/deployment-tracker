@@ -7,7 +7,6 @@ import com.blackbaud.deployment.api.ArtifactInfo
 import com.blackbaud.deployment.api.ArtifactRelease
 import com.blackbaud.deployment.client.ArtifactInfoClient
 import com.blackbaud.deployment.client.ArtifactReleaseClient
-import com.blackbaud.deployment.client.ArtifactReleaseInfoClient
 import com.blackbaud.deployment.core.domain.ArtifactInfoRepository
 import com.blackbaud.deployment.core.domain.ArtifactReleaseLogEntity
 import com.blackbaud.deployment.core.domain.ArtifactReleaseLogPrimaryKey
@@ -114,6 +113,31 @@ class ArtifactReleaseResourceSpec extends Specification {
 
         then:
         null == artifactInfoRepository.findOneByArtifactIdAndBuildVersion(artifactRelease.artifactId, artifactRelease.buildVersion)
+    }
+
+    def "remediateCreate update previous version correctly"() {
+        given:
+        ArtifactInfo earlyDt = RealArtifacts.earlyDeploymentTrackerArtifact
+        ArtifactInfo lateDt = RealArtifacts.recentDeploymentTrackerArtifact
+        artifactInfoClient.create(earlyDt)
+        artifactInfoClient.create(lateDt)
+
+        and:
+        ArtifactRelease earlyRelease= RealArtifacts.earlyDeploymentTrackerRelease
+        ArtifactRelease lateRelease = RealArtifacts.recentDeploymentTrackerRelease
+        artifactReleaseClient.create(foundation, space, lateRelease)
+
+        when:
+        artifactReleaseClient.remediationCreate(foundation, space, [earlyRelease, lateRelease])
+
+        then:
+        ArtifactReleaseLogEntity earlyReleaseLog = artifactReleaseLogRepository.findOne(new ArtifactReleaseLogPrimaryKey(earlyRelease.artifactId, earlyRelease.releaseVersion))
+        earlyReleaseLog.prevBuildVersion == null
+        earlyReleaseLog.prevReleaseVersion == null
+
+        ArtifactReleaseLogEntity lateReleaseLog = artifactReleaseLogRepository.findOne(new ArtifactReleaseLogPrimaryKey(lateRelease.artifactId, lateRelease.releaseVersion))
+        lateReleaseLog.prevBuildVersion == earlyReleaseLog.buildVersion
+        lateReleaseLog.prevReleaseVersion == earlyReleaseLog.releaseVersion
     }
 
     private ArtifactRelease findArtifactRelease(String artifactId, String releaseVersion) {
