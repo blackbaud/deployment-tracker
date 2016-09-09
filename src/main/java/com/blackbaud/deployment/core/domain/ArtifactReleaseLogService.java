@@ -74,7 +74,7 @@ public class ArtifactReleaseLogService {
             try {
                 remediationCreate(foundation, space, artifactRelease);
             } catch (Exception ex) {
-                log.debug("{}. Continuing with the rest.", ex.getMessage());
+                log.warn("{}. Continuing with the rest.", ex.getMessage());
             }
         });
     }
