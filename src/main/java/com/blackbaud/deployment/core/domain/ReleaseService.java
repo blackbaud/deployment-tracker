@@ -36,7 +36,10 @@ public class ReleaseService {
                                                                     "data-pipeline-performance-producer",
                                                                     "data-pipeline-tests-endpoints",
                                                                     "mock-data-sync-api",
-                                                                    "kafka-oauth-sasl-provider");
+                                                                    "kafka-oauth-sasl-provider",
+                                                                    "search-adapter-poc",
+                                                                    "elasticsearch-loader-poc",
+                                                                    "solr-loader-poc");
 
     @Autowired
     private ArtifactReleaseLogService artifactReleaseLogService;
