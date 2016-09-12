@@ -2,6 +2,7 @@ package com.blackbaud.deployment.resources;
 
 import com.blackbaud.deployment.ReleasePlanConverter;
 import com.blackbaud.deployment.api.ArtifactInfo;
+import com.blackbaud.deployment.api.ArtifactOrderUpdate;
 import com.blackbaud.deployment.api.ReleasePlan;
 import com.blackbaud.deployment.api.ResourcePaths;
 import com.blackbaud.deployment.core.domain.ReleasePlanService;
@@ -9,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
+import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -76,5 +78,14 @@ public class ReleasePlanResource {
     @Path("{id}/{artifactId}")
     public void deleteReleasePlan(@PathParam("id") Long id, @PathParam("artifactId") String artifactId) {
         releasePlanService.deleteArtifact(id, artifactId);
+    }
+
+    @POST
+    @Path(ResourcePaths.RELEASE_PLAN_ARTIFACT_REORDER)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ReleasePlan updateArtifactOrder(@Valid ArtifactOrderUpdate artifactOrderUpdate) {
+        return releasePlanService.updateArtifactOrder(artifactOrderUpdate.getMovingArtifactId(),
+                                               artifactOrderUpdate.getAnchorArtifactId(),
+                                               artifactOrderUpdate.getPosition());
     }
 }

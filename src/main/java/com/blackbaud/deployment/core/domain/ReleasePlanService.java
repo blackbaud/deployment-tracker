@@ -12,6 +12,10 @@ import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotFoundException;
 import java.time.ZonedDateTime;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -24,7 +28,12 @@ public class ReleasePlanService {
     private ReleasePlanRepository releasePlanRepository;
 
     @Inject
+    private ArtifactInfoRepository artifactInfoRepository;
+
+    @Inject
     private ArtifactInfoConverter artifactInfoConverter;
+
+    @Inject ReleasePlanConverter releasePlanConverter;
 
     public ReleasePlan createReleasePlan() {
         if (currentReleasePlanExists()) {
@@ -46,7 +55,11 @@ public class ReleasePlanService {
     }
 
     public ReleasePlanEntity getCurrentReleasePlan() {
-        return releasePlanRepository.findByActivatedNull();
+        ReleasePlanEntity releasePlan = releasePlanRepository.findByActivatedNull();
+        if (releasePlan != null) {
+            updateArtifactOrderIfNecessary(releasePlan);
+        }
+        return releasePlan;
     }
 
     public ReleasePlanEntity getExistingReleasePlan(Long id) {
@@ -54,7 +67,17 @@ public class ReleasePlanService {
         if (releasePlan == null) {
             throw new NotFoundException("No release plan with id " + id + " exists");
         }
+        updateArtifactOrderIfNecessary(releasePlan);
         return releasePlan;
+    }
+
+    private void updateArtifactOrderIfNecessary(ReleasePlanEntity releasePlan) {
+        List<ArtifactInfoEntity> artifacts = releasePlan.getArtifacts();
+        if (artifacts != null && artifacts.size() > 1) {
+            artifacts.sort(Comparator.comparing(
+                    ArtifactInfoEntity::getReleasePlanOrder, Comparator.nullsLast(Comparator.naturalOrder())));
+            updateArtifactListOrder(artifacts);
+        }
     }
 
     public ReleasePlan updateNotes(Long id, String notes) {
@@ -78,6 +101,11 @@ public class ReleasePlanService {
 
     public void delete(Long id) {
         try {
+            ReleasePlanEntity releasePlan = getExistingReleasePlan(id);
+            releasePlan.getArtifacts().stream().forEach(a -> {
+                a.setReleasePlanOrder(null);
+                artifactInfoRepository.save(a);
+            });
             releasePlanRepository.delete(id);
         } catch (EmptyResultDataAccessException ex) {
             log.warn("Attempted to delete a deleted release plan");
@@ -87,8 +115,39 @@ public class ReleasePlanService {
     public void deleteArtifact(Long id, String artifactId) {
         ReleasePlanEntity releasePlan = getExistingReleasePlan(id);
         failIfReleaseIsClosed(releasePlan);
+        releasePlan.getArtifacts().stream().filter(a -> a.getArtifactId().equals(artifactId)).findFirst().ifPresent(a -> {
+            a.setReleasePlanOrder(null);
+            artifactInfoRepository.save(a);
+        });
         releasePlan.deleteArtifact(artifactId);
         releasePlanRepository.save(releasePlan);
+        updateArtifactListOrder(releasePlan.getArtifacts());
+    }
+
+    public ReleasePlan updateArtifactOrder(String movingArtifactId, String anchorArtifactId, String position) {
+        ReleasePlanEntity currentReleasePlan = getCurrentReleasePlan();
+        List<ArtifactInfoEntity> artifacts = currentReleasePlan.getArtifacts();
+
+        ArtifactInfoEntity artifactToMove = artifacts.stream().filter(a -> a.getArtifactId().equals(movingArtifactId)).findFirst().get();
+        ArtifactInfoEntity artifactTarget = artifacts.stream().filter(a -> a.getArtifactId().equals(anchorArtifactId)).findFirst().get();
+
+        artifacts.remove(artifactToMove);
+        if (position.equals("above")) {
+            artifacts.add(artifacts.indexOf(artifactTarget), artifactToMove);
+        } else if (artifacts.size() >= artifacts.indexOf(artifactTarget) + 1){
+            artifacts.add(artifacts.indexOf(artifactTarget) + 1, artifactToMove);
+        } else {
+            artifacts.add(artifactToMove);
+        }
+
+        updateArtifactListOrder(artifacts);
+
+        return releasePlanConverter.toApi(currentReleasePlan);
+    }
+
+    private void updateArtifactListOrder(List<ArtifactInfoEntity> artifacts) {
+        artifacts.forEach(a -> a.setReleasePlanOrder(artifacts.indexOf(a) + 1));
+        artifactInfoRepository.save(artifacts);
     }
 
     private void failIfReleaseIsClosed(ReleasePlanEntity releasePlanEntity) {

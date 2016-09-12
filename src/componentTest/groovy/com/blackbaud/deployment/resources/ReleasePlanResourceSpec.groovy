@@ -5,6 +5,7 @@ import com.blackbaud.deployment.ComponentTest
 import com.blackbaud.deployment.RealArtifacts
 import com.blackbaud.deployment.ReleasePlanConverter
 import com.blackbaud.deployment.api.ArtifactInfo
+import com.blackbaud.deployment.api.ArtifactOrderUpdate
 import com.blackbaud.deployment.api.ReleasePlan
 import com.blackbaud.deployment.client.ArtifactInfoClient
 import com.blackbaud.deployment.client.ReleasePlanClient
@@ -191,11 +192,8 @@ class ReleasePlanResourceSpec extends Specification {
         then:
         releasePlanRepository.findOne(plan.id) == null
 
-        when:
-        releasePlanClient.delete(plan.id)
-
-        then:
-        notThrown()
+        and:
+        notThrown(Exception)
     }
 
     def "can delete artifacts from a release plan" () {
@@ -229,6 +227,68 @@ class ReleasePlanResourceSpec extends Specification {
         then:
         Exception e = thrown()
         e instanceof BadRequestException
+    }
+
+    def "artifact order is maintained when artifacts are removed and re-added"() {
+        given:
+        ReleasePlanEntity currentPlan = createCurrentReleasePlan()
+
+        and:
+        List<ArtifactInfoEntity> artifactList = createRandomReleasePlanWithArtifacts(10, currentPlan.id)
+
+        when:
+        releasePlanClient.deleteArtifact(currentPlan.id, artifactList.get(2).artifactId)
+        releasePlanClient.deleteArtifact(currentPlan.id, artifactList.get(4).artifactId)
+        releasePlanClient.deleteArtifact(currentPlan.id, artifactList.get(6).artifactId)
+
+        and:
+        releasePlanClient.addArtifact(currentPlan.id, artifactInfoConverter.toApi(artifactList.get(2)))
+        releasePlanClient.addArtifact(currentPlan.id, artifactInfoConverter.toApi(artifactList.get(4)))
+        releasePlanClient.addArtifact(currentPlan.id, artifactInfoConverter.toApi(artifactList.get(6)))
+
+        then:
+        List<ArtifactInfo> artifacts = releasePlanClient.currentReleasePlan.artifacts
+        artifacts.eachWithIndex { artifact, i -> artifact.artifactId == artifactList.get(i).artifactId}
+        artifactList.get(2).artifactId == artifacts.get(artifacts.size() - 3).artifactId
+        artifactList.get(4).artifactId == artifacts.get(artifacts.size() - 2).artifactId
+        artifactList.get(6).artifactId == artifacts.last().artifactId
+    }
+
+    def "artifacts are still in order after moving one to a different position"() {
+        given:
+        ReleasePlanEntity currentPlan = createCurrentReleasePlan()
+
+        and:
+        List<ArtifactInfoEntity> artifactList = createRandomReleasePlanWithArtifacts(10, currentPlan.id)
+
+        and:
+        ArtifactInfoEntity anchor = artifactList.get(2)
+        ArtifactInfoEntity moving = artifactList.get(5)
+        ArtifactOrderUpdate artifactOrderUpdate = ArtifactOrderUpdate.builder()
+                .anchorArtifactId(anchor.artifactId)
+                .movingArtifactId(moving.artifactId)
+                .position("above").build()
+
+        when:
+        ReleasePlan updatedReleasePlan = releasePlanClient.updateArtifactOrder(artifactOrderUpdate)
+
+        then:
+        moving.artifactId == updatedReleasePlan.artifacts.get(2).artifactId
+
+    }
+
+    List<ArtifactInfoEntity> createRandomReleasePlanWithArtifacts(int numberToCreate, Long releasePlanId) {
+        List<ArtifactInfoEntity> artifactList = []
+        numberToCreate.times{
+            artifactList.add(aRandom.artifactInfoEntity().releasePlanOrder(null).build())
+        }
+        artifactInfoRepository.save(artifactList)
+
+        artifactList.each { artifact ->
+            releasePlanClient.addArtifact(releasePlanId, artifactInfoConverter.toApi(artifact))
+        }
+
+        artifactList
     }
 
     def ReleasePlanEntity createCurrentReleasePlan() {

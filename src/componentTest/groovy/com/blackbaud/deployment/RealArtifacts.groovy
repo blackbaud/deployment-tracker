@@ -2,7 +2,6 @@ package com.blackbaud.deployment
 
 import com.blackbaud.deployment.api.ArtifactInfo
 import com.blackbaud.deployment.api.ArtifactRelease
-import com.blackbaud.deployment.core.domain.ReleaseService
 
 class RealArtifacts {
 
