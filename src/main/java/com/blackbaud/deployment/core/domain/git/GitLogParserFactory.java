@@ -8,8 +8,10 @@ import org.eclipse.egit.github.core.service.RepositoryService;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -21,13 +23,18 @@ public class GitLogParserFactory {
     private GitLogRepository gitLogRepository;
 
     private RepositoryService repositoryService;
-    private String githubUsername = "Blackbaud-DeploymentTracker";
-    private String githubPassword = "DTPassword2!";
+
+    @Value("${github.username}")
+    private String githubUsername;
+
+    @Value("${github.password}")
+    private String githubPassword;
 
     private UsernamePasswordCredentialsProvider githubCredentialsProvider;
     private Path workspace;
 
-    public GitLogParserFactory() {
+    @PostConstruct
+    public void initGitLogParserFactory() {
         githubCredentialsProvider = new UsernamePasswordCredentialsProvider(githubUsername, githubPassword);
         GitHubClient gitHubClient = new GitHubClient();
         gitHubClient.setCredentials(githubUsername, githubPassword);
