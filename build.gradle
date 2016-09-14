@@ -94,3 +94,20 @@ it.name != 'mainTest'
         })
     }
 }
+
+def injectGithubPassword = {
+    if (!project.hasProperty('github.password')){
+        throw new GradleException("Need to add -Pgithub.password={your password or access token} as a gradle arg")
+    }
+    else {
+        systemProperties['github.password'] = project.ext['github.password']
+    }
+}
+
+bootRun {
+    configure injectGithubPassword
+}
+
+componentTest {
+    configure injectGithubPassword
+}

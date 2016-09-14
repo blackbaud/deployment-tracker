@@ -20,13 +20,15 @@ class GitLogRepositorySpec extends Specification {
     @Autowired
     ArtifactInfoClient artifactInfoClient
 
+    @Autowired
+    GitLogParserFactory factory
+
     private final ArtifactInfo earlyDeploymentTrackerArtifact = RealArtifacts.getEarlyDeploymentTrackerArtifact()
     private final ArtifactInfo recentDeploymentTrackerArtifact = RealArtifacts.getRecentDeploymentTrackerArtifact()
     private final ArtifactInfo bluemoonCoreArtifact = RealArtifacts.getRecentBluemoonCoreArtifact()
 
     def "i can retrieve commits in the order they were commited"() {
         given:
-        GitLogParserFactory factory = new GitLogParserFactory();
         GitLogParser parser = factory.createGitLogParserForNewProject("bluemoon-core", "b92937bcc183cb92f3f64abeca54a997d3de0c54")
         List<GitLogEntity> entities = parser.getGitLogEntities("bluemoon-core");
 
