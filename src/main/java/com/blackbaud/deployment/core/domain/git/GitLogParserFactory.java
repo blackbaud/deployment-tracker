@@ -27,17 +27,17 @@ public class GitLogParserFactory {
     @Value("${github.username}")
     private String githubUsername;
 
-    @Value("${github.password}")
-    private String githubPassword;
+    @Value("${github.accessToken}")
+    private String githubAccessToken;
 
     private UsernamePasswordCredentialsProvider githubCredentialsProvider;
     private Path workspace;
 
     @PostConstruct
     public void initGitLogParserFactory() {
-        githubCredentialsProvider = new UsernamePasswordCredentialsProvider(githubUsername, githubPassword);
+        githubCredentialsProvider = new UsernamePasswordCredentialsProvider(githubUsername, githubAccessToken);
         GitHubClient gitHubClient = new GitHubClient();
-        gitHubClient.setCredentials(githubUsername, githubPassword);
+        gitHubClient.setCredentials(githubUsername, githubAccessToken);
         repositoryService = new RepositoryService(gitHubClient);
         setupWorkspaceDir();
     }
