@@ -96,11 +96,11 @@ it.name != 'mainTest'
 }
 
 def injectGithubCredentials = {
-    if (!project.hasProperty('github.password') || !project.hasProperty('github.username')){
-        throw new GradleException("Need to add -Pgithub.username={your username} -Pgithub.password={your password or access token} as a gradle arg")
+    if (!project.hasProperty('github.accessToken') || !project.hasProperty('github.username')){
+        throw new GradleException("Need to add -Pgithub.username={your username} -Pgithub.accessToken={your access token} as a gradle arg")
     }
     else {
-        systemProperties['github.password'] = project.ext['github.password']
+        systemProperties['github.accessToken'] = project.ext['github.accessToken']
         systemProperties['github.username'] = project.ext['github.username']
     }
 }
