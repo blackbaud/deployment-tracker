@@ -1,5 +1,6 @@
 package com.blackbaud.deployment.resources
 
+import com.blackbaud.boot.exception.BadRequestException
 import com.blackbaud.deployment.ArtifactReleaseInfoConverter
 import com.blackbaud.deployment.ComponentTest
 import com.blackbaud.deployment.RealArtifacts
@@ -11,8 +12,13 @@ import com.blackbaud.deployment.core.domain.ArtifactInfoRepository
 import com.blackbaud.deployment.core.domain.ArtifactReleaseLogEntity
 import com.blackbaud.deployment.core.domain.ArtifactReleaseLogPrimaryKey
 import com.blackbaud.deployment.core.domain.ArtifactReleaseLogRepository
+import com.blackbaud.deployment.core.domain.ReleaseService
 import org.springframework.beans.factory.annotation.Autowired
 import spock.lang.Specification
+
+import javax.ws.rs.WebApplicationException
+
+import static com.blackbaud.deployment.core.CoreARandom.aRandom
 
 @ComponentTest
 class ArtifactReleaseResourceSpec extends Specification {
@@ -72,6 +78,38 @@ class ArtifactReleaseResourceSpec extends Specification {
 
         then:
         assert artifactReleaseClient.findLatestOfEachArtifactBySpaceAndFoundation(foundation, space) == [recentRelease]
+    }
+
+    def "should track distinct deployment info by foundation and space"() {
+        given:
+        ArtifactRelease artifactReleaseInfo1 = RealArtifacts.getRecentDeploymentTrackerRelease()
+        ArtifactRelease artifactReleaseInfo2 = RealArtifacts.getRecentNotificationsRelease()
+        ArtifactRelease artifactReleaseInfo3 = RealArtifacts.getBluemoonDojoRelease()
+
+        when:
+        artifactReleaseClient.create(foundation, space, artifactReleaseInfo1)
+        artifactReleaseClient.create(foundation, "space-two", artifactReleaseInfo2)
+        artifactReleaseClient.create("foundation-three", space, artifactReleaseInfo3)
+
+        then:
+        assert [artifactReleaseInfo1] == artifactReleaseClient.findLatestOfEachArtifactBySpaceAndFoundation(foundation, space)
+        assert [artifactReleaseInfo2] == artifactReleaseClient.findLatestOfEachArtifactBySpaceAndFoundation(foundation, "space-two")
+        assert [artifactReleaseInfo3] == artifactReleaseClient.findLatestOfEachArtifactBySpaceAndFoundation("foundation-three", space)
+    }
+
+    def "should retrieve most recent release info, by release version, for each artifact in a space and foundation"() {
+        given:
+        ArtifactRelease app1Early = RealArtifacts.getEarlyDeploymentTrackerRelease()
+        ArtifactRelease app1Recent = RealArtifacts.getRecentDeploymentTrackerRelease()
+        ArtifactRelease app2 = RealArtifacts.getRecentNotificationsRelease()
+
+        when:
+        artifactReleaseClient.create(foundation, space, app1Early)
+        artifactReleaseClient.create(foundation, space, app1Recent)
+        artifactReleaseClient.create(foundation, space, app2)
+
+        then:
+        assert [app1Recent, app2] == artifactReleaseClient.findLatestOfEachArtifactBySpaceAndFoundation(foundation, space)
     }
 
     def "findAll should find all releases"() {
@@ -140,5 +178,32 @@ class ArtifactReleaseResourceSpec extends Specification {
     private ArtifactRelease findArtifactRelease(String artifactId, String releaseVersion) {
         ArtifactReleaseLogEntity entity = artifactReleaseLogRepository.findOne(new ArtifactReleaseLogPrimaryKey(artifactId, releaseVersion))
         converter.toApi(entity)
+    }
+
+    def "Missing commits throws exception"() {
+        given:
+        ArtifactRelease dev = aRandom.artifactReleaseInfo()
+                .artifactId("deployment-tracker")
+                .buildVersion("0.20160606.194525")
+                .gitSha("3e176dced48f7b888707337261ba5b97902cf5b8")
+                .build()
+
+        when:
+        artifactReleaseClient.create(ReleaseService.DEV_FOUNDATION, ReleaseService.DEV_SPACE, dev)
+
+        then:
+        thrown(WebApplicationException)
+    }
+
+    def "Invalid github repo throws exception"() {
+        given:
+        ArtifactRelease artifactReleaseInfo = aRandom.artifactReleaseInfo().build();
+
+        when:
+        artifactReleaseClient.create(ReleaseService.DEV_FOUNDATION, ReleaseService.DEV_SPACE, artifactReleaseInfo)
+
+        then:
+        BadRequestException ex = thrown()
+        ex.errorEntity.message == "Cannot find repository with name " + artifactReleaseInfo.artifactId
     }
 }
