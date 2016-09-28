@@ -7,7 +7,7 @@ import com.blackbaud.deployment.api.ArtifactInfo
 import com.blackbaud.deployment.api.ArtifactReleaseDiff
 import com.blackbaud.deployment.api.ArtifactRelease
 import com.blackbaud.deployment.client.ArtifactInfoClient
-import com.blackbaud.deployment.client.ArtifactReleaseInfoClient
+import com.blackbaud.deployment.client.ArtifactReleaseClient
 import com.blackbaud.deployment.client.ReleaseClient
 import com.blackbaud.deployment.client.ReleasePlanClient
 import com.blackbaud.deployment.core.domain.ReleaseService
@@ -18,7 +18,7 @@ import spock.lang.Specification
 class ReleaseResourceSpec extends Specification {
 
     @Autowired
-    private ArtifactReleaseInfoClient artifactReleaseInfoClient
+    private ArtifactReleaseClient artifactReleaseClient
 
     @Autowired
     private ReleaseService releaseService
@@ -186,11 +186,11 @@ class ReleaseResourceSpec extends Specification {
     }
 
     def storeInDev(ArtifactRelease artifactReleaseInfo) {
-        artifactReleaseInfoClient.update(ReleaseService.DEV_FOUNDATION, ReleaseService.DEV_SPACE, artifactReleaseInfo)
+        artifactReleaseClient.create(ReleaseService.DEV_FOUNDATION, ReleaseService.DEV_SPACE, artifactReleaseInfo)
     }
 
     def storeInProd(ArtifactRelease artifactReleaseInfo) {
-        artifactReleaseInfoClient.update(ReleaseService.PROD_FOUNDATION, ReleaseService.PROD_SPACE, artifactReleaseInfo)
+        artifactReleaseClient.create(ReleaseService.PROD_FOUNDATION, ReleaseService.PROD_SPACE, artifactReleaseInfo)
     }
 
     def nothingStoredInDev() {}
