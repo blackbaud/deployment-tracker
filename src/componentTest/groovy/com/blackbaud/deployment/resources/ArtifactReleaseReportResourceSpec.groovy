@@ -8,7 +8,6 @@ import com.blackbaud.deployment.api.ArtifactRelease
 import com.blackbaud.deployment.api.ArtifactReleaseDiff
 import com.blackbaud.deployment.client.ArtifactInfoClient
 import com.blackbaud.deployment.client.ArtifactReleaseClient
-import com.blackbaud.deployment.client.ArtifactReleaseInfoClient
 import com.blackbaud.deployment.client.ArtifactReleaseReportClient
 import com.blackbaud.deployment.core.domain.ArtifactReleaseLogEntity
 import com.blackbaud.deployment.core.domain.ArtifactReleaseLogRepository

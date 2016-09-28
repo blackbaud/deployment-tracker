@@ -82,19 +82,21 @@ class ArtifactReleaseResourceSpec extends Specification {
 
     def "should track distinct deployment info by foundation and space"() {
         given:
+        String distinctSpace = aRandom.text(8)
+        String distinctFoundation= aRandom.text(8)
         ArtifactRelease artifactReleaseInfo1 = RealArtifacts.getRecentDeploymentTrackerRelease()
         ArtifactRelease artifactReleaseInfo2 = RealArtifacts.getRecentNotificationsRelease()
         ArtifactRelease artifactReleaseInfo3 = RealArtifacts.getBluemoonDojoRelease()
 
         when:
         artifactReleaseClient.create(foundation, space, artifactReleaseInfo1)
-        artifactReleaseClient.create(foundation, "space-two", artifactReleaseInfo2)
-        artifactReleaseClient.create("foundation-three", space, artifactReleaseInfo3)
+        artifactReleaseClient.create(foundation, distinctSpace, artifactReleaseInfo2)
+        artifactReleaseClient.create(distinctFoundation, space, artifactReleaseInfo3)
 
         then:
         assert [artifactReleaseInfo1] == artifactReleaseClient.findLatestOfEachArtifactBySpaceAndFoundation(foundation, space)
-        assert [artifactReleaseInfo2] == artifactReleaseClient.findLatestOfEachArtifactBySpaceAndFoundation(foundation, "space-two")
-        assert [artifactReleaseInfo3] == artifactReleaseClient.findLatestOfEachArtifactBySpaceAndFoundation("foundation-three", space)
+        assert [artifactReleaseInfo2] == artifactReleaseClient.findLatestOfEachArtifactBySpaceAndFoundation(foundation, distinctSpace)
+        assert [artifactReleaseInfo3] == artifactReleaseClient.findLatestOfEachArtifactBySpaceAndFoundation(distinctFoundation, space)
     }
 
     def "should retrieve most recent release info, by release version, for each artifact in a space and foundation"() {
@@ -182,10 +184,10 @@ class ArtifactReleaseResourceSpec extends Specification {
 
     def "Missing commits throws exception"() {
         given:
+        String invalidSha = aRandom.text(10)
         ArtifactRelease dev = aRandom.artifactReleaseInfo()
                 .artifactId("deployment-tracker")
-                .buildVersion("0.20160606.194525")
-                .gitSha("3e176dced48f7b888707337261ba5b97902cf5b8")
+                .gitSha(invalidSha)
                 .build()
 
         when:
