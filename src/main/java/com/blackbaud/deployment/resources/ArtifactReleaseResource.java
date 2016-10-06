@@ -4,6 +4,7 @@ import com.blackbaud.deployment.api.ArtifactRelease;
 import com.blackbaud.deployment.api.ResourcePaths;
 import com.blackbaud.deployment.core.domain.ArtifactReleaseLogService;
 import com.blackbaud.deployment.core.domain.git.GitLogParserFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -24,6 +25,7 @@ import java.util.List;
 @Component
 @Path(ResourcePaths.ARTIFACT_RELEASE_PATH + "/{foundation}/{space}")
 @Produces(MediaType.APPLICATION_JSON)
+@Slf4j
 public class ArtifactReleaseResource {
 
     @Context
@@ -39,6 +41,7 @@ public class ArtifactReleaseResource {
         try{
             return artifactReleaseLogService.create(artifactRelease, foundation, space);
         } catch (GitLogParserFactory.InvalidRepositoryException ex){
+            log.debug("Exception creating artifact:{}", ex);
             throw new BadRequestException(ex.getMessage());
         }
     }
@@ -50,10 +53,11 @@ public class ArtifactReleaseResource {
                                   @Valid List<ArtifactRelease> artifactReleases) {
         List<ArtifactRelease> result = new ArrayList<>();
         try{
-            artifactReleases.stream().forEach(artifactRelease -> {
-                result.add(artifactReleaseLogService.create(artifactRelease, foundation, space));
-            });
+            artifactReleases.stream().forEach(
+                    artifactRelease -> result.add(artifactReleaseLogService.create(artifactRelease, foundation, space))
+            );
         } catch (GitLogParserFactory.InvalidRepositoryException ex){
+            log.debug("Exception creating artifacts:{}", ex);
             throw new BadRequestException(ex.getMessage());
         }
         return result;

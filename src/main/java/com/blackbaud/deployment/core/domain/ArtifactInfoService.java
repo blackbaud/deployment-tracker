@@ -36,7 +36,7 @@ public class ArtifactInfoService {
             try {
                 newArtifactInfos.add(remediationCreate(artifactInfo));
             } catch (Exception ex) {
-                log.debug("{}. Continuing with the rest.", ex.getMessage());
+                log.debug("Skipping exception: {}.", ex);
             }
         });
         return newArtifactInfos.size();
@@ -70,7 +70,7 @@ public class ArtifactInfoService {
         gitLogRepository.save(gitLogEntities);
     }
 
-    public class ArtifactInfoIsImmutableException extends BadRequestException {
+    public class ArtifactInfoIsImmutableException extends BadRequestException { // NOSONAR
         public ArtifactInfoIsImmutableException(String message) {
             super(message);
         }

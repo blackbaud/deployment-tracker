@@ -5,6 +5,7 @@ import com.blackbaud.deployment.api.Release;
 import com.blackbaud.deployment.api.ResourcePaths;
 import com.blackbaud.deployment.core.domain.git.GitLogParserFactory;
 import com.blackbaud.deployment.core.domain.ReleaseService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -20,6 +21,7 @@ import java.util.List;
 @Component
 @Path(ResourcePaths.RELEASE_PATH)
 @Produces(MediaType.APPLICATION_JSON)
+@Slf4j
 public class ReleaseResource {
 
     @Autowired
@@ -31,6 +33,7 @@ public class ReleaseResource {
         try {
             return new Release(releaseService.createArtifactReleaseDiffs());
         } catch (GitLogParserFactory.InvalidRepositoryException ex) {
+            log.debug("Exception creating release:{}", ex);
             throw new BadRequestException(ex.getMessage());
         }
     }
@@ -41,6 +44,7 @@ public class ReleaseResource {
         try {
             return new Release(releaseService.createArtifactReleaseDiffs(prodArtifactReleases));
         } catch (GitLogParserFactory.InvalidRepositoryException ex) {
+            log.debug("Exception creating release:{}", ex);
             throw new BadRequestException(ex.getMessage());
         }
     }
@@ -51,6 +55,7 @@ public class ReleaseResource {
         try {
             return new Release(releaseService.createArtifactReleaseDiffsForReleasePlanArtifacts(prodArtifactReleases));
         } catch (GitLogParserFactory.InvalidRepositoryException ex) {
+            log.debug("Exception getting release plan diff:{}", ex);
             throw new BadRequestException(ex.getMessage());
         }
     }

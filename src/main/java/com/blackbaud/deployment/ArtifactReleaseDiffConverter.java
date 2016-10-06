@@ -59,10 +59,6 @@ public class ArtifactReleaseDiffConverter {
         return artifactRelease;
     }
 
-    private String getArtifactId(ArtifactRelease currentRelease, ArtifactRelease prevRelease) {
-        return currentRelease == null ? prevRelease.getArtifactId() : currentRelease.getArtifactId();
-    }
-
     private String getPrevGitSha(ArtifactInfoEntity releaseInfo) {
         String prevSha = null;
         if (releaseInfo != null) {
@@ -78,7 +74,7 @@ public class ArtifactReleaseDiffConverter {
         try {
             return ZonedDateTime.parse(releaseVersion + "UTC", formatter);
         } catch (Exception ex) {
-            log.warn("Unparsable release version!! should be yyyyMMdd_hhmmss!! Got {}!!!", releaseVersion);
+            log.warn("Unparsable release version!! should be yyyyMMdd_hhmmss! Got {}. Exception: {}", releaseVersion, ex);
             return null;
         }
     }
