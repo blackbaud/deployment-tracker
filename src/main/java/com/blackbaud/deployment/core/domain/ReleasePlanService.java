@@ -12,10 +12,8 @@ import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotFoundException;
 import java.time.ZonedDateTime;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -33,7 +31,8 @@ public class ReleasePlanService {
     @Inject
     private ArtifactInfoConverter artifactInfoConverter;
 
-    @Inject ReleasePlanConverter releasePlanConverter;
+    @Inject
+    ReleasePlanConverter releasePlanConverter;
 
     public ReleasePlan createReleasePlan() {
         if (currentReleasePlanExists()) {
@@ -108,7 +107,7 @@ public class ReleasePlanService {
             });
             releasePlanRepository.delete(id);
         } catch (EmptyResultDataAccessException ex) {
-            log.warn("Attempted to delete a deleted release plan");
+            log.warn("Attempted to delete a deleted release plan. Exception:{}", ex);
         }
     }
 
@@ -134,7 +133,7 @@ public class ReleasePlanService {
         artifacts.remove(artifactToMove);
         if (position.equals("above")) {
             artifacts.add(artifacts.indexOf(artifactTarget), artifactToMove);
-        } else if (artifacts.size() >= artifacts.indexOf(artifactTarget) + 1){
+        } else if (artifacts.size() >= artifacts.indexOf(artifactTarget) + 1) {
             artifacts.add(artifacts.indexOf(artifactTarget) + 1, artifactToMove);
         } else {
             artifacts.add(artifactToMove);
