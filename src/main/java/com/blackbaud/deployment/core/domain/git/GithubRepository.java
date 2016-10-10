@@ -34,31 +34,40 @@ public class GithubRepository {
 
     private void setGitProject() throws IOException {
         File cloneDir = workspace.resolve(repository.getName()).toFile();
-        cloneOrFetch(cloneDir);
+        cloneIfMissing(cloneDir);
         gitProject = Git.open(cloneDir);
     }
 
     public List<RevCommit> getCommits(String fromSha, String toSha) {
-        Iterable<RevCommit> commits = null;
+        Iterable<RevCommit> commits;
         try {
-            commits = gitProject
-                    .log()
+            commits = getCommitLogFetchAndRetryOnFailure(() -> gitProject.log()
                     .addRange(ObjectId.fromString(fromSha), ObjectId.fromString(toSha))
-                    .call();
+                    .call()
+            );
         } catch (Exception e) {
             throw new CannotRetrieveCommitsException("Failed to retrieve commits between from=" + fromSha + " to=" + toSha + " for repo=" + repository.getName(), e);
         }
-
         return (List<RevCommit>) IteratorUtils.toList(commits.iterator());
     }
 
-    public List<RevCommit> getCommitsUntil(String toSha) {
-        Iterable<RevCommit> commits = null;
+    private Iterable<RevCommit> getCommitLogFetchAndRetryOnFailure(RevCommitSource revCommitSource) throws Exception {
         try {
-            commits = gitProject
-                    .log()
+            return revCommitSource.getRevCommits();
+        } catch (Exception e) {
+            log.debug("Failed to resolve commits, fetching latest...", e);
+            fetch();
+            return revCommitSource.getRevCommits();
+        }
+    }
+
+    public List<RevCommit> getCommitsUntil(String toSha) {
+        Iterable<RevCommit> commits;
+        try {
+            commits = getCommitLogFetchAndRetryOnFailure(() -> gitProject.log()
                     .add(ObjectId.fromString(toSha))
-                    .call();
+                    .call()
+            );
         } catch (Exception e) {
             throw new CannotRetrieveCommitsException("Failed to retrieve commits to=" + toSha + " for repo=" + repository.getName(), e);
         }
@@ -66,14 +75,8 @@ public class GithubRepository {
     }
 
     @SneakyThrows
-    private void cloneOrFetch(File targetDir) {
-        if (targetDir.exists()) {
-            log.debug("fetching to " + targetDir);
-            FetchResult fetchResult = Git.open(targetDir).fetch()
-                    .setCredentialsProvider(githubCredentialsProvider)
-                    .call();
-            log.debug("fetch result for " + targetDir + " messages: " + fetchResult.getMessages());
-        } else {
+    private void cloneIfMissing(File targetDir) {
+        if (targetDir.exists() == false) {
             log.debug("cloning to " + targetDir);
             Git.cloneRepository()
                     .setDirectory(targetDir)
@@ -85,7 +88,22 @@ public class GithubRepository {
 
     }
 
-    public class CannotRetrieveCommitsException extends RuntimeException {
+    @SneakyThrows
+    private void fetch() {
+        File targetDir = gitProject.getRepository().getDirectory();
+        log.debug("fetching to " + targetDir);
+        FetchResult fetchResult = gitProject.fetch()
+                .setCredentialsProvider(githubCredentialsProvider)
+                .call();
+        log.debug("fetch result for " + targetDir + " messages: " + fetchResult.getMessages());
+    }
+
+
+    private interface RevCommitSource {
+        Iterable<RevCommit> getRevCommits() throws Exception;
+    }
+
+    public static class CannotRetrieveCommitsException extends RuntimeException {
         public CannotRetrieveCommitsException(String message, Exception cause) {
             super(message, cause);
         }
