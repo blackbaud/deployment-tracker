@@ -6,6 +6,7 @@ import com.blackbaud.deployment.RealArtifacts
 import com.blackbaud.deployment.api.ArtifactInfo
 import com.blackbaud.deployment.api.ArtifactRelease
 import com.blackbaud.deployment.api.ArtifactReleaseDiff
+import com.blackbaud.deployment.api.ArtifactReleaseLog
 import com.blackbaud.deployment.client.ArtifactInfoClient
 import com.blackbaud.deployment.client.ArtifactReleaseClient
 import com.blackbaud.deployment.client.ArtifactReleaseReportClient
@@ -32,10 +33,13 @@ class ArtifactReleaseReportResourceSpec extends Specification {
     ArtifactReleaseClient artifactReleaseClient
 
     @Autowired
-    private ArtifactReleaseDiffConverter releaseDiffConverter;
+    private ArtifactReleaseDiffConverter releaseDiffConverter
 
-    private static String trackerArtifactId = 'deployment-tracker';
-    private static String coreArtifactId = 'bluemoon-core';
+    private static String trackerArtifactId = 'deployment-tracker'
+    private static String coreArtifactId = 'bluemoon-core'
+    private static String foundation = 'foundation'
+    private static String space = 'space'
+
     private ArtifactInfo earlyTrackerInfo = RealArtifacts.getEarlyDeploymentTrackerArtifact()
     private ArtifactInfo middleTrackerInfo = RealArtifacts.getMiddleDeploymentTrackerArtifact()
     private ArtifactInfo recentTrackerInfo = RealArtifacts.getRecentDeploymentTrackerArtifact()
@@ -49,9 +53,9 @@ class ArtifactReleaseReportResourceSpec extends Specification {
 
     def "Should be able to get a list of all artifact diffs in a space"() {
         given:
-        ArtifactReleaseLogEntity firstLogEntity = aRandom.releaseLogEntity().artifactId(trackerArtifactId).buildVersion(middleTrackerInfo.buildVersion).prevBuildVersion(earlyTrackerInfo.buildVersion).build()
-        ArtifactReleaseLogEntity secondLogEntity = aRandom.releaseLogEntity().artifactId(trackerArtifactId).buildVersion(recentTrackerInfo.buildVersion).prevBuildVersion(middleTrackerInfo.buildVersion).build()
-        ArtifactReleaseLogEntity thirdLogEntity = aRandom.releaseLogEntity().artifactId(coreArtifactId).buildVersion(recentBluemoonCoreInfo.buildVersion).prevBuildVersion(olderBluemoonCoreInfo.buildVersion).build()
+        ArtifactReleaseLogEntity firstLogEntity = aRandom.releaseLogEntity().foundation(foundation).artifactId(trackerArtifactId).buildVersion(middleTrackerInfo.buildVersion).prevBuildVersion(earlyTrackerInfo.buildVersion).build()
+        ArtifactReleaseLogEntity secondLogEntity = aRandom.releaseLogEntity().foundation(foundation).artifactId(trackerArtifactId).buildVersion(recentTrackerInfo.buildVersion).prevBuildVersion(middleTrackerInfo.buildVersion).build()
+        ArtifactReleaseLogEntity thirdLogEntity = aRandom.releaseLogEntity().foundation(foundation).artifactId(coreArtifactId).buildVersion(recentBluemoonCoreInfo.buildVersion).prevBuildVersion(olderBluemoonCoreInfo.buildVersion).build()
         artifactInfoClient.update(trackerArtifactId, earlyTrackerInfo.buildVersion, earlyTrackerInfo)
         artifactInfoClient.update(trackerArtifactId, middleTrackerInfo.buildVersion, middleTrackerInfo)
         artifactInfoClient.update(trackerArtifactId, recentTrackerInfo.buildVersion, recentTrackerInfo)
@@ -89,17 +93,17 @@ class ArtifactReleaseReportResourceSpec extends Specification {
                 ["Eric Slater","Blackbaud-MikeDuVall"] as Set)
 
         then:
-        List<ArtifactReleaseDiff> results = artifactReleaseReportClient.findAll()
+        List<ArtifactReleaseDiff> results = artifactReleaseReportClient.findAll(foundation)
         results.containsAll([firstExpected, secondExpected, thirdExpected])
         results.size() == 3
     }
 
     def "release of new artifact should have null previous release"() {
         given:
-        artifactReleaseClient.create("foundation1", "int", earlyTrackerRelease)
+        artifactReleaseClient.create(foundation, "int", earlyTrackerRelease)
 
         when:
-        def artifactReleaseDiffs = artifactReleaseReportClient.findAll()
+        def artifactReleaseDiffs = artifactReleaseReportClient.findAll(foundation)
 
         then:
         assert artifactReleaseDiffs[0].currentRelease == earlyTrackerRelease
@@ -108,11 +112,11 @@ class ArtifactReleaseReportResourceSpec extends Specification {
 
     def "new release in same space should have correct previous release"() {
         given:
-        artifactReleaseClient.create("foundation1", "int", earlyTrackerRelease)
-        artifactReleaseClient.create("foundation1", "int", middleTrackerRelease)
+        artifactReleaseClient.create(foundation, space, earlyTrackerRelease)
+        artifactReleaseClient.create(foundation, space, middleTrackerRelease)
 
         when:
-        def artifactReleaseDiffs = artifactReleaseReportClient.findAll()
+        def artifactReleaseDiffs = artifactReleaseReportClient.findAll(foundation)
 
         then:
         def middleReleaseDiff = artifactReleaseDiffs[0]
@@ -122,19 +126,18 @@ class ArtifactReleaseReportResourceSpec extends Specification {
         def earlyReleaseDiff = artifactReleaseDiffs[1]
         assert earlyReleaseDiff.currentRelease == earlyTrackerRelease
         assert earlyReleaseDiff.prevRelease == emptyTrackerRelease
-
-
     }
 
     def "new release in different space should have correct previous release"() {
         given:
-        artifactReleaseClient.create("foundation1", "int", earlyTrackerRelease)
-        artifactReleaseClient.create("foundation1", "dev", recentTrackerRelease)
+        artifactReleaseClient.create(foundation, space, earlyTrackerRelease)
+        artifactReleaseClient.create(foundation, aRandom.name(), recentTrackerRelease)
 
         when:
-        def artifactReleaseDiffs = artifactReleaseReportClient.findAll()
+        def artifactReleaseDiffs = artifactReleaseReportClient.findAll(foundation)
 
         then:
+        assert artifactReleaseDiffs.size() == 2
         assert artifactReleaseDiffs[0].prevRelease == emptyTrackerRelease
         assert artifactReleaseDiffs[1].prevRelease == emptyTrackerRelease
     }
@@ -147,13 +150,24 @@ class ArtifactReleaseReportResourceSpec extends Specification {
         ArtifactRelease redeployedRecent = releaseBuilder.buildVersion('0.00000000.000001').releaseVersion('00000000_000002').build();
 
         and:
-        artifactReleaseClient.create("foundation", "space", old);
-        artifactReleaseClient.create("foundation", "space", recent);
-        artifactReleaseClient.create("foundation", "space", redeployedRecent);
-
+        artifactReleaseClient.create(foundation, space, old);
+        artifactReleaseClient.create(foundation, space, recent);
+        artifactReleaseClient.create(foundation, space, redeployedRecent);
 
         expect:
-        artifactReleaseReportClient.findAll().size() == 3
+        artifactReleaseReportClient.findAll(foundation).size() == 3
+    }
+
+    def "report should respect foundation"() {
+        given:
+        artifactReleaseClient.create(foundation, space, earlyTrackerRelease)
+        artifactReleaseClient.create(aRandom.name(), space, recentTrackerRelease)
+
+        expect:
+        List<ArtifactReleaseLog> releaseLogs = artifactReleaseReportClient.findAll(foundation)
+        releaseLogs.size() == 1
+        releaseLogs[0].currentRelease == earlyTrackerRelease
+        releaseLogs[0].prevRelease == emptyTrackerRelease
     }
 
     private ArtifactRelease createCurrentArtifactRelease(ArtifactReleaseLogEntity logEntity, String gitSha) {
