@@ -1,7 +1,7 @@
 package com.blackbaud.deployment.resources
 
 import com.blackbaud.boot.exception.BadRequestException
-import com.blackbaud.deployment.ArtifactReleaseInfoConverter
+import com.blackbaud.deployment.ArtifactReleaseConverter
 import com.blackbaud.deployment.ComponentTest
 import com.blackbaud.deployment.RealArtifacts
 import com.blackbaud.deployment.api.ArtifactInfo
@@ -36,7 +36,7 @@ class ArtifactReleaseResourceSpec extends Specification {
     private ArtifactReleaseLogRepository artifactReleaseLogRepository
 
     @Autowired
-    private ArtifactReleaseInfoConverter converter
+    private ArtifactReleaseConverter converter
 
     private String foundation = "pivotal"
     private String space = "dev"

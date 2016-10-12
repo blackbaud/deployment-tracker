@@ -1,6 +1,6 @@
 package com.blackbaud.deployment.core.domain;
 
-import com.blackbaud.deployment.ArtifactReleaseInfoConverter;
+import com.blackbaud.deployment.ArtifactReleaseConverter;
 import com.blackbaud.deployment.api.ArtifactInfo;
 import com.blackbaud.deployment.api.ArtifactRelease;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +22,7 @@ public class ArtifactReleaseLogService {
     private ArtifactInfoService artifactInfoService;
 
     @Autowired
-    private ArtifactReleaseInfoConverter converter;
+    private ArtifactReleaseConverter converter;
 
     @Autowired
     private ArtifactInfoRepository artifactInfoRepository;
