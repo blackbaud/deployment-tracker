@@ -26,11 +26,6 @@ public class ArtifactReleaseReportResource {
     private ArtifactReleaseDiffConverter converter;
 
     @GET
-    public List<ArtifactReleaseDiff> getArtifactReleaseLog() {
-        return converter.toApiList(artifactReleaseLogReportQuery.getArtifactReleaseReport());
-    }
-
-    @GET
     @Path("{foundation}")
     public List<ArtifactReleaseDiff> getArtifactReleaseLog(@PathParam("foundation") String foundation) {
         return converter.toApiList(artifactReleaseLogReportQuery.getArtifactReleaseReport(foundation));

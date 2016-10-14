@@ -12,10 +12,6 @@ public class ArtifactReleaseReportClient extends CrudClient<ArtifactReleaseDiff,
         super(baseUrl, ResourcePaths.ARTIFACT_RELEASE_REPORT, ArtifactReleaseDiff.class);
     }
 
-    public List<ArtifactReleaseDiff> findAll() {
-        return crudClientRequest.findMany();
-    }
-
     public List<ArtifactReleaseDiff> findAll(String foundation) {
         return crudClientRequest.path(foundation).findMany();
     }
