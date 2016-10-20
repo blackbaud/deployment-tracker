@@ -29,9 +29,11 @@ import java.util.SortedSet;
                         @FieldResult(name = "releaseVersion", column = "release_version"),
                         @FieldResult(name = "buildVersion", column = "build_version"),
                         @FieldResult(name = "gitSha", column = "git_sha"),
+                        @FieldResult(name = "deployJobUrl", column = "deploy_job_url"),
                         @FieldResult(name = "prevBuildVersion", column = "prev_build_version"),
                         @FieldResult(name = "prevReleaseVersion", column = "prev_release_version"),
                         @FieldResult(name = "prevGitSha", column = "prev_git_sha"),
+                        @FieldResult(name = "prevDeployJobUrl", column = "prev_deploy_job_url"),
                         @FieldResult(name = "deployer", column = "deployer"),
                         @FieldResult(name = "space", column = "space"),
                         @FieldResult(name = "foundation", column = "foundation"),
@@ -47,9 +49,11 @@ public class ArtifactReleaseLogReportResult {
     private String releaseVersion;
     private String buildVersion;
     private String gitSha;
+    private String deployJobUrl;
     private String prevBuildVersion;
     private String prevReleaseVersion;
     private String prevGitSha;
+    private String prevDeployJobUrl;
     private String deployer;
     private String space;
     private String foundation;

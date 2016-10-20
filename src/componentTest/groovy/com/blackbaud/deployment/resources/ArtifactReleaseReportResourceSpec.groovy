@@ -171,11 +171,11 @@ class ArtifactReleaseReportResourceSpec extends Specification {
     }
 
     private ArtifactRelease createCurrentArtifactRelease(ArtifactReleaseLogEntity logEntity, String gitSha) {
-        return new ArtifactRelease(logEntity.artifactId, logEntity.buildVersion, logEntity.releaseVersion, gitSha);
+        return new ArtifactRelease(logEntity.artifactId, logEntity.buildVersion, logEntity.releaseVersion, gitSha, logEntity.deployJobUrl);
     }
 
     private ArtifactRelease createPreviousArtifactRelease(ArtifactReleaseLogEntity logEntity, String gitSha) {
-        return new ArtifactRelease(logEntity.artifactId, logEntity.prevBuildVersion, logEntity.prevReleaseVersion, gitSha);
+        return new ArtifactRelease(logEntity.artifactId, logEntity.prevBuildVersion, logEntity.prevReleaseVersion, gitSha, null);
     }
 
     private ArtifactReleaseDiff createArtifactReleaseDiff(ArtifactReleaseLogEntity logEntity,

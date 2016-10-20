@@ -13,5 +13,6 @@ class RandomArtifactReleaseLogEntityBuilder extends ArtifactReleaseLogEntity.Art
                 .prevBuildVersion(aRandom.text(20))
                 .prevReleaseVersion(aRandom.text(20))
                 .deployer(aRandom.text(20))
+                .deployJobUrl(aRandom.text(20))
     }
 }

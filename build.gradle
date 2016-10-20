@@ -36,6 +36,7 @@ dependencies {
     compile "org.liquibase:liquibase-core"
     compile 'org.eclipse.jgit:org.eclipse.jgit:4.1.1.201511131810-r'
     compile 'org.eclipse.mylyn.github:org.eclipse.egit.github.core:2.1.5'
+    compile 'com.offbytwo.jenkins:jenkins-client:0.3.6'
 
     clientCompile "com.blackbaud:common-spring-boot-rest:${springBootVersion}-2.+"
 

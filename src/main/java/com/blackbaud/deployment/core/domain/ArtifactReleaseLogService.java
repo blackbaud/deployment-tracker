@@ -41,6 +41,7 @@ public class ArtifactReleaseLogService {
                 .releaseVersion(artifactRelease.getReleaseVersion())
                 .prevBuildVersion(mostRecentRelease == null ? null : mostRecentRelease.getBuildVersion())
                 .prevReleaseVersion(mostRecentRelease == null ? null : mostRecentRelease.getReleaseVersion())
+                .deployJobUrl(artifactRelease.getDeployJobUrl())
                 .foundation(foundation)
                 .space(space)
                 .deployer("")
