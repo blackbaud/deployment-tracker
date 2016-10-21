@@ -40,11 +40,13 @@ public class ArtifactReleaseLogEntity {
     @Column(name = "prev_release_version")
     private String prevReleaseVersion;
 
+    @Column(name = "deploy_job_url")
+    private String deployJobUrl;
+
     private String deployer;
 
     private String space;
 
     private String foundation;
-
 
 }

@@ -18,8 +18,8 @@ import java.util.stream.Collectors;
 public class ArtifactReleaseDiffConverter {
 
     public ArtifactReleaseDiff toApi(ArtifactReleaseLogReportResult reportResult) {
-        ArtifactRelease currentRelease = new ArtifactRelease(reportResult.getArtifactId(), reportResult.getBuildVersion(), reportResult.getReleaseVersion(), reportResult.getGitSha());
-        ArtifactRelease previousRelease = new ArtifactRelease(reportResult.getArtifactId(), reportResult.getPrevBuildVersion(), reportResult.getPrevReleaseVersion(), reportResult.getPrevGitSha());
+        ArtifactRelease currentRelease = new ArtifactRelease(reportResult.getArtifactId(), reportResult.getBuildVersion(), reportResult.getReleaseVersion(), reportResult.getGitSha(), reportResult.getDeployJobUrl());
+        ArtifactRelease previousRelease = new ArtifactRelease(reportResult.getArtifactId(), reportResult.getPrevBuildVersion(), reportResult.getPrevReleaseVersion(), reportResult.getPrevGitSha(), reportResult.getPrevDeployJobUrl());
         return ArtifactReleaseDiff.builder()
                 .artifactId(reportResult.getArtifactId())
                 .currentRelease(currentRelease)
@@ -39,36 +39,6 @@ public class ArtifactReleaseDiffConverter {
                 .collect(Collectors.toList());
     }
 
-    public ArtifactReleaseDiff toApi(ArtifactReleaseLogEntity entity, ArtifactInfoEntity currentInfo, ArtifactInfoEntity prevInfo) {
-        ArtifactRelease currentRelease = new ArtifactRelease(currentInfo.getArtifactId(), currentInfo.getBuildVersion(), entity.getReleaseVersion(), currentInfo.getGitSha());
-        ArtifactRelease prevRelease = toArtifactRelease(prevInfo, entity.getPrevReleaseVersion());
-        return ArtifactReleaseDiff.builder()
-                .currentRelease(currentRelease)
-                .prevRelease(prevRelease)
-                .space(entity.getSpace())
-                .foundation(entity.getFoundation())
-                .releaseDate(convertReleaseVersionToDate(entity.getReleaseVersion()))
-                .deployer(entity.getDeployer()).build();
-    }
-
-    private ArtifactRelease toArtifactRelease(ArtifactInfoEntity artifactInfoEntity, String releaseVersion) {
-        ArtifactRelease artifactRelease = new ArtifactRelease();
-        if (artifactInfoEntity != null) {
-            artifactRelease = new ArtifactRelease(artifactInfoEntity.getArtifactId(), artifactInfoEntity.getBuildVersion(), releaseVersion, getPrevGitSha(artifactInfoEntity));
-        }
-        return artifactRelease;
-    }
-
-    private String getPrevGitSha(ArtifactInfoEntity releaseInfo) {
-        String prevSha = null;
-        if (releaseInfo != null) {
-            prevSha = releaseInfo.getGitSha();
-        } else {
-            log.warn("Release log has previous build version for artifact info that doesn't exist!!");
-        }
-        return prevSha;
-    }
-
     private ZonedDateTime convertReleaseVersionToDate(String releaseVersion) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmssz");
         try {
@@ -78,6 +48,5 @@ public class ArtifactReleaseDiffConverter {
             return null;
         }
     }
-
 
 }
