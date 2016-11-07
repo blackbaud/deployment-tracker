@@ -10,7 +10,7 @@ class GitLogParserSpec extends Specification {
     @Unroll
     def "ParseStoryNumber"() {
         expect:
-        storyNumber == parser.parseStoryId(commitMessage)
+        parser.parseStoryId(commitMessage) == storyNumber
 
         where:
         commitMessage                             | storyNumber
@@ -23,5 +23,6 @@ class GitLogParserSpec extends Specification {
         "column"                                  | null
         "foo"                                     | null
         "lo-345"                                  | "LO-345"
+        "lsf-385"                                 | "LSF-385"
     }
 }
