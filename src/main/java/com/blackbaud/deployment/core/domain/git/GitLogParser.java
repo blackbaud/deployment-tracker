@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 @Log4j
 public class GitLogParser {
     private List<RevCommit> commits;
-    private static final Pattern pattern = Pattern.compile("(lum|lo)[^0-9]?(\\d+)");
+    private static final Pattern pattern = Pattern.compile("([a-zA-Z]*)[^0-9]?(\\d+)");
 
     public List<GitLogEntity> getGitLogEntities(String artifactId) {
         log.debug("Commit list size: " + commits.size());
