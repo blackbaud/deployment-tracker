@@ -23,6 +23,6 @@ class GitLogParserSpec extends Specification {
         "column"                                  | null
         "foo"                                     | null
         "lo-345"                                  | "LO-345"
-        "lsf-385"                                 | "LSF-385"
+        "Merge #3 lsf-385"                        | "LSF-385"
     }
 }
