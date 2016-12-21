@@ -10,5 +10,5 @@ add the name of the artifact to the ReleaseService class in the nonReleasable li
 ```
 ./gradlew -Pgithub.username={your username} -Pgithub.accessToken={access token} bootrun
 ```
-- To generate your github access token
+- To generate your github access token (give it full repo access)
     - https://help.github.com/articles/creating-an-access-token-for-command-line-use/

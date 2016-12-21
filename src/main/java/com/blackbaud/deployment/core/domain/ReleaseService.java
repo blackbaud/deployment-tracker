@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ReleaseService {
 
-    public static final String DEV_FOUNDATION = "pivotal-dev";
+    public static final String DEV_FOUNDATION = "ocsf-dev";
     public static final String DEV_SPACE = "dev-apps";
 
     public static final String PROD_FOUNDATION = "pivotal-prod1";
