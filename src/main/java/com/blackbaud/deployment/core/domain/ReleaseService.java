@@ -41,10 +41,7 @@ public class ReleaseService {
                                                                     "skyshell2",
                                                                     "elasticsearch-loader-poc",
                                                                     "solr-loader-poc",
-                                                                    "search-query",
-                                                                    "search-loader",
-                                                                    "search-component",
-                                                                    "segmentation-component");
+                                                                    "search-component");
 
     @Autowired
     private ArtifactReleaseLogService artifactReleaseLogService;
