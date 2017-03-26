@@ -45,7 +45,7 @@ public class ArtifactInfoResource {
     @Path("{artifactId}/{buildVersion}")
     public ArtifactInfo put(@PathParam("artifactId") String artifactId, @PathParam("buildVersion") String buildVersion,
                             @Valid ArtifactInfo artifactInfo) {
-        return artifactInfoService.create(artifactId, buildVersion, converter.toEntity(artifactInfo));
+        return artifactInfoService.create(artifactId, buildVersion, artifactInfo);
     }
 
     @POST

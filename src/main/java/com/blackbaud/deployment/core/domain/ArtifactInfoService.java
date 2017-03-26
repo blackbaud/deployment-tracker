@@ -24,6 +24,10 @@ public class ArtifactInfoService {
     @Autowired
     private ArtifactInfoRepository artifactInfoRepository;
 
+
+    @Autowired
+    private ArtifactDependencyRepository artifactDependencyRepository;
+
     @Autowired
     private GitLogParserFactory gitLogParserFactory;
 
@@ -50,18 +54,28 @@ public class ArtifactInfoService {
             }
             return artifactInfo;
         }
-        return create(artifactInfo.getArtifactId(), artifactInfo.getBuildVersion(), converter.toEntity(artifactInfo));
+        return create(artifactInfo.getArtifactId(), artifactInfo.getBuildVersion(), artifactInfo);
     }
 
     public ArtifactInfo create(ArtifactInfo artifactInfo) {
-        return create(artifactInfo.getArtifactId(), artifactInfo.getBuildVersion(), converter.toEntity(artifactInfo));
+        return create(artifactInfo.getArtifactId(), artifactInfo.getBuildVersion(), artifactInfo);
     }
 
-    public ArtifactInfo create(String artifactId, String buildVersion, ArtifactInfoEntity artifact) {
+    public ArtifactInfo create(String artifactId, String buildVersion, ArtifactInfo artifactInfo) {
+        ArtifactInfoEntity artifact = converter.toEntity(artifactInfo);
         persistGitLogForArtifact(artifactId, artifact);
         artifact.setArtifactId(artifactId);
         artifact.setBuildVersion(buildVersion);
-        return converter.toApi(artifactInfoRepository.save(artifact));
+        artifactInfoRepository.save(artifact);
+
+        ArtifactDependencyEntity dependencyEntity = ArtifactDependencyEntity.builder()
+                .artifactId(artifactId)
+                .buildVersion(buildVersion)
+                .dependencyId(artifactInfo.getDependencyId())
+                .dependencyBuildVersion(artifactInfo.getDependencyBuildVersion())
+                .build();
+        artifactDependencyRepository.save(dependencyEntity);
+        return converter.toApi(artifact);
     }
 
     private void persistGitLogForArtifact(String artifactId, ArtifactInfoEntity artifact) {

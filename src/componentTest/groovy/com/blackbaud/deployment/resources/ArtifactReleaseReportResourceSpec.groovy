@@ -164,7 +164,7 @@ class ArtifactReleaseReportResourceSpec extends Specification {
         artifactReleaseClient.create(aRandom.name(), space, recentTrackerRelease)
 
         expect:
-        List<ArtifactReleaseLog> releaseLogs = artifactReleaseReportClient.findAll(foundation)
+        List<ArtifactReleaseDiff> releaseLogs = artifactReleaseReportClient.findAll(foundation)
         releaseLogs.size() == 1
         releaseLogs[0].currentRelease == earlyTrackerRelease
         releaseLogs[0].prevRelease == emptyTrackerRelease

@@ -1,18 +1,18 @@
-package com.blackbaud.deployment.api;
+package com.blackbaud.deployment.core.domain;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 @Data
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ArtifactInfo {
+public class ArtifactDependencyPrimaryKey implements Serializable {
     private String artifactId;
     private String buildVersion;
-    private String gitSha;
     private String dependencyId;
     private String dependencyBuildVersion;
+
 }

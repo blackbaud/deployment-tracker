@@ -6,6 +6,8 @@ import com.blackbaud.deployment.ComponentTest
 import com.blackbaud.deployment.RealArtifacts
 import com.blackbaud.deployment.api.ArtifactInfo
 import com.blackbaud.deployment.client.ArtifactInfoClient
+import com.blackbaud.deployment.core.domain.ArtifactDependencyEntity
+import com.blackbaud.deployment.core.domain.ArtifactDependencyRepository
 import com.blackbaud.deployment.core.domain.ArtifactInfoEntity
 import com.blackbaud.deployment.core.domain.ArtifactInfoRepository
 import com.blackbaud.deployment.core.domain.git.GitLogEntity
@@ -31,6 +33,9 @@ class ArtifactInfoResourceSpec extends Specification {
     @Autowired
     private GitLogRepository gitLogRepository
 
+
+    @Autowired
+    private ArtifactDependencyRepository artifactDependencyRepository
 
     private final String artifactId = "deployment-tracker"
 
@@ -148,5 +153,25 @@ class ArtifactInfoResourceSpec extends Specification {
 
         then:
         artifactInfoClient.find(oldArtifact.artifactId, oldArtifact.buildVersion) == oldArtifact
+    }
+
+    def "saving an artifact should save its dependency"() {
+        given:
+        ArtifactInfo artifactInfo = ArtifactInfo.builder()
+                .artifactId("bluemoon-ui")
+                .buildVersion("1.20170325.065544")
+                .gitSha("3526b14c3910a686b82b4b9548f1ae8df7de1cf8")
+                .dependencyId("segmentation-component")
+                .dependencyBuildVersion("0.20170325.062840")
+                .build()
+
+        when:
+        artifactInfoClient.create(artifactInfo)
+
+        then:
+        ArtifactDependencyEntity entity = artifactDependencyRepository.findOneByArtifactIdAndBuildVersion(artifactInfo.artifactId, artifactInfo.buildVersion)
+        entity != null
+        entity.dependencyId == "segmentation-component"
+        entity.dependencyBuildVersion == "0.20170325.062840"
     }
 }
