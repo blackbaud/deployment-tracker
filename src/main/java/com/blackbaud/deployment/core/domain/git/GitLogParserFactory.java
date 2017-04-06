@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
 @Component
@@ -45,7 +44,7 @@ public class GitLogParserFactory {
 
     @SneakyThrows
     private void setupWorkspaceDir() {
-        workspace = Paths.get("/Users/di.huynh/workspace");
+        workspace = Files.createTempDirectory("workspace");
         workspace.toFile().mkdirs();
         workspace.toFile().deleteOnExit();
     }

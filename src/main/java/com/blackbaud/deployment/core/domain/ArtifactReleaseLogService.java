@@ -30,14 +30,18 @@ public class ArtifactReleaseLogService {
     @Transactional
     public ArtifactRelease create(ArtifactRelease artifactRelease, String foundation, String space) {
         ArtifactInfo artifactInfo = extractArtifactInfo(artifactRelease);
+        addDependencyIfBluemoonUi(artifactRelease, foundation, space, artifactInfo);
+        artifactInfoService.create(artifactInfo);
+        return saveArtifactReleaseLog(artifactRelease, foundation, space);
+    }
+
+    private void addDependencyIfBluemoonUi(ArtifactRelease artifactRelease, String foundation, String space, ArtifactInfo artifactInfo) {
         if ("bluemoon-ui".equals(artifactRelease.getArtifactId())) {
             ArtifactRelease latestSegComp = findLatestByFoundationAndSpaceAndArtifactId(foundation, space, "segmentation-component");
             if (latestSegComp != null) {
                 artifactInfo.addDependencies(extractArtifactInfo(latestSegComp));
             }
         }
-        artifactInfoService.create(artifactInfo);
-        return saveArtifactReleaseLog(artifactRelease, foundation, space);
     }
 
     private ArtifactRelease saveArtifactReleaseLog(ArtifactRelease artifactRelease, String foundation, String space) {

@@ -84,7 +84,6 @@ public class GithubRepository {
                     .setCredentialsProvider(githubCredentialsProvider)
                     .setBare(true)
                     .call();
-            log.debug("done cloning");
         }
 
     }
