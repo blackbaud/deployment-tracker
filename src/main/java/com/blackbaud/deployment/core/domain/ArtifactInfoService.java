@@ -118,7 +118,7 @@ public class ArtifactInfoService {
     public ArtifactInfo find(String artifactId, String buildVersion) {
         ArtifactInfoEntity requestedArtifact = artifactInfoRepository.findOne(new ArtifactInfoPrimaryKey(artifactId, buildVersion));
         if (requestedArtifact == null) {
-            throw new NotFoundException();
+            return null;
         }
         ArtifactInfo artifactInfo = converter.toApi(requestedArtifact);
         artifactInfo.setDependencies(getDependencies(artifactInfo));

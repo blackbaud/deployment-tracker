@@ -71,7 +71,11 @@ public class ArtifactInfoResource {
     @GET
     @Path("{artifactId}/{buildVersion}")
     public ArtifactInfo find(@PathParam("artifactId") String artifactId, @PathParam("buildVersion") String buildVersion) {
-        return artifactInfoService.find(artifactId, buildVersion);
+        ArtifactInfo artifactInfo = artifactInfoService.find(artifactId, buildVersion);
+        if (artifactInfo == null) {
+            throw new NotFoundException();
+        }
+        return artifactInfo;
     }
 
     @POST

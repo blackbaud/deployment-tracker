@@ -175,8 +175,10 @@ class ArtifactReleaseReportResourceSpec extends Specification {
         artifactReleaseClient.create(foundation, space, segComp)
         artifactReleaseClient.create(foundation, space, RealArtifacts.recentBluemoonUiRelease)
 
-        expect:
+        when:
         List<ArtifactReleaseDiff> diffs = artifactReleaseReportClient.findAll(foundation)
+
+        then:
         ArtifactReleaseDiff bluemoonUi = diffs.find{ it.artifactId == "bluemoon-ui"}
         bluemoonUi.currentRelease.dependencies == [RealArtifacts.recentSegmentationComponentArtifact]
     }

@@ -1,9 +1,12 @@
 package com.blackbaud.deployment;
 
+import com.blackbaud.deployment.api.ArtifactInfo;
 import com.blackbaud.deployment.api.ArtifactRelease;
 import com.blackbaud.deployment.api.ArtifactReleaseDiff;
+import com.blackbaud.deployment.core.domain.ArtifactInfoService;
 import com.blackbaud.deployment.core.domain.ArtifactReleaseLogReportResult;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.ZonedDateTime;
@@ -14,6 +17,9 @@ import java.util.stream.Collectors;
 @Component
 @Slf4j
 public class ArtifactReleaseDiffConverter {
+
+    @Autowired
+    private ArtifactInfoService artifactInfoService;
 
     public ArtifactReleaseDiff toApi(ArtifactReleaseLogReportResult reportResult) {
         ArtifactRelease currentRelease = getCurrentReleaseFromReport(reportResult);
@@ -32,22 +38,27 @@ public class ArtifactReleaseDiffConverter {
     }
 
     private ArtifactRelease getPrevReleaseFromReport(ArtifactReleaseLogReportResult reportResult) {
+        ArtifactInfo previousReleaseDependency = artifactInfoService.find(reportResult.getArtifactId(), reportResult.getPrevBuildVersion());
+
         return ArtifactRelease.builder()
                 .artifactId(reportResult.getArtifactId())
                 .buildVersion(reportResult.getPrevBuildVersion())
                 .releaseVersion(reportResult.getPrevReleaseVersion())
                 .gitSha(reportResult.getPrevGitSha())
                 .deployJobUrl(reportResult.getPrevDeployJobUrl())
+                .dependencies(previousReleaseDependency == null ? null : previousReleaseDependency.getDependencies())
                 .build();
     }
 
     private ArtifactRelease getCurrentReleaseFromReport(ArtifactReleaseLogReportResult reportResult) {
+        ArtifactInfo currentReleaseDependency = artifactInfoService.find(reportResult.getArtifactId(), reportResult.getBuildVersion());
         return ArtifactRelease.builder()
                 .artifactId(reportResult.getArtifactId())
                 .buildVersion(reportResult.getBuildVersion())
                 .releaseVersion(reportResult.getReleaseVersion())
                 .gitSha(reportResult.getGitSha())
                 .deployJobUrl(reportResult.getDeployJobUrl())
+                .dependencies(currentReleaseDependency == null ? null : currentReleaseDependency.getDependencies())
                 .build();
     }
 
