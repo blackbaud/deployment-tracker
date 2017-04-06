@@ -83,7 +83,7 @@ class ArtifactReleaseResourceSpec extends Specification {
     def "should track distinct deployment info by foundation and space"() {
         given:
         String distinctSpace = aRandom.text(8)
-        String distinctFoundation= aRandom.text(8)
+        String distinctFoundation = aRandom.text(8)
         ArtifactRelease artifactReleaseInfo1 = RealArtifacts.getRecentDeploymentTrackerRelease()
         ArtifactRelease artifactReleaseInfo2 = RealArtifacts.getRecentNotificationsRelease()
         ArtifactRelease artifactReleaseInfo3 = RealArtifacts.getBluemoonDojoRelease()
@@ -207,5 +207,22 @@ class ArtifactReleaseResourceSpec extends Specification {
         then:
         BadRequestException ex = thrown()
         ex.errorEntity.message == "Cannot find repository with name " + artifactReleaseInfo.artifactId
+    }
+
+    def "saving bluemoon-ui artifact release should save latest segmentation-component artifact as a dependency"() {
+        given: "segmentation-component artifact info"
+        ArtifactInfo segComp = RealArtifacts.recentSegmentationComponentArtifact
+        artifactInfoClient.create(segComp)
+
+        and:
+        ArtifactRelease bluemoonUi = RealArtifacts.recentBluemoonUiRelease
+
+        when:
+
+        artifactReleaseClient.create(foundation, space, bluemoonUi)
+
+        then:
+        ArtifactRelease bluemoonUiRelease = artifactReleaseClient.find(foundation, space, bluemoonUi.artifactId)
+        bluemoonUiRelease.dependencies == [segComp] as List
     }
 }

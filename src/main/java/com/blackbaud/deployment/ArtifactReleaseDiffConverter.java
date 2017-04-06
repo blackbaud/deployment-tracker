@@ -2,8 +2,6 @@ package com.blackbaud.deployment;
 
 import com.blackbaud.deployment.api.ArtifactRelease;
 import com.blackbaud.deployment.api.ArtifactReleaseDiff;
-import com.blackbaud.deployment.core.domain.ArtifactInfoEntity;
-import com.blackbaud.deployment.core.domain.ArtifactReleaseLogEntity;
 import com.blackbaud.deployment.core.domain.ArtifactReleaseLogReportResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -18,8 +16,8 @@ import java.util.stream.Collectors;
 public class ArtifactReleaseDiffConverter {
 
     public ArtifactReleaseDiff toApi(ArtifactReleaseLogReportResult reportResult) {
-        ArtifactRelease currentRelease = new ArtifactRelease(reportResult.getArtifactId(), reportResult.getBuildVersion(), reportResult.getReleaseVersion(), reportResult.getGitSha(), reportResult.getDeployJobUrl());
-        ArtifactRelease previousRelease = new ArtifactRelease(reportResult.getArtifactId(), reportResult.getPrevBuildVersion(), reportResult.getPrevReleaseVersion(), reportResult.getPrevGitSha(), reportResult.getPrevDeployJobUrl());
+        ArtifactRelease currentRelease = getCurrentReleaseFromReport(reportResult);
+        ArtifactRelease previousRelease = getPrevReleaseFromReport(reportResult);
         return ArtifactReleaseDiff.builder()
                 .artifactId(reportResult.getArtifactId())
                 .currentRelease(currentRelease)
@@ -30,6 +28,26 @@ public class ArtifactReleaseDiffConverter {
                 .deployer(reportResult.getDeployer())
                 .stories(reportResult.getStories())
                 .developers(reportResult.getDevelopers())
+                .build();
+    }
+
+    private ArtifactRelease getPrevReleaseFromReport(ArtifactReleaseLogReportResult reportResult) {
+        return ArtifactRelease.builder()
+                .artifactId(reportResult.getArtifactId())
+                .buildVersion(reportResult.getPrevBuildVersion())
+                .releaseVersion(reportResult.getPrevReleaseVersion())
+                .gitSha(reportResult.getPrevGitSha())
+                .deployJobUrl(reportResult.getPrevDeployJobUrl())
+                .build();
+    }
+
+    private ArtifactRelease getCurrentReleaseFromReport(ArtifactReleaseLogReportResult reportResult) {
+        return ArtifactRelease.builder()
+                .artifactId(reportResult.getArtifactId())
+                .buildVersion(reportResult.getBuildVersion())
+                .releaseVersion(reportResult.getReleaseVersion())
+                .gitSha(reportResult.getGitSha())
+                .deployJobUrl(reportResult.getDeployJobUrl())
                 .build();
     }
 

@@ -17,4 +17,5 @@ public class ArtifactRelease {
     private String releaseVersion;
     private String gitSha;
     private String deployJobUrl;
+    private List<ArtifactInfo> dependencies;
 }

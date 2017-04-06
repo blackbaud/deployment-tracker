@@ -156,20 +156,12 @@ class ArtifactInfoResourceSpec extends Specification {
 
     def "saving an artifact should save its dependency"() {
         given:
-        ArtifactInfo segComp = ArtifactInfo.builder()
-                .artifactId("segmentation-component")
-                .buildVersion("0.20170325.062840")
-                .gitSha("e0bc85d1a5c932d51fcf5f69043d5c137bab2dc0")
-                .build()
+        ArtifactInfo segComp = RealArtifacts.recentSegmentationComponentArtifact
         artifactInfoClient.create(segComp)
 
         and:
-        ArtifactInfo artifactInfo = ArtifactInfo.builder()
-                .artifactId("bluemoon-ui")
-                .buildVersion("1.20170325.065544")
-                .gitSha("3526b14c3910a686b82b4b9548f1ae8df7de1cf8")
-                .dependencies([segComp])
-                .build()
+        ArtifactInfo artifactInfo = RealArtifacts.recentBluemoonUiArtifact
+        artifactInfo.dependencies = [segComp]
 
         when:
         artifactInfoClient.create(artifactInfo)
