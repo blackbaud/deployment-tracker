@@ -42,17 +42,23 @@ public class GitLogService {
     }
 
     public StoriesAndDevelopers getStoriesAndDevelopersForDependencies(ArtifactReleaseDiff artifactReleaseDiff) {
-        if (artifactReleaseDiff.getCurrentRelease() == null || artifactReleaseDiff.getPrevRelease() == null) {
+        if (noPreviousOrCurrentRelease(artifactReleaseDiff) || noPreviousOrCurrentDependencies(artifactReleaseDiff)) {
             return new StoriesAndDevelopers(new TreeSet<>(), new TreeSet<>());
         }
 
         List<ArtifactInfo> currentReleaseDependencies = artifactReleaseDiff.getCurrentRelease().getDependencies();
         List<ArtifactInfo> prevReleaseDependencies = artifactReleaseDiff.getPrevRelease().getDependencies();
-        if (currentReleaseDependencies == null && prevReleaseDependencies == null || currentReleaseDependencies.isEmpty() && prevReleaseDependencies.isEmpty()) {
-            return new StoriesAndDevelopers(new TreeSet<>(), new TreeSet<>());
-        }
         ArtifactInfo currentReleaseDependency = currentReleaseDependencies.get(0);
         ArtifactInfo prevReleaseDependency = prevReleaseDependencies.get(0);
         return getStoriesAndDevelopers(currentReleaseDependency.getArtifactId(), prevReleaseDependency.getGitSha(), currentReleaseDependency.getGitSha());
+    }
+
+    private boolean noPreviousOrCurrentRelease(ArtifactReleaseDiff artifactReleaseDiff) {
+        return artifactReleaseDiff.getCurrentRelease() == null || artifactReleaseDiff.getPrevRelease() == null;
+    }
+
+    private boolean noPreviousOrCurrentDependencies(ArtifactReleaseDiff diff) {
+        return diff.getCurrentRelease().getDependencies() == null || diff.getPrevRelease().getDependencies() == null
+                || diff.getPrevRelease().getDependencies().isEmpty() || diff.getPrevRelease().getDependencies().isEmpty();
     }
 }
