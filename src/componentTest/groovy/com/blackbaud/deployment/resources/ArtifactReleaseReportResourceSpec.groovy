@@ -169,6 +169,18 @@ class ArtifactReleaseReportResourceSpec extends Specification {
         releaseLogs[0].prevRelease == emptyTrackerRelease
     }
 
+    def "should show segmentation component as bluemoon-ui dependency in release report"() {
+        given:
+        ArtifactRelease segComp = RealArtifacts.recentSegmentationComponentRelease
+        artifactReleaseClient.create(foundation, space, segComp)
+        artifactReleaseClient.create(foundation, space, RealArtifacts.recentBluemoonUiRelease)
+
+        expect:
+        List<ArtifactReleaseDiff> diffs = artifactReleaseReportClient.findAll(foundation)
+        ArtifactReleaseDiff bluemoonUi = diffs.find{ it.artifactId == "bluemoon-ui"}
+        bluemoonUi.currentRelease.dependencies == [RealArtifacts.recentSegmentationComponentArtifact]
+    }
+
     private ArtifactRelease createCurrentArtifactRelease(ArtifactReleaseLogEntity logEntity, String gitSha) {
         ArtifactRelease.builder()
                 .artifactId(logEntity.artifactId)
