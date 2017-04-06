@@ -96,6 +96,24 @@ public class ArtifactInfoService {
         gitLogRepository.save(gitLogEntities);
     }
 
+    public List<ArtifactInfo> getDependencies(ArtifactInfo artifactInfo) {
+        ArtifactDependencyEntity artifactDependencyPair = getDependenciesFor(artifactInfo);
+        if (artifactDependencyPair == null) {
+            return null;
+        } else {
+            ArtifactInfoEntity dependencyInfo = artifactInfoRepository.findOneByArtifactIdAndBuildVersion(artifactDependencyPair.getDependencyId(), artifactDependencyPair.getDependencyBuildVersion());
+            ArtifactInfo dependencyArtifactInfo = converter.toApi(dependencyInfo);
+            List<ArtifactInfo> dependencies = new ArrayList<>();
+            dependencies.add(dependencyArtifactInfo);
+            return dependencies;
+        }
+    }
+
+    // TODO change to find a list of dependencies
+    private ArtifactDependencyEntity getDependenciesFor(ArtifactInfo artifactInfo) {
+        return artifactDependencyRepository.findOneByArtifactIdAndBuildVersion(artifactInfo.getArtifactId(), artifactInfo.getBuildVersion());
+    }
+
     public class ArtifactInfoIsImmutableException extends BadRequestException { // NOSONAR
         public ArtifactInfoIsImmutableException(String message) {
             super(message);

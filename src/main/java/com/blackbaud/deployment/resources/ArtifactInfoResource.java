@@ -76,17 +76,8 @@ public class ArtifactInfoResource {
             throw new NotFoundException();
         }
         ArtifactInfo artifactInfo = converter.toApi(requestedArtifact);
-        ArtifactDependencyEntity dependency = artifactDependencyRepository.findOneByArtifactIdAndBuildVersion(requestedArtifact.getArtifactId(),
-                                                                                                              requestedArtifact.getBuildVersion());
-        if (dependency == null) {
-            return artifactInfo;
-        } else {
-            ArtifactInfo dependencyInfo = converter.toApi(dependency);
-            List<ArtifactInfo> dependencies = new ArrayList<>();
-            dependencies.add(dependencyInfo);
-            artifactInfo.setDependencies(dependencies);
-            return artifactInfo;
-        }
+        artifactInfo.setDependencies(artifactInfoService.getDependencies(artifactInfo));
+        return artifactInfo;
     }
 
     @POST
