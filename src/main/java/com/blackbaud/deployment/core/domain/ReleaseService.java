@@ -144,9 +144,12 @@ public class ReleaseService {
     public void addAllStoriesAndDevelopers(TreeMap<String, ArtifactReleaseDiff> allArtifactReleaseDiffs) {
         for (ArtifactReleaseDiff artifactReleaseDiff : allArtifactReleaseDiffs.values()) {
             StoriesAndDevelopers storiesAndDevelopers = gitLogService.getStoriesAndDevelopers(artifactReleaseDiff.getArtifactId(), artifactReleaseDiff.getProdSha(), artifactReleaseDiff.getDevSha());
-
             artifactReleaseDiff.setStories(storiesAndDevelopers.getStories());
             artifactReleaseDiff.setDevelopers(storiesAndDevelopers.getDevelopers());
+
+            StoriesAndDevelopers storiesAndDevelopersForDependencies = gitLogService.getStoriesAndDevelopersForDependencies(artifactReleaseDiff);
+            artifactReleaseDiff.addStories(storiesAndDevelopersForDependencies.getStories());
+            artifactReleaseDiff.addDevelopers(storiesAndDevelopersForDependencies.getDevelopers());
         }
     }
 

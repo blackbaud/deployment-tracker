@@ -202,8 +202,8 @@ class ReleaseResourceSpec extends Specification {
         ArtifactReleaseDiff bluemoonUi = release.artifactReleaseDiffs.get("bluemoon-ui")
         bluemoonUi.currentRelease.dependencies == [RealArtifacts.recentSegmentationComponentArtifact]
         bluemoonUi.prevRelease.dependencies == [RealArtifacts.earlySegmentationComponentArtifact]
-        bluemoonUi.developers == ["Blackbaud-AliRashed", "Blackbaud-AaronHensley", "Blackbaud-KyleMartinez"] as Set
-        bluemoonUi.stories == ["LUM-17680", "LUM-19217"] as Set
+        bluemoonUi.developers == ["Blackbaud-AliRashed", "Blackbaud-AaronHensley", "Blackbaud-KyleMartinez", "Jenkins Blue Moon Dev"] as Set
+        bluemoonUi.stories == ["LUM-19173", "LUM-19178", "LUM-19217", "LUM-18798", "LUM-19215"] as Set
     }
 
     def storeInDev(ArtifactRelease artifactReleaseInfo) {

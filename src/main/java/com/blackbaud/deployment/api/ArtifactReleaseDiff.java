@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.Set;
+import java.util.TreeSet;
 
 @Data
 @Builder
@@ -46,4 +47,17 @@ public class ArtifactReleaseDiff {
         return prevRelease == null ? null : prevRelease.getGitSha();
     }
 
+    public void addStories(Set<String> stories) {
+        if (this.stories == null) {
+            this.stories = new TreeSet<>();
+        }
+        this.stories.addAll(stories);
+    }
+
+    public void addDevelopers(Set<String> developers) {
+        if (this.developers == null) {
+            this.developers = new TreeSet<>();
+        }
+        this.developers.addAll(developers);
+    }
 }
