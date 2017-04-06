@@ -6,6 +6,7 @@ import com.blackbaud.deployment.RealArtifacts
 import com.blackbaud.deployment.api.ArtifactInfo
 import com.blackbaud.deployment.api.ArtifactReleaseDiff
 import com.blackbaud.deployment.api.ArtifactRelease
+import com.blackbaud.deployment.api.Release
 import com.blackbaud.deployment.client.ArtifactInfoClient
 import com.blackbaud.deployment.client.ArtifactReleaseClient
 import com.blackbaud.deployment.client.ReleaseClient
@@ -183,6 +184,26 @@ class ReleaseResourceSpec extends Specification {
 
         expect:
         releaseClient.getCurrentReleasePlanDiffForProdSnapshot(prodSnapShot).artifactReleaseDiffs == [:]
+    }
+
+    def "current release should include segmentation component diffs"() {
+        given:
+        storeInDev(RealArtifacts.recentSegmentationComponentRelease)
+        storeInDev(RealArtifacts.recentBluemoonUiRelease)
+
+        and:
+        storeInProd(RealArtifacts.earlySegmentationComponentRelease)
+        storeInProd(RealArtifacts.earlyBluemoonUiRelease)
+
+        when:
+        Release release = releaseClient.getCurrentRelease()
+
+        then:
+        ArtifactReleaseDiff bluemoonUi = release.artifactReleaseDiffs.get("bluemoon-ui")
+        bluemoonUi.currentRelease.dependencies == [RealArtifacts.recentSegmentationComponentArtifact]
+        bluemoonUi.prevRelease.dependencies == [RealArtifacts.earlySegmentationComponentArtifact]
+        bluemoonUi.developers == ["Blackbaud-AliRashed", "Blackbaud-AaronHensley", "Blackbaud-KyleMartinez"] as Set
+        bluemoonUi.stories == ["LUM-17680", "LUM-19217"] as Set
     }
 
     def storeInDev(ArtifactRelease artifactReleaseInfo) {
