@@ -47,7 +47,7 @@ class RealArtifacts {
         ArtifactRelease.builder()
                 .artifactId("bluemoon-dojo")
                 .buildVersion("0.20160606.194525")
-                .releaseVersion("0.20160606.194525")
+                .releaseVersion("20160606_194525")
                 .gitSha("5b9eade6e44b4ff7e9be94f5e7e97e5bfe282ff6")
                 .build()
     }
@@ -57,7 +57,7 @@ class RealArtifacts {
                 .artifactId("bluemoon-ui")
                 .buildVersion("1.20170325.065544")
                 .gitSha("3526b14c3910a686b82b4b9548f1ae8df7de1cf8")
-                .releaseVersion("0.20160606.194525")
+                .releaseVersion("20160606_194525")
                 .build()
     }
 
@@ -66,7 +66,7 @@ class RealArtifacts {
                 .artifactId("segmentation-component")
                 .buildVersion("0.20170325.062840")
                 .gitSha("e0bc85d1a5c932d51fcf5f69043d5c137bab2dc0")
-                .releaseVersion("0.20160606.194525")
+                .releaseVersion("20160606_194525")
                 .build()
     }
 

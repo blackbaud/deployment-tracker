@@ -1,8 +1,7 @@
 package com.blackbaud.deployment;
 
-import com.blackbaud.deployment.api.ArtifactInfo;
 import com.blackbaud.deployment.api.ArtifactRelease;
-import com.blackbaud.deployment.client.ArtifactInfoClient;
+import com.blackbaud.deployment.core.domain.ArtifactInfoEntity;
 import com.blackbaud.deployment.core.domain.ArtifactInfoRepository;
 import com.blackbaud.deployment.core.domain.ArtifactReleaseLogEntity;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +14,7 @@ import java.util.stream.Collectors;
 public class ArtifactReleaseConverter {
 
     @Autowired
-    private ArtifactInfoClient artifactInfoClient;
+    private ArtifactInfoRepository artifactInfoRepository;
 
     private EntityMapper entityMapper = new EntityMapper();
 
@@ -24,9 +23,8 @@ public class ArtifactReleaseConverter {
             return null;
         }
         ArtifactRelease artifactRelease = entityMapper.mapIfNotNull(entity, ArtifactRelease.class);
-        ArtifactInfo artifactInfo = artifactInfoClient.find(entity.getArtifactId(), entity.getBuildVersion());
+        ArtifactInfoEntity artifactInfo = artifactInfoRepository.findOneByArtifactIdAndBuildVersion(entity.getArtifactId(), entity.getBuildVersion());
         artifactRelease.setGitSha(artifactInfo.getGitSha());
-        artifactRelease.setDependencies(artifactInfo.getDependencies());
         return artifactRelease;
     }
 

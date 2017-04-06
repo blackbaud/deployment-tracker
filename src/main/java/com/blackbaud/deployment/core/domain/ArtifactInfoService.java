@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.NotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -112,6 +113,16 @@ public class ArtifactInfoService {
     // TODO change to find a list of dependencies
     private ArtifactDependencyEntity getDependenciesFor(ArtifactInfo artifactInfo) {
         return artifactDependencyRepository.findOneByArtifactIdAndBuildVersion(artifactInfo.getArtifactId(), artifactInfo.getBuildVersion());
+    }
+
+    public ArtifactInfo find(String artifactId, String buildVersion) {
+        ArtifactInfoEntity requestedArtifact = artifactInfoRepository.findOne(new ArtifactInfoPrimaryKey(artifactId, buildVersion));
+        if (requestedArtifact == null) {
+            throw new NotFoundException();
+        }
+        ArtifactInfo artifactInfo = converter.toApi(requestedArtifact);
+        artifactInfo.setDependencies(getDependencies(artifactInfo));
+        return artifactInfo;
     }
 
     public class ArtifactInfoIsImmutableException extends BadRequestException { // NOSONAR

@@ -3,15 +3,12 @@ package com.blackbaud.deployment.core.domain;
 import com.blackbaud.deployment.ArtifactReleaseConverter;
 import com.blackbaud.deployment.api.ArtifactInfo;
 import com.blackbaud.deployment.api.ArtifactRelease;
-import com.blackbaud.deployment.client.ArtifactInfoClient;
-import com.blackbaud.deployment.client.ArtifactReleaseClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.ws.rs.NotFoundException;
-import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -74,7 +71,11 @@ public class ArtifactReleaseLogService {
     }
 
     public ArtifactRelease findLatestByFoundationAndSpaceAndArtifactId(String foundation, String space, String artifactId) {
-        return converter.toApi(artifactReleaseLogRepository.findFirstByFoundationAndSpaceAndArtifactIdOrderByReleaseVersionDesc(foundation, space, artifactId));
+        ArtifactRelease artifactRelease = converter.toApi(artifactReleaseLogRepository.findFirstByFoundationAndSpaceAndArtifactIdOrderByReleaseVersionDesc(foundation, space, artifactId));
+        ArtifactInfo artifactInfo = artifactInfoService.find(artifactRelease.getArtifactId(), artifactRelease.getBuildVersion());
+        artifactRelease.setGitSha(artifactInfo.getGitSha());
+        artifactRelease.setDependencies(artifactInfo.getDependencies());
+        return artifactRelease;
     }
 
     public List<ArtifactRelease> findAllByFoundationAndSpace(String foundation, String space) {

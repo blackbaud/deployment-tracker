@@ -71,13 +71,7 @@ public class ArtifactInfoResource {
     @GET
     @Path("{artifactId}/{buildVersion}")
     public ArtifactInfo find(@PathParam("artifactId") String artifactId, @PathParam("buildVersion") String buildVersion) {
-        ArtifactInfoEntity requestedArtifact = artifactInfoRepository.findOne(new ArtifactInfoPrimaryKey(artifactId, buildVersion));
-        if (requestedArtifact == null) {
-            throw new NotFoundException();
-        }
-        ArtifactInfo artifactInfo = converter.toApi(requestedArtifact);
-        artifactInfo.setDependencies(artifactInfoService.getDependencies(artifactInfo));
-        return artifactInfo;
+        return artifactInfoService.find(artifactId, buildVersion);
     }
 
     @POST
