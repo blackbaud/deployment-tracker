@@ -71,11 +71,7 @@ public class ArtifactReleaseLogService {
     }
 
     public ArtifactRelease findLatestByFoundationAndSpaceAndArtifactId(String foundation, String space, String artifactId) {
-        ArtifactRelease artifactRelease = converter.toApi(artifactReleaseLogRepository.findFirstByFoundationAndSpaceAndArtifactIdOrderByReleaseVersionDesc(foundation, space, artifactId));
-        ArtifactInfo artifactInfo = artifactInfoService.find(artifactRelease.getArtifactId(), artifactRelease.getBuildVersion());
-        artifactRelease.setGitSha(artifactInfo.getGitSha());
-        artifactRelease.setDependencies(artifactInfo.getDependencies());
-        return artifactRelease;
+        return converter.toApi(artifactReleaseLogRepository.findFirstByFoundationAndSpaceAndArtifactIdOrderByReleaseVersionDesc(foundation, space, artifactId));
     }
 
     public List<ArtifactRelease> findAllByFoundationAndSpace(String foundation, String space) {
