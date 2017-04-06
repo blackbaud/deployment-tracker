@@ -6,7 +6,6 @@ import com.blackbaud.deployment.RealArtifacts
 import com.blackbaud.deployment.api.ArtifactInfo
 import com.blackbaud.deployment.api.ArtifactRelease
 import com.blackbaud.deployment.api.ArtifactReleaseDiff
-import com.blackbaud.deployment.api.ArtifactReleaseLog
 import com.blackbaud.deployment.client.ArtifactInfoClient
 import com.blackbaud.deployment.client.ArtifactReleaseClient
 import com.blackbaud.deployment.client.ArtifactReleaseReportClient
@@ -71,26 +70,26 @@ class ArtifactReleaseReportResourceSpec extends Specification {
         ArtifactRelease firstCurrentRelease = createCurrentArtifactRelease(firstLogEntity, middleTrackerInfo.gitSha)
         ArtifactRelease firstPreviousRelease = createPreviousArtifactRelease(firstLogEntity, earlyTrackerInfo.gitSha)
         ArtifactReleaseDiff firstExpected = createArtifactReleaseDiff(firstLogEntity,
-                firstCurrentRelease,
-                firstPreviousRelease,
-                ["LUM-8045", "LUM-7759"] as Set,
-                ["Ryan McKay"] as Set)
+                                                                      firstCurrentRelease,
+                                                                      firstPreviousRelease,
+                                                                      ["LUM-8045", "LUM-7759"] as Set,
+                                                                      ["Ryan McKay"] as Set)
 
         ArtifactRelease secondCurrentRelease = createCurrentArtifactRelease(secondLogEntity, recentTrackerInfo.gitSha)
         ArtifactRelease secondPreviousRelease = createPreviousArtifactRelease(secondLogEntity, middleTrackerInfo.gitSha)
         ArtifactReleaseDiff secondExpected = createArtifactReleaseDiff(secondLogEntity,
-                secondCurrentRelease,
-                secondPreviousRelease,
-                ["LUM-8045"] as Set,
-                ["Blackbaud-JohnHolland","Ryan McKay"] as Set)
+                                                                       secondCurrentRelease,
+                                                                       secondPreviousRelease,
+                                                                       ["LUM-8045"] as Set,
+                                                                       ["Blackbaud-JohnHolland", "Ryan McKay"] as Set)
 
         ArtifactRelease thirdCurrentRelease = createCurrentArtifactRelease(thirdLogEntity, recentBluemoonCoreInfo.gitSha);
         ArtifactRelease thirdPreviousRelease = createPreviousArtifactRelease(thirdLogEntity, olderBluemoonCoreInfo.gitSha)
         ArtifactReleaseDiff thirdExpected = createArtifactReleaseDiff(thirdLogEntity,
-                thirdCurrentRelease,
-                thirdPreviousRelease,
-                ["LUM-9831"] as Set,
-                ["Eric Slater","Blackbaud-MikeDuVall"] as Set)
+                                                                      thirdCurrentRelease,
+                                                                      thirdPreviousRelease,
+                                                                      ["LUM-9831"] as Set,
+                                                                      ["Eric Slater", "Blackbaud-MikeDuVall"] as Set)
 
         then:
         List<ArtifactReleaseDiff> results = artifactReleaseReportClient.findAll(foundation)
@@ -171,11 +170,23 @@ class ArtifactReleaseReportResourceSpec extends Specification {
     }
 
     private ArtifactRelease createCurrentArtifactRelease(ArtifactReleaseLogEntity logEntity, String gitSha) {
-        return new ArtifactRelease(logEntity.artifactId, logEntity.buildVersion, logEntity.releaseVersion, gitSha, logEntity.deployJobUrl);
+        ArtifactRelease.builder()
+                .artifactId(logEntity.artifactId)
+                .buildVersion(logEntity.buildVersion)
+                .releaseVersion(logEntity.releaseVersion)
+                .gitSha(gitSha)
+                .deployJobUrl(logEntity.deployJobUrl)
+                .build();
     }
 
     private ArtifactRelease createPreviousArtifactRelease(ArtifactReleaseLogEntity logEntity, String gitSha) {
-        return new ArtifactRelease(logEntity.artifactId, logEntity.prevBuildVersion, logEntity.prevReleaseVersion, gitSha, null);
+        ArtifactRelease.builder()
+                .artifactId(logEntity.artifactId)
+                .buildVersion(logEntity.prevBuildVersion)
+                .releaseVersion(logEntity.prevReleaseVersion)
+                .gitSha(gitSha)
+                .deployJobUrl(null)
+                .build();
     }
 
     private ArtifactReleaseDiff createArtifactReleaseDiff(ArtifactReleaseLogEntity logEntity,
