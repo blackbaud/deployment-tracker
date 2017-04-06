@@ -218,7 +218,6 @@ class ArtifactReleaseResourceSpec extends Specification {
         ArtifactRelease bluemoonUi = RealArtifacts.recentBluemoonUiRelease
 
         when:
-
         artifactReleaseClient.create(foundation, space, bluemoonUi)
 
         then:
