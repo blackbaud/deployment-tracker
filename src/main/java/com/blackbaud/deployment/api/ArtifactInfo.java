@@ -13,6 +13,7 @@ public class ArtifactInfo {
     private String artifactId;
     private String buildVersion;
     private String gitSha;
+    // TODO make this a list
     private String dependencyId;
     private String dependencyBuildVersion;
 }

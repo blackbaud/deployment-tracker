@@ -169,9 +169,8 @@ class ArtifactInfoResourceSpec extends Specification {
         artifactInfoClient.create(artifactInfo)
 
         then:
-        ArtifactDependencyEntity entity = artifactDependencyRepository.findOneByArtifactIdAndBuildVersion(artifactInfo.artifactId, artifactInfo.buildVersion)
-        entity != null
-        entity.dependencyId == "segmentation-component"
-        entity.dependencyBuildVersion == "0.20170325.062840"
+        ArtifactInfo info = artifactInfoClient.find(artifactInfo.artifactId, artifactInfo.buildVersion)
+        info.dependencyId == "segmentation-component"
+        info.dependencyBuildVersion == "0.20170325.062840"
     }
 }
