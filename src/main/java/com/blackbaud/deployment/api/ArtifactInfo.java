@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -16,4 +17,11 @@ public class ArtifactInfo {
     private String buildVersion;
     private String gitSha;
     private List<ArtifactInfo> dependencies;
+
+    public void addDependencies(ArtifactInfo artifactInfo) {
+        if (this.dependencies == null) {
+            this.dependencies = new ArrayList<>();
+        }
+        this.dependencies.add(artifactInfo);
+    }
 }

@@ -3,12 +3,15 @@ package com.blackbaud.deployment.core.domain;
 import com.blackbaud.deployment.ArtifactReleaseConverter;
 import com.blackbaud.deployment.api.ArtifactInfo;
 import com.blackbaud.deployment.api.ArtifactRelease;
+import com.blackbaud.deployment.client.ArtifactInfoClient;
+import com.blackbaud.deployment.client.ArtifactReleaseClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.ws.rs.NotFoundException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -29,7 +32,14 @@ public class ArtifactReleaseLogService {
 
     @Transactional
     public ArtifactRelease create(ArtifactRelease artifactRelease, String foundation, String space) {
-        artifactInfoService.create(extractArtifactInfo(artifactRelease));
+        ArtifactInfo artifactInfo = extractArtifactInfo(artifactRelease);
+        if ("bluemoon-ui".equals(artifactRelease.getArtifactId())) {
+            ArtifactRelease latestSegComp = findLatestByFoundationAndSpaceAndArtifactId(foundation, space, "segmentation-component");
+            if (latestSegComp != null) {
+                artifactInfo.addDependencies(extractArtifactInfo(latestSegComp));
+            }
+        }
+        artifactInfoService.create(artifactInfo);
         return saveArtifactReleaseLog(artifactRelease, foundation, space);
     }
 
@@ -63,7 +73,7 @@ public class ArtifactReleaseLogService {
                 .build();
     }
 
-    public ArtifactRelease findOneByFoundationAndSpaceAndArtifactId(String foundation, String space, String artifactId) {
+    public ArtifactRelease findLatestByFoundationAndSpaceAndArtifactId(String foundation, String space, String artifactId) {
         return converter.toApi(artifactReleaseLogRepository.findFirstByFoundationAndSpaceAndArtifactIdOrderByReleaseVersionDesc(foundation, space, artifactId));
     }
 

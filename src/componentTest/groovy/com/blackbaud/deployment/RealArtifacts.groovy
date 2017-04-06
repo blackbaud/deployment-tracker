@@ -61,6 +61,15 @@ class RealArtifacts {
                 .build()
     }
 
+    def static getRecentSegmentationComponentRelease() {
+        ArtifactRelease.builder()
+                .artifactId("segmentation-component")
+                .buildVersion("0.20170325.062840")
+                .gitSha("e0bc85d1a5c932d51fcf5f69043d5c137bab2dc0")
+                .releaseVersion("0.20160606.194525")
+                .build()
+    }
+
     /* Artifact Infos */
 
     def static getRecentDeploymentTrackerArtifact() {

@@ -211,8 +211,8 @@ class ArtifactReleaseResourceSpec extends Specification {
 
     def "saving bluemoon-ui artifact release should save latest segmentation-component artifact as a dependency"() {
         given: "segmentation-component artifact info"
-        ArtifactInfo segComp = RealArtifacts.recentSegmentationComponentArtifact
-        artifactInfoClient.create(segComp)
+        ArtifactRelease segComp = RealArtifacts.recentSegmentationComponentRelease
+        artifactReleaseClient.create(foundation, space, segComp)
 
         and:
         ArtifactRelease bluemoonUi = RealArtifacts.recentBluemoonUiRelease
@@ -222,6 +222,6 @@ class ArtifactReleaseResourceSpec extends Specification {
 
         then:
         ArtifactRelease bluemoonUiRelease = artifactReleaseClient.find(foundation, space, bluemoonUi.artifactId)
-        bluemoonUiRelease.dependencies == [segComp] as List
+        bluemoonUiRelease.dependencies == [RealArtifacts.recentSegmentationComponentArtifact]
     }
 }
