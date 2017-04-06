@@ -5,16 +5,16 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class ArtifactRelease {
-
     private String artifactId;
     private String buildVersion;
     private String releaseVersion;
     private String gitSha;
     private String deployJobUrl;
-
 }

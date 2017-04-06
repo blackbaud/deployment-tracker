@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -13,7 +15,5 @@ public class ArtifactInfo {
     private String artifactId;
     private String buildVersion;
     private String gitSha;
-    // TODO make this a list
-    private String dependencyId;
-    private String dependencyBuildVersion;
+    private List<ArtifactInfo> dependencies;
 }

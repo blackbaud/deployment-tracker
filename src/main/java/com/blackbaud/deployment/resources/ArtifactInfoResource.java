@@ -3,17 +3,17 @@ package com.blackbaud.deployment.resources;
 import com.blackbaud.deployment.ArtifactInfoConverter;
 import com.blackbaud.deployment.api.ArtifactInfo;
 import com.blackbaud.deployment.api.ResourcePaths;
+import com.blackbaud.deployment.core.domain.ArtifactDependencyEntity;
+import com.blackbaud.deployment.core.domain.ArtifactDependencyRepository;
 import com.blackbaud.deployment.core.domain.ArtifactInfoEntity;
 import com.blackbaud.deployment.core.domain.ArtifactInfoPrimaryKey;
 import com.blackbaud.deployment.core.domain.ArtifactInfoRepository;
 import com.blackbaud.deployment.core.domain.ArtifactInfoService;
-import com.blackbaud.deployment.core.domain.git.GitLogParserFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.validation.Valid;
-import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
@@ -23,6 +23,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -36,6 +37,9 @@ public class ArtifactInfoResource {
 
     @Autowired
     private ArtifactInfoRepository artifactInfoRepository;
+
+    @Autowired
+    private ArtifactDependencyRepository artifactDependencyRepository;
 
     @Autowired
     private ArtifactInfoService artifactInfoService;
@@ -71,8 +75,18 @@ public class ArtifactInfoResource {
         if (requestedArtifact == null) {
             throw new NotFoundException();
         }
-        return converter.toApi(requestedArtifact);
-
+        ArtifactInfo artifactInfo = converter.toApi(requestedArtifact);
+        ArtifactDependencyEntity dependency = artifactDependencyRepository.findOneByArtifactIdAndBuildVersion(requestedArtifact.getArtifactId(),
+                                                                                                              requestedArtifact.getBuildVersion());
+        if (dependency == null) {
+            return artifactInfo;
+        } else {
+            ArtifactInfo dependencyInfo = converter.toApi(dependency);
+            List<ArtifactInfo> dependencies = new ArrayList<>();
+            dependencies.add(dependencyInfo);
+            artifactInfo.setDependencies(dependencies);
+            return artifactInfo;
+        }
     }
 
     @POST

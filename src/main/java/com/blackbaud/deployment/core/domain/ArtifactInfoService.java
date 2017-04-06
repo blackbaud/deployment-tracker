@@ -76,15 +76,18 @@ public class ArtifactInfoService {
         return artifact;
     }
 
-    public ArtifactDependencyEntity saveArtifactDependency(ArtifactInfo artifactInfo) {
+    public void saveArtifactDependency(ArtifactInfo artifactInfo) {
+        if (artifactInfo.getDependencies() == null || artifactInfo.getDependencies().isEmpty()) {
+            return;
+        }
+        ArtifactInfo dependencyArtifact = artifactInfo.getDependencies().get(0);
         ArtifactDependencyEntity dependencyEntity = ArtifactDependencyEntity.builder()
-                    .artifactId(artifactInfo.getArtifactId())
-                    .buildVersion(artifactInfo.getBuildVersion())
-                    .dependencyId(artifactInfo.getDependencyId())
-                    .dependencyBuildVersion(artifactInfo.getDependencyBuildVersion())
-                    .build();
+                .artifactId(artifactInfo.getArtifactId())
+                .buildVersion(artifactInfo.getBuildVersion())
+                .dependencyId(dependencyArtifact.getArtifactId())
+                .dependencyBuildVersion(dependencyArtifact.getBuildVersion())
+                .build();
         artifactDependencyRepository.save(dependencyEntity);
-        return dependencyEntity;
     }
 
     private void persistGitLogForArtifact(String artifactId, ArtifactInfoEntity artifact) {

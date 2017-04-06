@@ -6,7 +6,6 @@ import com.blackbaud.deployment.ComponentTest
 import com.blackbaud.deployment.RealArtifacts
 import com.blackbaud.deployment.api.ArtifactInfo
 import com.blackbaud.deployment.client.ArtifactInfoClient
-import com.blackbaud.deployment.core.domain.ArtifactDependencyEntity
 import com.blackbaud.deployment.core.domain.ArtifactDependencyRepository
 import com.blackbaud.deployment.core.domain.ArtifactInfoEntity
 import com.blackbaud.deployment.core.domain.ArtifactInfoRepository
@@ -157,12 +156,19 @@ class ArtifactInfoResourceSpec extends Specification {
 
     def "saving an artifact should save its dependency"() {
         given:
+        ArtifactInfo segComp = ArtifactInfo.builder()
+                .artifactId("segmentation-component")
+                .buildVersion("0.20170325.062840")
+                .gitSha("e0bc85d1a5c932d51fcf5f69043d5c137bab2dc0")
+                .build()
+        artifactInfoClient.create(segComp)
+
+        and:
         ArtifactInfo artifactInfo = ArtifactInfo.builder()
                 .artifactId("bluemoon-ui")
                 .buildVersion("1.20170325.065544")
                 .gitSha("3526b14c3910a686b82b4b9548f1ae8df7de1cf8")
-                .dependencyId("segmentation-component")
-                .dependencyBuildVersion("0.20170325.062840")
+                .dependencies([segComp])
                 .build()
 
         when:
@@ -170,7 +176,6 @@ class ArtifactInfoResourceSpec extends Specification {
 
         then:
         ArtifactInfo info = artifactInfoClient.find(artifactInfo.artifactId, artifactInfo.buildVersion)
-        info.dependencyId == "segmentation-component"
-        info.dependencyBuildVersion == "0.20170325.062840"
+        info.dependencies[0] == segComp
     }
 }
