@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
 
 @Component
 @Slf4j
@@ -100,6 +101,7 @@ public class ReleaseService {
             return Collections.emptyMap();
         }
         List<ArtifactRelease> releasePlanReleases = getReleasePlanReleasesForDiffing(releasePlan);
+        addDependenciesToProdReleases(prodArtifactReleases);
         TreeMap<String, ArtifactReleaseDiff> releaseSummary = combineArtifactReleases(releasePlanReleases, prodArtifactReleases);
         addAllStoriesAndDevelopers(releaseSummary);
         return releaseSummary;
@@ -108,13 +110,17 @@ public class ReleaseService {
     private List<ArtifactRelease> getReleasePlanReleasesForDiffing(ReleasePlanEntity releasePlan) {
         List<ArtifactInfo> releasePlanInfos = releasePlanConverter.toApi(releasePlan).getArtifacts();
         List<ArtifactRelease> devReleases = releasePlanInfos.stream().map(
-                artifactInfo -> ArtifactRelease.builder()
-                        .buildVersion(artifactInfo.getBuildVersion())
-                        .artifactId(artifactInfo.getArtifactId())
-                        .gitSha(artifactInfo.getGitSha())
-                        .releaseVersion(null).build())
+                this::buildArtifactRelease)
                 .collect(Collectors.toList());
         return devReleases;
+    }
+
+    private ArtifactRelease buildArtifactRelease(ArtifactInfo artifactInfo) {
+        return ArtifactRelease.builder().artifactId(artifactInfo.getArtifactId())
+                .buildVersion(artifactInfo.getBuildVersion())
+                .gitSha(artifactInfo.getGitSha())
+                .dependencies(artifactInfo.getDependencies())
+                .build();
     }
 
     private TreeMap<String, ArtifactReleaseDiff> combineArtifactReleases(List<ArtifactRelease> devArtifactReleases, List<ArtifactRelease> prodArtifactReleases) {

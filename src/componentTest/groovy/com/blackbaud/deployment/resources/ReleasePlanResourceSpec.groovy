@@ -277,6 +277,18 @@ class ReleasePlanResourceSpec extends Specification {
 
     }
 
+//    def "should show stories and developers for dependency artifacts as well"() {
+//        given:
+//        ReleasePlanEntity plan = createCurrentReleasePlan()
+//
+//        when:
+//        releasePlanClient.addArtifact(plan.id, RealArtifacts.earlyBluemoonUiArtifact)
+//
+//        then:
+//        ReleasePlanEntity updatedPlan = releasePlanRepository.findOne(plan.id)
+//        updatedPlan.
+//
+//    }
     List<ArtifactInfoEntity> createRandomReleasePlanWithArtifacts(int numberToCreate, Long releasePlanId) {
         List<ArtifactInfoEntity> artifactList = []
         numberToCreate.times{

@@ -31,6 +31,17 @@ public class ArtifactReleaseConverter {
         return artifactRelease;
     }
 
+    public ArtifactRelease toApi(ArtifactInfo artifactInfo) {
+        if (artifactInfo == null) {
+            return null;
+        }
+        return ArtifactRelease.builder().artifactId(artifactInfo.getArtifactId())
+                .buildVersion(artifactInfo.getBuildVersion())
+                .gitSha(artifactInfo.getGitSha())
+                .dependencies(artifactInfo.getDependencies())
+                .build();
+    }
+
     public List<ArtifactRelease> toApiList(List<ArtifactReleaseLogEntity> entityList) {
         return entityList.stream()
                 .map(this::toApi)
