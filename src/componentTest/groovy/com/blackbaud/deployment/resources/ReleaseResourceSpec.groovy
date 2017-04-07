@@ -188,26 +188,22 @@ class ReleaseResourceSpec extends Specification {
 
     def "current release should include segmentation component diffs"() {
         given:
-        ArtifactInfo segComp = RealArtifacts.recentSegmentationComponentArtifact
-        ArtifactRelease bluemoonUi = RealArtifacts.recentBluemoonUiRelease
-        bluemoonUi.dependencies = [segComp]
-        storeInDev(bluemoonUi)
+        storeInDev(RealArtifacts.recentSegmentationComponentRelease)
+        storeInDev(RealArtifacts.recentBluemoonUiRelease)
 
         and:
-        ArtifactInfo earlySegComp = RealArtifacts.earlySegmentationComponentArtifact
-        ArtifactRelease earlyBluemoonUi = RealArtifacts.earlyBluemoonUiRelease
-        earlyBluemoonUi.dependencies = [earlySegComp]
-        storeInProd(earlyBluemoonUi)
+        storeInProd(RealArtifacts.earlySegmentationComponentRelease)
+        storeInProd(RealArtifacts.earlyBluemoonUiRelease)
 
         when:
         Release release = releaseClient.getCurrentRelease()
 
         then:
-        ArtifactReleaseDiff bluemoonUiDiff = release.artifactReleaseDiffs.get("bluemoon-ui")
-        bluemoonUiDiff.currentRelease.dependencies == [segComp]
-        bluemoonUiDiff.prevRelease.dependencies == [earlySegComp]
-        bluemoonUiDiff.developers == ["Blackbaud-AliRashed", "Blackbaud-AaronHensley", "Blackbaud-KyleMartinez", "Jenkins Blue Moon Dev"] as Set
-        bluemoonUiDiff.stories == ["LUM-19173", "LUM-19178", "LUM-19217", "LUM-18798", "LUM-19215"] as Set
+        ArtifactReleaseDiff bluemoonUi = release.artifactReleaseDiffs.get("bluemoon-ui")
+        bluemoonUi.currentRelease.dependencies == [RealArtifacts.recentSegmentationComponentArtifact]
+        bluemoonUi.prevRelease.dependencies == [RealArtifacts.earlySegmentationComponentArtifact]
+        bluemoonUi.developers == ["Blackbaud-AliRashed", "Blackbaud-AaronHensley", "Blackbaud-KyleMartinez", "Jenkins Blue Moon Dev"] as Set
+        bluemoonUi.stories == ["LUM-19173", "LUM-19178", "LUM-19217", "LUM-18798", "LUM-19215"] as Set
     }
 
     def storeInDev(ArtifactRelease artifactReleaseInfo) {
