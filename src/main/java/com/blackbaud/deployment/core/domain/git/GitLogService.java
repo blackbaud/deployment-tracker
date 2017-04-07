@@ -45,7 +45,6 @@ public class GitLogService {
         if (noPreviousOrCurrentRelease(artifactReleaseDiff) || noPreviousOrCurrentDependencies(artifactReleaseDiff)) {
             return new StoriesAndDevelopers(new TreeSet<>(), new TreeSet<>());
         }
-
         List<ArtifactInfo> currentReleaseDependencies = artifactReleaseDiff.getCurrentRelease().getDependencies();
         List<ArtifactInfo> prevReleaseDependencies = artifactReleaseDiff.getPrevRelease().getDependencies();
         ArtifactInfo currentReleaseDependency = currentReleaseDependencies.get(0);

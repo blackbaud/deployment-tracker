@@ -164,9 +164,12 @@ class ArtifactInfoResourceSpec extends Specification {
         artifactInfo.dependencies = [segComp]
 
         when:
-        artifactInfoClient.create(artifactInfo)
+        ArtifactInfo createdArtifactInfo = artifactInfoClient.create(artifactInfo)
 
         then:
+        createdArtifactInfo.dependencies[0] == segComp
+
+        and:
         ArtifactInfo info = artifactInfoClient.find(artifactInfo.artifactId, artifactInfo.buildVersion)
         info.dependencies[0] == segComp
     }

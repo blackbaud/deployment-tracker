@@ -81,12 +81,12 @@ public class ArtifactInfoService {
         if (artifactInfo.getDependencies() == null || artifactInfo.getDependencies().isEmpty()) {
             return;
         }
-        ArtifactInfo dependencyArtifact = artifactInfo.getDependencies().get(0);
+        ArtifactInfo dependency = artifactInfo.getDependencies().get(0);
         ArtifactDependencyEntity dependencyEntity = ArtifactDependencyEntity.builder()
                 .artifactId(artifactInfo.getArtifactId())
                 .buildVersion(artifactInfo.getBuildVersion())
-                .dependencyId(dependencyArtifact.getArtifactId())
-                .dependencyBuildVersion(dependencyArtifact.getBuildVersion())
+                .dependencyId(dependency.getArtifactId())
+                .dependencyBuildVersion(dependency.getBuildVersion())
                 .build();
         artifactDependencyRepository.save(dependencyEntity);
     }
@@ -97,16 +97,13 @@ public class ArtifactInfoService {
         gitLogRepository.save(gitLogEntities);
     }
 
-    public List<ArtifactInfo> getDependencies(ArtifactInfo artifactInfo) {
+    public ArtifactInfo getDependencies(ArtifactInfo artifactInfo) {
         ArtifactDependencyEntity artifactDependencyPair = getDependenciesFor(artifactInfo);
         if (artifactDependencyPair == null) {
             return null;
         } else {
             ArtifactInfoEntity dependencyInfo = artifactInfoRepository.findOneByArtifactIdAndBuildVersion(artifactDependencyPair.getDependencyId(), artifactDependencyPair.getDependencyBuildVersion());
-            ArtifactInfo dependencyArtifactInfo = converter.toApi(dependencyInfo);
-            List<ArtifactInfo> dependencies = new ArrayList<>();
-            dependencies.add(dependencyArtifactInfo);
-            return dependencies;
+            return converter.toApi(dependencyInfo);
         }
     }
 
@@ -120,9 +117,7 @@ public class ArtifactInfoService {
         if (requestedArtifact == null) {
             return null;
         }
-        ArtifactInfo artifactInfo = converter.toApi(requestedArtifact);
-        artifactInfo.setDependencies(getDependencies(artifactInfo));
-        return artifactInfo;
+        return converter.toApi(requestedArtifact);
     }
 
     public class ArtifactInfoIsImmutableException extends BadRequestException { // NOSONAR

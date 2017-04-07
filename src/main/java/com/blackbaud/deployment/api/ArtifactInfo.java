@@ -19,9 +19,11 @@ public class ArtifactInfo {
     private List<ArtifactInfo> dependencies;
 
     public void addDependencies(ArtifactInfo artifactInfo) {
-        if (this.dependencies == null) {
-            this.dependencies = new ArrayList<>();
+        if (artifactInfo != null) {
+            if (this.dependencies == null) {
+                this.dependencies = new ArrayList<>();
+            }
+            this.dependencies.add(artifactInfo);
         }
-        this.dependencies.add(artifactInfo);
     }
 }
