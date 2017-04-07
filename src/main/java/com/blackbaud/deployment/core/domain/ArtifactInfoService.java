@@ -88,6 +88,7 @@ public class ArtifactInfoService {
                 .dependencyId(dependency.getArtifactId())
                 .dependencyBuildVersion(dependency.getBuildVersion())
                 .build();
+        artifactInfoRepository.save(converter.toEntity(dependency));
         artifactDependencyRepository.save(dependencyEntity);
     }
 
