@@ -15,6 +15,13 @@ import com.blackbaud.deployment.core.domain.ReleaseService
 import org.springframework.beans.factory.annotation.Autowired
 import spock.lang.Specification
 
+import static com.blackbaud.deployment.RealArtifacts.earlySegmentationComponentRelease
+import static com.blackbaud.deployment.RealArtifacts.recentSegmentationComponentRelease
+import static com.blackbaud.deployment.RealArtifacts.recentSegmentationComponentArtifact
+import static com.blackbaud.deployment.RealArtifacts.earlySegmentationComponentArtifact
+import static com.blackbaud.deployment.RealArtifacts.earlyBluemoonUiRelease
+import static com.blackbaud.deployment.RealArtifacts.recentBluemoonUiRelease
+
 @ComponentTest
 class ReleaseResourceSpec extends Specification {
 
@@ -188,28 +195,24 @@ class ReleaseResourceSpec extends Specification {
 
     def "current release should include segmentation component diffs"() {
         given: "segComp and bluemoonUi in dev"
-        ArtifactRelease earlySegComp = RealArtifacts.earlySegmentationComponentRelease
-        ArtifactRelease earlyBluemoonUi = RealArtifacts.earlyBluemoonUiRelease
-        storeInDev(earlySegComp)
-        storeInDev(earlyBluemoonUi)
+        storeInDev(earlySegmentationComponentRelease)
+        storeInDev(earlyBluemoonUiRelease)
 
         and: "deploy bluemoon-ui to production"
-        storeInProd(earlyBluemoonUi)
-        def prodSnapshot = [earlyBluemoonUi]
+        storeInProd(earlyBluemoonUiRelease)
+        def prodSnapshot = [earlyBluemoonUiRelease]
 
         and: "new version of bluemoon-ui and segComp in dev"
-        ArtifactRelease segComp = RealArtifacts.recentSegmentationComponentRelease
-        ArtifactRelease bluemoonUi = RealArtifacts.recentBluemoonUiRelease
-        storeInDev(segComp)
-        storeInDev(bluemoonUi)
+        storeInDev(recentSegmentationComponentRelease)
+        storeInDev(recentBluemoonUiRelease)
 
         when:
         Release release = releaseClient.getCurrentReleaseForProdSnapshot(prodSnapshot)
 
         then:
         ArtifactReleaseDiff bluemoonUiDiff = release.artifactReleaseDiffs.get("bluemoon-ui")
-        bluemoonUiDiff.currentRelease.dependencies == [RealArtifacts.recentSegmentationComponentArtifact]
-        bluemoonUiDiff.prevRelease.dependencies == [RealArtifacts.earlySegmentationComponentArtifact]
+        bluemoonUiDiff.currentRelease.dependencies == [recentSegmentationComponentArtifact]
+        bluemoonUiDiff.prevRelease.dependencies == [earlySegmentationComponentArtifact]
         bluemoonUiDiff.developers == ["Blackbaud-AliRashed", "Blackbaud-AaronHensley", "Blackbaud-KyleMartinez", "Jenkins Blue Moon Dev"] as Set
         bluemoonUiDiff.stories == ["LUM-19173", "LUM-19178", "LUM-19217", "LUM-18798", "LUM-19215"] as Set
     }

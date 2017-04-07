@@ -116,7 +116,6 @@ public class ArtifactInfoService {
         }
     }
 
-    // TODO change to find a list of dependencies
     private ArtifactDependencyEntity getDependenciesFor(String artifactId, String buildVersion) {
         return artifactDependencyRepository.findOneByArtifactIdAndBuildVersion(artifactId, buildVersion);
     }

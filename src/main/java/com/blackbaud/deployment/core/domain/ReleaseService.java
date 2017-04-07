@@ -110,17 +110,13 @@ public class ReleaseService {
     private List<ArtifactRelease> getReleasePlanReleasesForDiffing(ReleasePlanEntity releasePlan) {
         List<ArtifactInfo> releasePlanInfos = releasePlanConverter.toApi(releasePlan).getArtifacts();
         List<ArtifactRelease> devReleases = releasePlanInfos.stream().map(
-                this::buildArtifactRelease)
+                artifactInfo -> ArtifactRelease.builder()
+                        .buildVersion(artifactInfo.getBuildVersion())
+                        .artifactId(artifactInfo.getArtifactId())
+                        .gitSha(artifactInfo.getGitSha())
+                        .releaseVersion(null).build())
                 .collect(Collectors.toList());
         return devReleases;
-    }
-
-    private ArtifactRelease buildArtifactRelease(ArtifactInfo artifactInfo) {
-        return ArtifactRelease.builder().artifactId(artifactInfo.getArtifactId())
-                .buildVersion(artifactInfo.getBuildVersion())
-                .gitSha(artifactInfo.getGitSha())
-                .dependencies(artifactInfo.getDependencies())
-                .build();
     }
 
     private TreeMap<String, ArtifactReleaseDiff> combineArtifactReleases(List<ArtifactRelease> devArtifactReleases, List<ArtifactRelease> prodArtifactReleases) {

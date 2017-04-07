@@ -6,6 +6,7 @@ import com.blackbaud.deployment.RealArtifacts
 import com.blackbaud.deployment.api.ArtifactInfo
 import com.blackbaud.deployment.api.ArtifactRelease
 import com.blackbaud.deployment.api.ArtifactReleaseDiff
+import com.blackbaud.deployment.api.ArtifactReleaseLog
 import com.blackbaud.deployment.client.ArtifactInfoClient
 import com.blackbaud.deployment.client.ArtifactReleaseClient
 import com.blackbaud.deployment.client.ArtifactReleaseReportClient
@@ -70,26 +71,26 @@ class ArtifactReleaseReportResourceSpec extends Specification {
         ArtifactRelease firstCurrentRelease = createCurrentArtifactRelease(firstLogEntity, middleTrackerInfo.gitSha)
         ArtifactRelease firstPreviousRelease = createPreviousArtifactRelease(firstLogEntity, earlyTrackerInfo.gitSha)
         ArtifactReleaseDiff firstExpected = createArtifactReleaseDiff(firstLogEntity,
-                                                                      firstCurrentRelease,
-                                                                      firstPreviousRelease,
-                                                                      ["LUM-8045", "LUM-7759"] as Set,
-                                                                      ["Ryan McKay"] as Set)
+                firstCurrentRelease,
+                firstPreviousRelease,
+                ["LUM-8045", "LUM-7759"] as Set,
+                ["Ryan McKay"] as Set)
 
         ArtifactRelease secondCurrentRelease = createCurrentArtifactRelease(secondLogEntity, recentTrackerInfo.gitSha)
         ArtifactRelease secondPreviousRelease = createPreviousArtifactRelease(secondLogEntity, middleTrackerInfo.gitSha)
         ArtifactReleaseDiff secondExpected = createArtifactReleaseDiff(secondLogEntity,
-                                                                       secondCurrentRelease,
-                                                                       secondPreviousRelease,
-                                                                       ["LUM-8045"] as Set,
-                                                                       ["Blackbaud-JohnHolland", "Ryan McKay"] as Set)
+                secondCurrentRelease,
+                secondPreviousRelease,
+                ["LUM-8045"] as Set,
+                ["Blackbaud-JohnHolland","Ryan McKay"] as Set)
 
         ArtifactRelease thirdCurrentRelease = createCurrentArtifactRelease(thirdLogEntity, recentBluemoonCoreInfo.gitSha);
         ArtifactRelease thirdPreviousRelease = createPreviousArtifactRelease(thirdLogEntity, olderBluemoonCoreInfo.gitSha)
         ArtifactReleaseDiff thirdExpected = createArtifactReleaseDiff(thirdLogEntity,
-                                                                      thirdCurrentRelease,
-                                                                      thirdPreviousRelease,
-                                                                      ["LUM-9831"] as Set,
-                                                                      ["Eric Slater", "Blackbaud-MikeDuVall"] as Set)
+                thirdCurrentRelease,
+                thirdPreviousRelease,
+                ["LUM-9831"] as Set,
+                ["Eric Slater","Blackbaud-MikeDuVall"] as Set)
 
         then:
         List<ArtifactReleaseDiff> results = artifactReleaseReportClient.findAll(foundation)
@@ -163,7 +164,7 @@ class ArtifactReleaseReportResourceSpec extends Specification {
         artifactReleaseClient.create(aRandom.name(), space, recentTrackerRelease)
 
         expect:
-        List<ArtifactReleaseDiff> releaseLogs = artifactReleaseReportClient.findAll(foundation)
+        List<ArtifactReleaseLog> releaseLogs = artifactReleaseReportClient.findAll(foundation)
         releaseLogs.size() == 1
         releaseLogs[0].currentRelease == earlyTrackerRelease
         releaseLogs[0].prevRelease == emptyTrackerRelease

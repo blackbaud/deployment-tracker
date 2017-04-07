@@ -33,4 +33,5 @@ public class ArtifactInfoClient extends CrudClient<ArtifactInfo, ArtifactInfoCli
     public List<ArtifactInfo> findMany(String artifactId) {
         return crudClientRequest.path(artifactId).findMany();
     }
+
 }
