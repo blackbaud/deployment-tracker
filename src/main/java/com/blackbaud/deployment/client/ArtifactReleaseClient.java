@@ -22,7 +22,7 @@ public class ArtifactReleaseClient extends CrudClient<ArtifactRelease, ArtifactR
                 .findMany();
     }
 
-    public ArtifactRelease find(String foundation, String space, String artifactId) {
+    public ArtifactRelease findLatest(String foundation, String space, String artifactId) {
         return crudClientRequest.path(foundation).path(space).path(artifactId)
                 .find();
     }
