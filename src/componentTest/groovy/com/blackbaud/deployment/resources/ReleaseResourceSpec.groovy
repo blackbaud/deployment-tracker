@@ -187,23 +187,31 @@ class ReleaseResourceSpec extends Specification {
     }
 
     def "current release should include segmentation component diffs"() {
-        given:
-        storeInDev(RealArtifacts.recentSegmentationComponentRelease)
-        storeInDev(RealArtifacts.recentBluemoonUiRelease)
+        given: "segComp and bluemoonUi in dev"
+        ArtifactRelease earlySegComp = RealArtifacts.earlySegmentationComponentRelease
+        ArtifactRelease earlyBluemoonUi = RealArtifacts.earlyBluemoonUiRelease
+        storeInDev(earlySegComp)
+        storeInDev(earlyBluemoonUi)
 
-        and:
-        storeInProd(RealArtifacts.earlySegmentationComponentRelease)
-        storeInProd(RealArtifacts.earlyBluemoonUiRelease)
+        and: "deploy bluemoon-ui to production"
+        storeInProd(earlyBluemoonUi)
+        def prodSnapshot = [earlyBluemoonUi]
+
+        and: "new version of bluemoon-ui and segComp in dev"
+        ArtifactRelease segComp = RealArtifacts.recentSegmentationComponentRelease
+        ArtifactRelease bluemoonUi = RealArtifacts.recentBluemoonUiRelease
+        storeInDev(segComp)
+        storeInDev(bluemoonUi)
 
         when:
-        Release release = releaseClient.getCurrentRelease()
+        Release release = releaseClient.getCurrentReleaseForProdSnapshot(prodSnapshot)
 
         then:
-        ArtifactReleaseDiff bluemoonUi = release.artifactReleaseDiffs.get("bluemoon-ui")
-        bluemoonUi.currentRelease.dependencies == [RealArtifacts.recentSegmentationComponentArtifact]
-        bluemoonUi.prevRelease.dependencies == [RealArtifacts.earlySegmentationComponentArtifact]
-        bluemoonUi.developers == ["Blackbaud-AliRashed", "Blackbaud-AaronHensley", "Blackbaud-KyleMartinez", "Jenkins Blue Moon Dev"] as Set
-        bluemoonUi.stories == ["LUM-19173", "LUM-19178", "LUM-19217", "LUM-18798", "LUM-19215"] as Set
+        ArtifactReleaseDiff bluemoonUiDiff = release.artifactReleaseDiffs.get("bluemoon-ui")
+        bluemoonUiDiff.currentRelease.dependencies == [RealArtifacts.recentSegmentationComponentArtifact]
+        bluemoonUiDiff.prevRelease.dependencies == [RealArtifacts.earlySegmentationComponentArtifact]
+        bluemoonUiDiff.developers == ["Blackbaud-AliRashed", "Blackbaud-AaronHensley", "Blackbaud-KyleMartinez", "Jenkins Blue Moon Dev"] as Set
+        bluemoonUiDiff.stories == ["LUM-19173", "LUM-19178", "LUM-19217", "LUM-18798", "LUM-19215"] as Set
     }
 
     def storeInDev(ArtifactRelease artifactReleaseInfo) {

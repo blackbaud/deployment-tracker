@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -76,9 +77,21 @@ public class ReleaseService {
 
     public Map<String, ArtifactReleaseDiff> createArtifactReleaseDiffs(List<ArtifactRelease> prodArtifactReleases) {
         List<ArtifactRelease> devArtifactReleases = artifactReleaseLogService.findMostRecentOfEachArtifactByFoundationAndSpace(DEV_FOUNDATION, DEV_SPACE);
+        addDependenciesToProdReleases(prodArtifactReleases);
         TreeMap<String, ArtifactReleaseDiff> releaseSummary = combineArtifactReleases(devArtifactReleases, prodArtifactReleases);
         addAllStoriesAndDevelopers(releaseSummary);
         return releaseSummary;
+    }
+
+    private void addDependenciesToProdReleases(List<ArtifactRelease> prodArtifactReleases) {
+        for (ArtifactRelease release : prodArtifactReleases) {
+            if ("bluemoon-ui".equals(release.getArtifactId())) {
+                List<ArtifactInfo> dependencies = new ArrayList<>();
+                dependencies.add(artifactInfoService.getDependencies(release));
+                release.setDependencies(dependencies);
+                break;
+            }
+        }
     }
 
     public Map<String, ArtifactReleaseDiff> createArtifactReleaseDiffsForReleasePlanArtifacts(List<ArtifactRelease> prodArtifactReleases) {

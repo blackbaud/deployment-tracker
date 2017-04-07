@@ -2,6 +2,7 @@ package com.blackbaud.deployment.core.domain;
 
 import com.blackbaud.deployment.ArtifactInfoConverter;
 import com.blackbaud.deployment.api.ArtifactInfo;
+import com.blackbaud.deployment.api.ArtifactRelease;
 import com.blackbaud.deployment.core.domain.git.GitLogEntity;
 import com.blackbaud.deployment.core.domain.git.GitLogParser;
 import com.blackbaud.deployment.core.domain.git.GitLogParserFactory;
@@ -97,8 +98,16 @@ public class ArtifactInfoService {
         gitLogRepository.save(gitLogEntities);
     }
 
+    public ArtifactInfo getDependencies(ArtifactRelease artifactRelease) {
+        return getDependencies(artifactRelease.getArtifactId(), artifactRelease.getBuildVersion());
+    }
+
     public ArtifactInfo getDependencies(ArtifactInfo artifactInfo) {
-        ArtifactDependencyEntity artifactDependencyPair = getDependenciesFor(artifactInfo);
+        return getDependencies(artifactInfo.getArtifactId(), artifactInfo.getBuildVersion());
+    }
+
+    public ArtifactInfo getDependencies(String artifactId, String buildVersion) {
+        ArtifactDependencyEntity artifactDependencyPair = getDependenciesFor(artifactId, buildVersion);
         if (artifactDependencyPair == null) {
             return null;
         } else {
@@ -108,8 +117,8 @@ public class ArtifactInfoService {
     }
 
     // TODO change to find a list of dependencies
-    private ArtifactDependencyEntity getDependenciesFor(ArtifactInfo artifactInfo) {
-        return artifactDependencyRepository.findOneByArtifactIdAndBuildVersion(artifactInfo.getArtifactId(), artifactInfo.getBuildVersion());
+    private ArtifactDependencyEntity getDependenciesFor(String artifactId, String buildVersion) {
+        return artifactDependencyRepository.findOneByArtifactIdAndBuildVersion(artifactId, buildVersion);
     }
 
     public ArtifactInfo find(String artifactId, String buildVersion) {

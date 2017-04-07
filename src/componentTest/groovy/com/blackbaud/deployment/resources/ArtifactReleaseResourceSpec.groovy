@@ -209,8 +209,8 @@ class ArtifactReleaseResourceSpec extends Specification {
         ex.errorEntity.message == "Cannot find repository with name " + artifactReleaseInfo.artifactId
     }
 
-    def "saving bluemoon-ui artifact release should save latest segmentation-component artifact as a dependency"() {
-        given: "segmentation-component artifact info"
+    def "saving an artifact release should save dependency if exists"() {
+        given:
         ArtifactRelease segComp = RealArtifacts.recentSegmentationComponentRelease
         artifactReleaseClient.create(foundation, space, segComp)
 
