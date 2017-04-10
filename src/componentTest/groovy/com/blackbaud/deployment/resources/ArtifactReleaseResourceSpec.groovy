@@ -214,7 +214,7 @@ class ArtifactReleaseResourceSpec extends Specification {
     }
 
     def "saving bluemoon-ui release should should save segmentation component if exists"() {
-        when: "save bluemoon-ui with before segmentation component release is created"
+        when: "save bluemoon-ui before segmentation component release is created"
         artifactReleaseClient.create(foundation, space, earlyBluemoonUiRelease)
 
         then: "should not add segmentation component as a dependency"

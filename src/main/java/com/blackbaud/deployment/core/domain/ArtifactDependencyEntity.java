@@ -1,5 +1,6 @@
 package com.blackbaud.deployment.core.domain;
 
+import com.blackbaud.deployment.api.ArtifactInfo;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -39,4 +40,10 @@ public class ArtifactDependencyEntity {
     @Column(name = "dependency_build_version")
     private String dependencyBuildVersion;
 
+    public ArtifactDependencyEntity(ArtifactInfo artifact, ArtifactInfo dependency) {
+        this.setArtifactId(artifact.getArtifactId());
+        this.setBuildVersion(artifact.getBuildVersion());
+        this.setDependencyId(dependency.getArtifactId());
+        this.setDependencyBuildVersion(dependency.getBuildVersion());
+    }
 }

@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.ws.rs.BadRequestException;
-import javax.ws.rs.NotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -83,12 +82,7 @@ public class ArtifactInfoService {
             return;
         }
         ArtifactInfo dependency = artifactInfo.getDependencies().get(0);
-        ArtifactDependencyEntity dependencyEntity = ArtifactDependencyEntity.builder()
-                .artifactId(artifactInfo.getArtifactId())
-                .buildVersion(artifactInfo.getBuildVersion())
-                .dependencyId(dependency.getArtifactId())
-                .dependencyBuildVersion(dependency.getBuildVersion())
-                .build();
+        ArtifactDependencyEntity dependencyEntity = new ArtifactDependencyEntity(artifactInfo, dependency);
         artifactDependencyRepository.save(dependencyEntity);
     }
 
