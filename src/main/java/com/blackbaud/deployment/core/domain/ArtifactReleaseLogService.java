@@ -9,6 +9,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.ws.rs.NotFoundException;
+import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.List;
 
 @Component
@@ -39,7 +41,8 @@ public class ArtifactReleaseLogService {
         if ("bluemoon-ui".equals(artifactRelease.getArtifactId())) {
             ArtifactRelease latestSegComp = findLatestByFoundationAndSpaceAndArtifactId(foundation, space, "segmentation-component");
             if (latestSegComp != null) {
-                artifactInfo.addDependencies(extractArtifactInfo(latestSegComp));
+                List<ArtifactInfo> dependencies = Arrays.asList(extractArtifactInfo(latestSegComp));
+                artifactInfo.setDependencies(dependencies);
             }
         }
     }

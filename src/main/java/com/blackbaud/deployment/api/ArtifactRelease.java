@@ -19,7 +19,7 @@ public class ArtifactRelease {
     private String releaseVersion;
     private String gitSha;
     private String deployJobUrl;
-    private List<ArtifactInfo> dependencies;
+    private List<ArtifactInfo> dependencies = new ArrayList<>();
 
     public static class ArtifactReleaseBuilder {
         private List<ArtifactInfo> dependencies = new ArrayList<>();

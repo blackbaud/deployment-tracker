@@ -39,9 +39,6 @@ public class ArtifactInfoResource {
     private ArtifactInfoRepository artifactInfoRepository;
 
     @Autowired
-    private ArtifactDependencyRepository artifactDependencyRepository;
-
-    @Autowired
     private ArtifactInfoService artifactInfoService;
 
     @PUT

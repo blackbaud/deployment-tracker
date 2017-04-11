@@ -21,10 +21,4 @@ public class ArtifactInfo {
     public static class ArtifactInfoBuilder {
         private List<ArtifactInfo> dependencies = new ArrayList<>();
     }
-
-    public void addDependencies(ArtifactInfo artifactInfo) {
-        if (artifactInfo != null) {
-            this.dependencies.add(artifactInfo);
-        }
-    }
 }
