@@ -219,7 +219,7 @@ class ArtifactReleaseResourceSpec extends Specification {
 
         then: "should not add segmentation component as a dependency"
         ArtifactRelease release = artifactReleaseClient.findLatest(foundation, space, earlyBluemoonUiRelease.artifactId)
-        release.dependencies == null
+        release.dependencies == []
 
         when: "there is a segmentation component release"
         artifactReleaseClient.create(foundation, space, recentSegmentationComponentRelease)

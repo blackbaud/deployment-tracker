@@ -7,6 +7,7 @@ import com.blackbaud.deployment.core.domain.git.GitLogEntity;
 import com.blackbaud.deployment.core.domain.git.GitLogParser;
 import com.blackbaud.deployment.core.domain.git.GitLogParserFactory;
 import com.blackbaud.deployment.core.domain.git.GitLogRepository;
+import com.offbytwo.jenkins.model.Artifact;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Component;
 import javax.ws.rs.BadRequestException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -92,26 +94,28 @@ public class ArtifactInfoService {
         gitLogRepository.save(gitLogEntities);
     }
 
-    public ArtifactInfo getDependencies(ArtifactRelease artifactRelease) {
+    public List<ArtifactInfo> getDependencies(ArtifactRelease artifactRelease) {
         return getDependencies(artifactRelease.getArtifactId(), artifactRelease.getBuildVersion());
     }
 
-    public ArtifactInfo getDependencies(ArtifactInfo artifactInfo) {
+    public List<ArtifactInfo> getDependencies(ArtifactInfo artifactInfo) {
         return getDependencies(artifactInfo.getArtifactId(), artifactInfo.getBuildVersion());
     }
 
-    public ArtifactInfo getDependencies(String artifactId, String buildVersion) {
-        ArtifactDependencyEntity artifactDependencyPair = getDependenciesFor(artifactId, buildVersion);
-        if (artifactDependencyPair == null) {
+    public List<ArtifactInfo> getDependencies(String artifactId, String buildVersion) {
+        List<ArtifactDependencyEntity> dependencies = getDependenciesFor(artifactId, buildVersion);
+        if (dependencies == null) {
             return null;
         } else {
-            ArtifactInfoEntity dependencyInfo = artifactInfoRepository.findOneByArtifactIdAndBuildVersion(artifactDependencyPair.getDependencyId(), artifactDependencyPair.getDependencyBuildVersion());
-            return converter.toApi(dependencyInfo);
+            List<ArtifactInfoEntity> dependencyInfos = dependencies.stream()
+                    .map(dep -> artifactInfoRepository.findOneByArtifactIdAndBuildVersion(dep.getDependencyId(), dep.getDependencyBuildVersion()))
+                    .collect(Collectors.toList());
+            return converter.toApiList(dependencyInfos);
         }
     }
 
-    private ArtifactDependencyEntity getDependenciesFor(String artifactId, String buildVersion) {
-        return artifactDependencyRepository.findOneByArtifactIdAndBuildVersion(artifactId, buildVersion);
+    private List<ArtifactDependencyEntity> getDependenciesFor(String artifactId, String buildVersion) {
+        return artifactDependencyRepository.findByArtifactIdAndBuildVersion(artifactId, buildVersion);
     }
 
     public ArtifactInfo find(String artifactId, String buildVersion) {

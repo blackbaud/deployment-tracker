@@ -33,7 +33,7 @@ public class ArtifactInfoConverter {
             return null;
         }
         ArtifactInfo artifactInfo = entityMapper.mapIfNotNull(entity, ArtifactInfo.class);
-        artifactInfo.addDependencies(artifactInfoService.getDependencies(artifactInfo));
+        artifactInfo.setDependencies(artifactInfoService.getDependencies(artifactInfo));
         return artifactInfo;
     }
 

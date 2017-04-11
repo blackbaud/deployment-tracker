@@ -38,7 +38,7 @@ public class ArtifactReleaseDiffConverter {
     }
 
     private ArtifactRelease getPrevReleaseFromReport(ArtifactReleaseLogReportResult reportResult) {
-        ArtifactInfo previousReleaseDependency = artifactInfoService.find(reportResult.getArtifactId(), reportResult.getPrevBuildVersion());
+        List<ArtifactInfo> prevDependencies = artifactInfoService.getDependencies(reportResult.getArtifactId(), reportResult.getPrevBuildVersion());
 
         return ArtifactRelease.builder()
                 .artifactId(reportResult.getArtifactId())
@@ -46,19 +46,19 @@ public class ArtifactReleaseDiffConverter {
                 .releaseVersion(reportResult.getPrevReleaseVersion())
                 .gitSha(reportResult.getPrevGitSha())
                 .deployJobUrl(reportResult.getPrevDeployJobUrl())
-                .dependencies(previousReleaseDependency == null ? null : previousReleaseDependency.getDependencies())
+                .dependencies(prevDependencies == null ? null : prevDependencies)
                 .build();
     }
 
     private ArtifactRelease getCurrentReleaseFromReport(ArtifactReleaseLogReportResult reportResult) {
-        ArtifactInfo currentReleaseDependency = artifactInfoService.find(reportResult.getArtifactId(), reportResult.getBuildVersion());
+        List<ArtifactInfo> currentDependencies = artifactInfoService.getDependencies(reportResult.getArtifactId(), reportResult.getBuildVersion());
         return ArtifactRelease.builder()
                 .artifactId(reportResult.getArtifactId())
                 .buildVersion(reportResult.getBuildVersion())
                 .releaseVersion(reportResult.getReleaseVersion())
                 .gitSha(reportResult.getGitSha())
                 .deployJobUrl(reportResult.getDeployJobUrl())
-                .dependencies(currentReleaseDependency == null ? null : currentReleaseDependency.getDependencies())
+                .dependencies(currentDependencies == null ? null : currentDependencies)
                 .build();
     }
 

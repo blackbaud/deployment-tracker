@@ -87,9 +87,7 @@ public class ReleaseService {
     private void addDependenciesToProdReleases(List<ArtifactRelease> prodArtifactReleases) {
         for (ArtifactRelease release : prodArtifactReleases) {
             if ("bluemoon-ui".equals(release.getArtifactId())) {
-                List<ArtifactInfo> dependencies = new ArrayList<>();
-                dependencies.add(artifactInfoService.getDependencies(release));
-                release.setDependencies(dependencies);
+                release.setDependencies(artifactInfoService.getDependencies(release));
                 break;
             }
         }

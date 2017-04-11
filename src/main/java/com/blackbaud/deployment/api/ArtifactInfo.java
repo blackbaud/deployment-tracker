@@ -16,13 +16,14 @@ public class ArtifactInfo {
     private String artifactId;
     private String buildVersion;
     private String gitSha;
-    private List<ArtifactInfo> dependencies;
+    private List<ArtifactInfo> dependencies = new ArrayList<>();
+
+    public static class ArtifactInfoBuilder {
+        private List<ArtifactInfo> dependencies = new ArrayList<>();
+    }
 
     public void addDependencies(ArtifactInfo artifactInfo) {
         if (artifactInfo != null) {
-            if (this.dependencies == null) {
-                this.dependencies = new ArrayList<>();
-            }
             this.dependencies.add(artifactInfo);
         }
     }
