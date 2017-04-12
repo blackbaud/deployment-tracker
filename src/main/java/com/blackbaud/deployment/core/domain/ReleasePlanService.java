@@ -32,6 +32,9 @@ public class ReleasePlanService {
     private ArtifactInfoConverter artifactInfoConverter;
 
     @Inject
+    private ArtifactInfoService artifactInfoService;
+
+    @Inject
     ReleasePlanConverter releasePlanConverter;
 
     public ReleasePlan createReleasePlan() {

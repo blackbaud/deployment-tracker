@@ -54,4 +54,12 @@ public class ArtifactReleaseDiff {
         }
         this.developers.addAll(developers);
     }
+
+    public boolean currentReleaseHasDependencies() {
+        return currentRelease.hasDependencies();
+    }
+
+    public boolean prevReleaseHasDependencies() {
+        return prevRelease.hasDependencies();
+    }
 }
