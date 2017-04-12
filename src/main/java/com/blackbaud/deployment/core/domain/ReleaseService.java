@@ -85,12 +85,9 @@ public class ReleaseService {
     }
 
     private void addDependenciesToProdReleases(List<ArtifactRelease> prodArtifactReleases) {
-        for (ArtifactRelease release : prodArtifactReleases) {
-            if ("bluemoon-ui".equals(release.getArtifactId())) {
-                release.setDependencies(artifactInfoService.getDependencies(release));
-                break;
-            }
-        }
+        prodArtifactReleases.stream()
+                .filter(release -> "bluemoon-ui".equals(release.getArtifactId()))
+                .forEach(release -> release.setDependencies(artifactInfoService.getDependencies(release)));
     }
 
     public Map<String, ArtifactReleaseDiff> createArtifactReleaseDiffsForReleasePlanArtifacts(List<ArtifactRelease> prodArtifactReleases) {
