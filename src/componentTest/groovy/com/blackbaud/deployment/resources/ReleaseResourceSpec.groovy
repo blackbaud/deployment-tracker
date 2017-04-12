@@ -217,6 +217,29 @@ class ReleaseResourceSpec extends Specification {
         bluemoonUiDiff.stories == ["LUM-19173", "LUM-19178", "LUM-19217", "LUM-18798", "LUM-19215"] as Set
     }
 
+    def "only show stories/developers for bluemoon-ui if the version in prod has no segCom dependency"() {
+        given: "segComp and bluemoonUi in dev"
+        storeInDev(earlyBluemoonUiRelease)
+
+        and: "deploy bluemoon-ui to production"
+        storeInProd(earlyBluemoonUiRelease)
+        def prodSnapshot = [earlyBluemoonUiRelease]
+
+        and: "new version of bluemoon-ui and segComp in dev"
+        storeInDev(recentSegmentationComponentRelease)
+        storeInDev(recentBluemoonUiRelease)
+
+        when:
+        Release release = releaseClient.getCurrentReleaseForProdSnapshot(prodSnapshot)
+
+        then:
+        ArtifactReleaseDiff bluemoonUiDiff = release.artifactReleaseDiffs.get("bluemoon-ui")
+        bluemoonUiDiff.currentRelease.dependencies == [recentSegmentationComponentArtifact]
+        bluemoonUiDiff.prevRelease.dependencies == []
+        bluemoonUiDiff.developers == ["Blackbaud-AliRashed", "Blackbaud-AaronHensley"] as Set
+        bluemoonUiDiff.stories == ["LUM-19173", "LUM-19178", "LUM-18798", "LUM-19215"] as Set
+    }
+
     def storeInDev(ArtifactRelease artifactReleaseInfo) {
         artifactReleaseClient.create(ReleaseService.DEV_FOUNDATION, ReleaseService.DEV_SPACE, artifactReleaseInfo)
     }
