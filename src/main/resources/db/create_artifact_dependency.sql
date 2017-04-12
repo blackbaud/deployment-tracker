@@ -6,5 +6,5 @@ create table artifact_dependency(
   build_version varchar(100) not null,
   dependency_id varchar(100) not null,
   dependency_build_version varchar(100) not null,
-  constraint artifact_dependency_pk primary key (artifact_id, build_version, dependency_id, dependency_build_version)
+  constraint artifact_dependency_pk primary key (artifact_id, build_version, dependency_id)
 )

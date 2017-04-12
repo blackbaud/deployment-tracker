@@ -18,7 +18,7 @@ import javax.persistence.Table;
 @Table(name = "artifact_dependency")
 @IdClass(ArtifactDependencyPrimaryKey.class)
 @Data
-@EqualsAndHashCode(of = {"artifactId", "buildVersion", "dependencyId", "dependencyBuildVersion"})
+@EqualsAndHashCode(of = {"artifactId", "buildVersion", "dependencyId"})
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PRIVATE)

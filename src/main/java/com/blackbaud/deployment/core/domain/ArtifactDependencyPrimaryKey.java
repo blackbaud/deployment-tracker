@@ -13,6 +13,4 @@ public class ArtifactDependencyPrimaryKey implements Serializable {
     private String artifactId;
     private String buildVersion;
     private String dependencyId;
-    private String dependencyBuildVersion;
-
 }
