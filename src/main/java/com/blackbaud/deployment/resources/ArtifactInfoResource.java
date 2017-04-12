@@ -3,17 +3,17 @@ package com.blackbaud.deployment.resources;
 import com.blackbaud.deployment.ArtifactInfoConverter;
 import com.blackbaud.deployment.api.ArtifactInfo;
 import com.blackbaud.deployment.api.ResourcePaths;
+import com.blackbaud.deployment.core.domain.ArtifactDependencyEntity;
+import com.blackbaud.deployment.core.domain.ArtifactDependencyRepository;
 import com.blackbaud.deployment.core.domain.ArtifactInfoEntity;
 import com.blackbaud.deployment.core.domain.ArtifactInfoPrimaryKey;
 import com.blackbaud.deployment.core.domain.ArtifactInfoRepository;
 import com.blackbaud.deployment.core.domain.ArtifactInfoService;
-import com.blackbaud.deployment.core.domain.git.GitLogParserFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.validation.Valid;
-import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
@@ -23,6 +23,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -45,7 +46,7 @@ public class ArtifactInfoResource {
     @Path("{artifactId}/{buildVersion}")
     public ArtifactInfo put(@PathParam("artifactId") String artifactId, @PathParam("buildVersion") String buildVersion,
                             @Valid ArtifactInfo artifactInfo) {
-        return artifactInfoService.create(artifactId, buildVersion, converter.toEntity(artifactInfo));
+        return artifactInfoService.create(artifactId, buildVersion, artifactInfo);
     }
 
     @POST
@@ -67,12 +68,11 @@ public class ArtifactInfoResource {
     @GET
     @Path("{artifactId}/{buildVersion}")
     public ArtifactInfo find(@PathParam("artifactId") String artifactId, @PathParam("buildVersion") String buildVersion) {
-        ArtifactInfoEntity requestedArtifact = artifactInfoRepository.findOne(new ArtifactInfoPrimaryKey(artifactId, buildVersion));
-        if (requestedArtifact == null) {
+        ArtifactInfo artifactInfo = artifactInfoService.find(artifactId, buildVersion);
+        if (artifactInfo == null) {
             throw new NotFoundException();
         }
-        return converter.toApi(requestedArtifact);
-
+        return artifactInfo;
     }
 
     @POST

@@ -5,6 +5,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -16,5 +19,9 @@ public class ArtifactRelease {
     private String releaseVersion;
     private String gitSha;
     private String deployJobUrl;
+    private List<ArtifactInfo> dependencies = new ArrayList<>();
 
+    public static class ArtifactReleaseBuilder {
+        private List<ArtifactInfo> dependencies = new ArrayList<>();
+    }
 }

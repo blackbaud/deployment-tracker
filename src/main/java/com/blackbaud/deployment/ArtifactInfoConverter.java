@@ -1,14 +1,23 @@
 package com.blackbaud.deployment;
 
 import com.blackbaud.deployment.api.ArtifactInfo;
+import com.blackbaud.deployment.core.domain.ArtifactDependencyEntity;
 import com.blackbaud.deployment.core.domain.ArtifactInfoEntity;
+import com.blackbaud.deployment.core.domain.ArtifactInfoRepository;
+import com.blackbaud.deployment.core.domain.ArtifactInfoService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
 public class ArtifactInfoConverter {
+
+    @Autowired
+    private ArtifactInfoService artifactInfoService;
+
     private EntityMapper entityMapper = new EntityMapper();
 
     public ArtifactInfoEntity toEntity(ArtifactInfo info) {
@@ -23,7 +32,9 @@ public class ArtifactInfoConverter {
         if (entity == null) {
             return null;
         }
-        return entityMapper.mapIfNotNull(entity, ArtifactInfo.class);
+        ArtifactInfo artifactInfo = entityMapper.mapIfNotNull(entity, ArtifactInfo.class);
+        artifactInfo.setDependencies(artifactInfoService.getDependencies(artifactInfo));
+        return artifactInfo;
     }
 
     public List<ArtifactInfo> toApiList(List<ArtifactInfoEntity> entityList) {

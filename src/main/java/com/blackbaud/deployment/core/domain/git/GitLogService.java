@@ -1,5 +1,7 @@
 package com.blackbaud.deployment.core.domain.git;
 
+import com.blackbaud.deployment.api.ArtifactInfo;
+import com.blackbaud.deployment.api.ArtifactReleaseDiff;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -37,5 +39,25 @@ public class GitLogService {
         } else {
             return gitLogRepository.fetchGitLogForCurrentAndPreviousGitShas(artifactId, toSha, fromSha);
         }
+    }
+
+    public StoriesAndDevelopers getStoriesAndDevelopersForDependencies(ArtifactReleaseDiff artifactReleaseDiff) {
+        if (noPreviousOrCurrentRelease(artifactReleaseDiff) || noPreviousOrCurrentDependencies(artifactReleaseDiff)) {
+            return new StoriesAndDevelopers(new TreeSet<>(), new TreeSet<>());
+        }
+        List<ArtifactInfo> currentReleaseDependencies = artifactReleaseDiff.getCurrentRelease().getDependencies();
+        List<ArtifactInfo> prevReleaseDependencies = artifactReleaseDiff.getPrevRelease().getDependencies();
+        ArtifactInfo currentReleaseDependency = currentReleaseDependencies.get(0);
+        ArtifactInfo prevReleaseDependency = prevReleaseDependencies.get(0);
+        return getStoriesAndDevelopers(currentReleaseDependency.getArtifactId(), prevReleaseDependency.getGitSha(), currentReleaseDependency.getGitSha());
+    }
+
+    private boolean noPreviousOrCurrentRelease(ArtifactReleaseDiff artifactReleaseDiff) {
+        return artifactReleaseDiff.getCurrentRelease() == null || artifactReleaseDiff.getPrevRelease() == null;
+    }
+
+    private boolean noPreviousOrCurrentDependencies(ArtifactReleaseDiff diff) {
+        return diff.getCurrentRelease().getDependencies() == null || diff.getPrevRelease().getDependencies() == null
+                || diff.getPrevRelease().getDependencies().isEmpty() || diff.getPrevRelease().getDependencies().isEmpty();
     }
 }

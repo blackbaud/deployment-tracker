@@ -11,12 +11,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
 
 @Component
 @Slf4j
@@ -76,9 +78,16 @@ public class ReleaseService {
 
     public Map<String, ArtifactReleaseDiff> createArtifactReleaseDiffs(List<ArtifactRelease> prodArtifactReleases) {
         List<ArtifactRelease> devArtifactReleases = artifactReleaseLogService.findMostRecentOfEachArtifactByFoundationAndSpace(DEV_FOUNDATION, DEV_SPACE);
+        addDependenciesToProdReleases(prodArtifactReleases);
         TreeMap<String, ArtifactReleaseDiff> releaseSummary = combineArtifactReleases(devArtifactReleases, prodArtifactReleases);
         addAllStoriesAndDevelopers(releaseSummary);
         return releaseSummary;
+    }
+
+    private void addDependenciesToProdReleases(List<ArtifactRelease> prodArtifactReleases) {
+        prodArtifactReleases.stream()
+                .filter(release -> "bluemoon-ui".equals(release.getArtifactId()))
+                .forEach(release -> release.setDependencies(artifactInfoService.getDependencies(release)));
     }
 
     public Map<String, ArtifactReleaseDiff> createArtifactReleaseDiffsForReleasePlanArtifacts(List<ArtifactRelease> prodArtifactReleases) {
@@ -87,6 +96,7 @@ public class ReleaseService {
             return Collections.emptyMap();
         }
         List<ArtifactRelease> releasePlanReleases = getReleasePlanReleasesForDiffing(releasePlan);
+        addDependenciesToProdReleases(prodArtifactReleases);
         TreeMap<String, ArtifactReleaseDiff> releaseSummary = combineArtifactReleases(releasePlanReleases, prodArtifactReleases);
         addAllStoriesAndDevelopers(releaseSummary);
         return releaseSummary;
@@ -144,9 +154,12 @@ public class ReleaseService {
     public void addAllStoriesAndDevelopers(TreeMap<String, ArtifactReleaseDiff> allArtifactReleaseDiffs) {
         for (ArtifactReleaseDiff artifactReleaseDiff : allArtifactReleaseDiffs.values()) {
             StoriesAndDevelopers storiesAndDevelopers = gitLogService.getStoriesAndDevelopers(artifactReleaseDiff.getArtifactId(), artifactReleaseDiff.getProdSha(), artifactReleaseDiff.getDevSha());
-
             artifactReleaseDiff.setStories(storiesAndDevelopers.getStories());
             artifactReleaseDiff.setDevelopers(storiesAndDevelopers.getDevelopers());
+
+            StoriesAndDevelopers storiesAndDevelopersForDependencies = gitLogService.getStoriesAndDevelopersForDependencies(artifactReleaseDiff);
+            artifactReleaseDiff.addStories(storiesAndDevelopersForDependencies.getStories());
+            artifactReleaseDiff.addDevelopers(storiesAndDevelopersForDependencies.getDevelopers());
         }
     }
 

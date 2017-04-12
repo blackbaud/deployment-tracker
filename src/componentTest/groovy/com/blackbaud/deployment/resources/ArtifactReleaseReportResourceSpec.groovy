@@ -170,12 +170,38 @@ class ArtifactReleaseReportResourceSpec extends Specification {
         releaseLogs[0].prevRelease == emptyTrackerRelease
     }
 
+    def "should show segmentation component as bluemoon-ui dependency in release report"() {
+        given:
+        ArtifactRelease segComp = RealArtifacts.recentSegmentationComponentRelease
+        artifactReleaseClient.create(foundation, space, segComp)
+        artifactReleaseClient.create(foundation, space, RealArtifacts.recentBluemoonUiRelease)
+
+        when:
+        List<ArtifactReleaseDiff> diffs = artifactReleaseReportClient.findAll(foundation)
+
+        then:
+        ArtifactReleaseDiff bluemoonUi = diffs.find{ it.artifactId == "bluemoon-ui"}
+        bluemoonUi.currentRelease.dependencies == [RealArtifacts.recentSegmentationComponentArtifact]
+    }
+
     private ArtifactRelease createCurrentArtifactRelease(ArtifactReleaseLogEntity logEntity, String gitSha) {
-        return new ArtifactRelease(logEntity.artifactId, logEntity.buildVersion, logEntity.releaseVersion, gitSha, logEntity.deployJobUrl);
+        ArtifactRelease.builder()
+                .artifactId(logEntity.artifactId)
+                .buildVersion(logEntity.buildVersion)
+                .releaseVersion(logEntity.releaseVersion)
+                .gitSha(gitSha)
+                .deployJobUrl(logEntity.deployJobUrl)
+                .build();
     }
 
     private ArtifactRelease createPreviousArtifactRelease(ArtifactReleaseLogEntity logEntity, String gitSha) {
-        return new ArtifactRelease(logEntity.artifactId, logEntity.prevBuildVersion, logEntity.prevReleaseVersion, gitSha, null);
+        ArtifactRelease.builder()
+                .artifactId(logEntity.artifactId)
+                .buildVersion(logEntity.prevBuildVersion)
+                .releaseVersion(logEntity.prevReleaseVersion)
+                .gitSha(gitSha)
+                .deployJobUrl(null)
+                .build();
     }
 
     private ArtifactReleaseDiff createArtifactReleaseDiff(ArtifactReleaseLogEntity logEntity,

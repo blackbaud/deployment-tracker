@@ -19,6 +19,10 @@ import spock.lang.Specification
 import javax.ws.rs.WebApplicationException
 
 import static com.blackbaud.deployment.core.CoreARandom.aRandom
+import static com.blackbaud.deployment.RealArtifacts.recentSegmentationComponentRelease
+import static com.blackbaud.deployment.RealArtifacts.recentSegmentationComponentArtifact
+import static com.blackbaud.deployment.RealArtifacts.earlyBluemoonUiRelease
+import static com.blackbaud.deployment.RealArtifacts.recentBluemoonUiRelease
 
 @ComponentTest
 class ArtifactReleaseResourceSpec extends Specification {
@@ -83,7 +87,7 @@ class ArtifactReleaseResourceSpec extends Specification {
     def "should track distinct deployment info by foundation and space"() {
         given:
         String distinctSpace = aRandom.text(8)
-        String distinctFoundation= aRandom.text(8)
+        String distinctFoundation = aRandom.text(8)
         ArtifactRelease artifactReleaseInfo1 = RealArtifacts.getRecentDeploymentTrackerRelease()
         ArtifactRelease artifactReleaseInfo2 = RealArtifacts.getRecentNotificationsRelease()
         ArtifactRelease artifactReleaseInfo3 = RealArtifacts.getBluemoonDojoRelease()
@@ -207,5 +211,24 @@ class ArtifactReleaseResourceSpec extends Specification {
         then:
         BadRequestException ex = thrown()
         ex.errorEntity.message == "Cannot find repository with name " + artifactReleaseInfo.artifactId
+    }
+
+    def "saving bluemoon-ui release should should save segmentation component if exists"() {
+        when: "save bluemoon-ui before segmentation component release is created"
+        artifactReleaseClient.create(foundation, space, earlyBluemoonUiRelease)
+
+        then: "should not add segmentation component as a dependency"
+        ArtifactRelease release = artifactReleaseClient.findLatest(foundation, space, earlyBluemoonUiRelease.artifactId)
+        release.dependencies == []
+
+        when: "there is a segmentation component release"
+        artifactReleaseClient.create(foundation, space, recentSegmentationComponentRelease)
+
+        and: "save new bluemoon-ui release"
+        artifactReleaseClient.create(foundation, space, recentBluemoonUiRelease)
+
+        then: "add segmentation-component as a dependency"
+        ArtifactRelease release1 = artifactReleaseClient.findLatest(foundation, space, recentBluemoonUiRelease.artifactId)
+        release1.dependencies == [recentSegmentationComponentArtifact]
     }
 }

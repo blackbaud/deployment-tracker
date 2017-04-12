@@ -1,11 +1,12 @@
 package com.blackbaud.deployment;
 
+import com.blackbaud.deployment.api.ArtifactInfo;
 import com.blackbaud.deployment.api.ArtifactRelease;
 import com.blackbaud.deployment.api.ArtifactReleaseDiff;
-import com.blackbaud.deployment.core.domain.ArtifactInfoEntity;
-import com.blackbaud.deployment.core.domain.ArtifactReleaseLogEntity;
+import com.blackbaud.deployment.core.domain.ArtifactInfoService;
 import com.blackbaud.deployment.core.domain.ArtifactReleaseLogReportResult;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.ZonedDateTime;
@@ -17,9 +18,12 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ArtifactReleaseDiffConverter {
 
+    @Autowired
+    private ArtifactInfoService artifactInfoService;
+
     public ArtifactReleaseDiff toApi(ArtifactReleaseLogReportResult reportResult) {
-        ArtifactRelease currentRelease = new ArtifactRelease(reportResult.getArtifactId(), reportResult.getBuildVersion(), reportResult.getReleaseVersion(), reportResult.getGitSha(), reportResult.getDeployJobUrl());
-        ArtifactRelease previousRelease = new ArtifactRelease(reportResult.getArtifactId(), reportResult.getPrevBuildVersion(), reportResult.getPrevReleaseVersion(), reportResult.getPrevGitSha(), reportResult.getPrevDeployJobUrl());
+        ArtifactRelease currentRelease = getCurrentReleaseFromReport(reportResult);
+        ArtifactRelease previousRelease = getPrevReleaseFromReport(reportResult);
         return ArtifactReleaseDiff.builder()
                 .artifactId(reportResult.getArtifactId())
                 .currentRelease(currentRelease)
@@ -30,6 +34,31 @@ public class ArtifactReleaseDiffConverter {
                 .deployer(reportResult.getDeployer())
                 .stories(reportResult.getStories())
                 .developers(reportResult.getDevelopers())
+                .build();
+    }
+
+    private ArtifactRelease getPrevReleaseFromReport(ArtifactReleaseLogReportResult reportResult) {
+        List<ArtifactInfo> prevDependencies = artifactInfoService.getDependencies(reportResult.getArtifactId(), reportResult.getPrevBuildVersion());
+
+        return ArtifactRelease.builder()
+                .artifactId(reportResult.getArtifactId())
+                .buildVersion(reportResult.getPrevBuildVersion())
+                .releaseVersion(reportResult.getPrevReleaseVersion())
+                .gitSha(reportResult.getPrevGitSha())
+                .deployJobUrl(reportResult.getPrevDeployJobUrl())
+                .dependencies(prevDependencies == null ? null : prevDependencies)
+                .build();
+    }
+
+    private ArtifactRelease getCurrentReleaseFromReport(ArtifactReleaseLogReportResult reportResult) {
+        List<ArtifactInfo> currentDependencies = artifactInfoService.getDependencies(reportResult.getArtifactId(), reportResult.getBuildVersion());
+        return ArtifactRelease.builder()
+                .artifactId(reportResult.getArtifactId())
+                .buildVersion(reportResult.getBuildVersion())
+                .releaseVersion(reportResult.getReleaseVersion())
+                .gitSha(reportResult.getGitSha())
+                .deployJobUrl(reportResult.getDeployJobUrl())
+                .dependencies(currentDependencies == null ? null : currentDependencies)
                 .build();
     }
 

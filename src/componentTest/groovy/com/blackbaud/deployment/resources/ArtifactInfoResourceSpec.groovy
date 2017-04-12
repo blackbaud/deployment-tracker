@@ -6,6 +6,7 @@ import com.blackbaud.deployment.ComponentTest
 import com.blackbaud.deployment.RealArtifacts
 import com.blackbaud.deployment.api.ArtifactInfo
 import com.blackbaud.deployment.client.ArtifactInfoClient
+import com.blackbaud.deployment.core.domain.ArtifactDependencyRepository
 import com.blackbaud.deployment.core.domain.ArtifactInfoEntity
 import com.blackbaud.deployment.core.domain.ArtifactInfoRepository
 import com.blackbaud.deployment.core.domain.git.GitLogEntity
@@ -31,6 +32,9 @@ class ArtifactInfoResourceSpec extends Specification {
     @Autowired
     private GitLogRepository gitLogRepository
 
+
+    @Autowired
+    private ArtifactDependencyRepository artifactDependencyRepository
 
     private final String artifactId = "deployment-tracker"
 
@@ -148,5 +152,25 @@ class ArtifactInfoResourceSpec extends Specification {
 
         then:
         artifactInfoClient.find(oldArtifact.artifactId, oldArtifact.buildVersion) == oldArtifact
+    }
+
+    def "saving an artifact should save its dependency"() {
+        given:
+        ArtifactInfo segComp = RealArtifacts.recentSegmentationComponentArtifact
+        artifactInfoClient.create(segComp)
+
+        and:
+        ArtifactInfo artifactInfo = RealArtifacts.recentBluemoonUiArtifact
+        artifactInfo.dependencies = [segComp]
+
+        when:
+        ArtifactInfo createdArtifactInfo = artifactInfoClient.create(artifactInfo)
+
+        then:
+        createdArtifactInfo.dependencies[0] == segComp
+
+        and:
+        ArtifactInfo info = artifactInfoClient.find(artifactInfo.artifactId, artifactInfo.buildVersion)
+        info.dependencies[0] == segComp
     }
 }

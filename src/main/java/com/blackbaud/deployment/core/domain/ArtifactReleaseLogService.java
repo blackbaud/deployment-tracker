@@ -9,6 +9,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.ws.rs.NotFoundException;
+import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.List;
 
 @Component
@@ -29,8 +31,20 @@ public class ArtifactReleaseLogService {
 
     @Transactional
     public ArtifactRelease create(ArtifactRelease artifactRelease, String foundation, String space) {
-        artifactInfoService.create(extractArtifactInfo(artifactRelease));
+        ArtifactInfo artifactInfo = extractArtifactInfo(artifactRelease);
+        addDependencyIfBluemoonUi(artifactRelease, foundation, space, artifactInfo);
+        artifactInfoService.create(artifactInfo);
         return saveArtifactReleaseLog(artifactRelease, foundation, space);
+    }
+
+    private void addDependencyIfBluemoonUi(ArtifactRelease artifactRelease, String foundation, String space, ArtifactInfo artifactInfo) {
+        if ("bluemoon-ui".equals(artifactRelease.getArtifactId())) {
+            ArtifactRelease latestSegComp = findLatestByFoundationAndSpaceAndArtifactId(foundation, space, "segmentation-component");
+            if (latestSegComp != null) {
+                List<ArtifactInfo> dependencies = Arrays.asList(extractArtifactInfo(latestSegComp));
+                artifactInfo.setDependencies(dependencies);
+            }
+        }
     }
 
     private ArtifactRelease saveArtifactReleaseLog(ArtifactRelease artifactRelease, String foundation, String space) {
@@ -63,7 +77,7 @@ public class ArtifactReleaseLogService {
                 .build();
     }
 
-    public ArtifactRelease findOneByFoundationAndSpaceAndArtifactId(String foundation, String space, String artifactId) {
+    public ArtifactRelease findLatestByFoundationAndSpaceAndArtifactId(String foundation, String space, String artifactId) {
         return converter.toApi(artifactReleaseLogRepository.findFirstByFoundationAndSpaceAndArtifactIdOrderByReleaseVersionDesc(foundation, space, artifactId));
     }
 

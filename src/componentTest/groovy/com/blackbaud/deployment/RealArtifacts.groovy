@@ -47,8 +47,48 @@ class RealArtifacts {
         ArtifactRelease.builder()
                 .artifactId("bluemoon-dojo")
                 .buildVersion("0.20160606.194525")
-                .releaseVersion("0.20160606.194525")
+                .releaseVersion("20160606_194525")
                 .gitSha("5b9eade6e44b4ff7e9be94f5e7e97e5bfe282ff6")
+                .build()
+    }
+
+    def static getRecentBluemoonUiRelease() {
+        ArtifactInfo info = recentBluemoonUiArtifact
+        ArtifactRelease.builder()
+                .artifactId(info.artifactId)
+                .buildVersion(info.buildVersion)
+                .gitSha(info.gitSha)
+                .releaseVersion("20160606_194525")
+                .build()
+    }
+
+    def static getEarlyBluemoonUiRelease() {
+        ArtifactInfo info = earlyBluemoonUiArtifact
+        ArtifactRelease.builder()
+                .artifactId(info.artifactId)
+                .buildVersion(info.buildVersion)
+                .gitSha(info.gitSha)
+                .releaseVersion("20160303_194525")
+                .build()
+    }
+
+    def static getEarlySegmentationComponentRelease() {
+        ArtifactInfo info = earlySegmentationComponentArtifact
+        ArtifactRelease.builder()
+                .artifactId(info.artifactId)
+                .buildVersion(info.buildVersion)
+                .gitSha(info.gitSha)
+                .releaseVersion("20160201_192125")
+                .build()
+    }
+
+    def static getRecentSegmentationComponentRelease() {
+        ArtifactInfo info = recentSegmentationComponentArtifact
+        ArtifactRelease.builder()
+                .artifactId(info.artifactId)
+                .buildVersion(info.buildVersion)
+                .gitSha(info.gitSha)
+                .releaseVersion("20160606_194525")
                 .build()
     }
 
@@ -91,6 +131,38 @@ class RealArtifacts {
                 .artifactId("bluemoon-core")
                 .buildVersion("1")
                 .gitSha("6f39d6f6f1b732439c9f1c45c3a2bc481ce8d314")
+                .build()
+    }
+
+    def static getRecentSegmentationComponentArtifact() {
+        ArtifactInfo.builder()
+                .artifactId("segmentation-component")
+                .buildVersion("0.20170525.088880")
+                .gitSha("9b11539447083474a1ae850f10eac64b6fdf28d6")
+                .build()
+    }
+
+    def static getEarlySegmentationComponentArtifact() {
+        ArtifactInfo.builder()
+                .artifactId("segmentation-component")
+                .buildVersion("0.20170325.062840")
+                .gitSha("e0bc85d1a5c932d51fcf5f69043d5c137bab2dc0")
+                .build()
+    }
+
+    def static getEarlyBluemoonUiArtifact() {
+        ArtifactInfo.builder()
+                .artifactId("bluemoon-ui")
+                .buildVersion("1.20170105.000004")
+                .gitSha("f078056854df576299a5817fda6c60a2505d9732")
+                .build()
+    }
+
+    def static getRecentBluemoonUiArtifact() {
+        ArtifactInfo.builder()
+                .artifactId("bluemoon-ui")
+                .buildVersion("1.20170325.065544")
+                .gitSha("7f34662785a46b042fa02ea96b4dd22428f23cf2")
                 .build()
     }
 
