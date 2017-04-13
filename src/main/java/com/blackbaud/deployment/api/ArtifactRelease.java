@@ -24,4 +24,8 @@ public class ArtifactRelease {
     public static class ArtifactReleaseBuilder {
         private List<ArtifactInfo> dependencies = new ArrayList<>();
     }
+
+    public boolean hasDependencies(){
+        return dependencies != null && !dependencies.isEmpty();
+    }
 }

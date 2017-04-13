@@ -57,7 +57,6 @@ public class GitLogService {
     }
 
     private boolean noPreviousOrCurrentDependencies(ArtifactReleaseDiff diff) {
-        return diff.getCurrentRelease().getDependencies() == null || diff.getPrevRelease().getDependencies() == null
-                || diff.getPrevRelease().getDependencies().isEmpty() || diff.getPrevRelease().getDependencies().isEmpty();
+        return !diff.prevReleaseHasDependencies() || !diff.currentReleaseHasDependencies();
     }
 }

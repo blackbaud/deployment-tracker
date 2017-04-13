@@ -109,7 +109,9 @@ public class ReleaseService {
                         .buildVersion(artifactInfo.getBuildVersion())
                         .artifactId(artifactInfo.getArtifactId())
                         .gitSha(artifactInfo.getGitSha())
-                        .releaseVersion(null).build())
+                        .releaseVersion(null)
+                        .dependencies(artifactInfoService.getDependencies(artifactInfo))
+                        .build())
                 .collect(Collectors.toList());
         return devReleases;
     }

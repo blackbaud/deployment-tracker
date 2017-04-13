@@ -11,6 +11,7 @@ import com.blackbaud.deployment.client.ArtifactInfoClient
 import com.blackbaud.deployment.client.ArtifactReleaseClient
 import com.blackbaud.deployment.client.ReleaseClient
 import com.blackbaud.deployment.client.ReleasePlanClient
+import com.blackbaud.deployment.core.domain.ArtifactInfoService
 import com.blackbaud.deployment.core.domain.ReleaseService
 import org.springframework.beans.factory.annotation.Autowired
 import spock.lang.Specification
@@ -19,6 +20,8 @@ import static com.blackbaud.deployment.RealArtifacts.earlySegmentationComponentR
 import static com.blackbaud.deployment.RealArtifacts.recentSegmentationComponentRelease
 import static com.blackbaud.deployment.RealArtifacts.recentSegmentationComponentArtifact
 import static com.blackbaud.deployment.RealArtifacts.earlySegmentationComponentArtifact
+import static com.blackbaud.deployment.RealArtifacts.earlyBluemoonUiArtifact
+import static com.blackbaud.deployment.RealArtifacts.recentBluemoonUiArtifact
 import static com.blackbaud.deployment.RealArtifacts.earlyBluemoonUiRelease
 import static com.blackbaud.deployment.RealArtifacts.recentBluemoonUiRelease
 
@@ -238,6 +241,35 @@ class ReleaseResourceSpec extends Specification {
         bluemoonUiDiff.prevRelease.dependencies == []
         bluemoonUiDiff.developers == ["Blackbaud-AliRashed", "Blackbaud-AaronHensley"] as Set
         bluemoonUiDiff.stories == ["LUM-19173", "LUM-19178", "LUM-18798", "LUM-19215"] as Set
+    }
+
+    def "can get artifacts with dependencies for release plan"() {
+        given: "segComp and bluemoonUi in dev"
+        def currentPlan = releasePlanClient.create(null)
+        storeInDev(earlySegmentationComponentRelease)
+        storeInDev(earlyBluemoonUiRelease)
+
+        and: "deploy bluemoon-ui to production"
+        storeInProd(earlyBluemoonUiRelease)
+        def prodSnapshot = [earlyBluemoonUiRelease]
+
+        and: "new version of bluemoon-ui and segComp in dev"
+        storeInDev(recentSegmentationComponentRelease)
+        storeInDev(recentBluemoonUiRelease)
+
+        and: "add latest version of bluemoon-ui to release plan"
+        ArtifactInfo bluemoonUi = artifactInfoClient.find(recentBluemoonUiArtifact.artifactId, recentBluemoonUiArtifact.buildVersion)
+        releasePlanClient.addArtifact(currentPlan.id, bluemoonUi)
+
+        when:
+        Release release = releaseClient.getCurrentReleasePlanDiffForProdSnapshot(prodSnapshot)
+
+        then:
+        ArtifactReleaseDiff bluemoonUiDiff = release.artifactReleaseDiffs.get("bluemoon-ui")
+        bluemoonUiDiff.currentRelease.dependencies == [recentSegmentationComponentArtifact]
+        bluemoonUiDiff.prevRelease.dependencies == [earlySegmentationComponentArtifact]
+        bluemoonUiDiff.developers == ["Blackbaud-AliRashed", "Blackbaud-AaronHensley", "Blackbaud-KyleMartinez", "Jenkins Blue Moon Dev"] as Set
+        bluemoonUiDiff.stories == ["LUM-19173", "LUM-19178", "LUM-19217", "LUM-18798", "LUM-19215"] as Set
     }
 
     def storeInDev(ArtifactRelease artifactReleaseInfo) {
