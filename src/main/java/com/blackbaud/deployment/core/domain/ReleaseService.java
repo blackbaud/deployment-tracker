@@ -27,8 +27,8 @@ public class ReleaseService {
     public static final String DEV_FOUNDATION = "oscf-dev";
     public static final String DEV_SPACE = "dev-apps";
 
-    public static final String PROD_FOUNDATION = "pivotal-prod1";
-    public static final String PROD_SPACE = "prod1-apps";
+    public static final String PROD_FOUNDATION = "oscf-prod";
+    public static final String PROD_SPACE = "prod-apps";
 
     private static final List<String> nonReleasable = Arrays.asList("bluemoon-dojo",
                                                                     "bluemoon-dojo-ui",
