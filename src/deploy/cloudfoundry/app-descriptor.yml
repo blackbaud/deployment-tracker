@@ -1,5 +1,5 @@
 ---
 applications:
-- type: basic-service
+- type: basic-unmonitored-service
   services:
     - postgres-shared
