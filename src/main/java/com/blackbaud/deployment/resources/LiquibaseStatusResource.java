@@ -1,5 +1,6 @@
 package com.blackbaud.deployment.resources;
 
+import com.blackbaud.deployment.api.LiquibaseStatus;
 import com.blackbaud.security.BypassAuth;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -15,10 +16,10 @@ import javax.ws.rs.core.MediaType;
 @Slf4j
 public class LiquibaseStatusResource {
 
-    @BypassAuth
     @GET
-    public String getStatus() {
-        return "COMPLETE";
+    @BypassAuth
+    public LiquibaseStatus getStatus() {
+        return LiquibaseStatus.builder().status("COMPLETE").build();
     }
 
 }
