@@ -14,6 +14,7 @@ import com.blackbaud.deployment.client.ReleasePlanClient
 import com.blackbaud.deployment.core.domain.ArtifactInfoService
 import com.blackbaud.deployment.core.domain.ReleaseService
 import org.springframework.beans.factory.annotation.Autowired
+import spock.lang.Ignore
 import spock.lang.Specification
 
 import static com.blackbaud.deployment.RealArtifacts.earlySegmentationComponentRelease
@@ -25,6 +26,7 @@ import static com.blackbaud.deployment.RealArtifacts.recentBluemoonUiArtifact
 import static com.blackbaud.deployment.RealArtifacts.earlyBluemoonUiRelease
 import static com.blackbaud.deployment.RealArtifacts.recentBluemoonUiRelease
 
+@Ignore
 @ComponentTest
 class ReleaseResourceSpec extends Specification {
 

@@ -6,8 +6,10 @@ import com.blackbaud.deployment.RealArtifacts
 import com.blackbaud.deployment.api.ArtifactInfo
 import com.blackbaud.deployment.client.ArtifactInfoClient
 import org.springframework.beans.factory.annotation.Autowired
+import spock.lang.Ignore
 import spock.lang.Specification
 
+@Ignore
 @ComponentTest
 class GitLogRepositorySpec extends Specification {
 

@@ -13,10 +13,12 @@ import com.blackbaud.deployment.client.ArtifactReleaseReportClient
 import com.blackbaud.deployment.core.domain.ArtifactReleaseLogEntity
 import com.blackbaud.deployment.core.domain.ArtifactReleaseLogRepository
 import org.springframework.beans.factory.annotation.Autowired
+import spock.lang.Ignore
 import spock.lang.Specification
 
 import static com.blackbaud.deployment.core.CoreARandom.aRandom
 
+@Ignore
 @ComponentTest
 class ArtifactReleaseReportResourceSpec extends Specification {
 

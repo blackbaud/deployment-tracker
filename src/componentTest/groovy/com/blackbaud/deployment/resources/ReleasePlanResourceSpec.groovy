@@ -13,6 +13,7 @@ import com.blackbaud.deployment.core.domain.ArtifactInfoEntity
 import com.blackbaud.deployment.core.domain.ArtifactInfoRepository
 import com.blackbaud.deployment.core.domain.ReleasePlanEntity
 import com.blackbaud.deployment.core.domain.ReleasePlanRepository
+import spock.lang.Ignore
 import spock.lang.Specification
 
 import javax.inject.Inject
@@ -21,6 +22,7 @@ import javax.ws.rs.NotFoundException
 
 import static com.blackbaud.deployment.core.CoreARandom.aRandom
 
+@Ignore
 @ComponentTest
 class ReleasePlanResourceSpec extends Specification {
 
