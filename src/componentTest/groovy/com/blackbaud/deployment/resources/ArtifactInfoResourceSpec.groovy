@@ -12,10 +12,8 @@ import com.blackbaud.deployment.core.domain.ArtifactInfoRepository
 import com.blackbaud.deployment.core.domain.git.GitLogEntity
 import com.blackbaud.deployment.core.domain.git.GitLogRepository
 import org.springframework.beans.factory.annotation.Autowired
-import spock.lang.Ignore
 import spock.lang.Specification
 
-@Ignore
 @ComponentTest
 class ArtifactInfoResourceSpec extends Specification {
 
